@@ -1,0 +1,8 @@
+{
+  "name": "winapp-cli",
+  "source": "github-awesome-copilot",
+  "description": "Windows App Development CLI (winapp) for building, packaging, and deploying Windows applications.",
+  "whenToUse": "The Windows App Development CLI (`winapp`) is a command-line interface for managing Windows SDKs, MSIX packaging, generating app identity, manifests, certificates, and using build tools with any ap...",
+  "categories": [],
+  "installedAt": "2026-04-13T03:12:00.044Z"
+}
