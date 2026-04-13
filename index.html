@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>云笈仙田录</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #1a1a2e;
+    }
+
+    /* 自定义标题栏 */
+    #title-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 32px;
+      background: rgba(20, 20, 40, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      -webkit-app-region: drag;
+      z-index: 1000;
+      user-select: none;
+    }
+
+    #title-bar .title {
+      padding-left: 12px;
+      color: #a0a0c0;
+      font-size: 13px;
+      font-family: system-ui, sans-serif;
+    }
+
+    #title-bar .controls {
+      display: flex;
+      -webkit-app-region: no-drag;
+    }
+
+    #title-bar .controls button {
+      width: 46px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: #a0a0c0;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    #title-bar .controls button:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    #title-bar .controls button.close:hover {
+      background: #e81123;
+      color: white;
+    }
+
+    #render-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="title-bar">
+    <span class="title">云笈仙田录</span>
+    <div class="controls">
+      <button id="btn-minimize">─</button>
+      <button id="btn-maximize">□</button>
+      <button id="btn-close" class="close">✕</button>
+    </div>
+  </div>
+  <canvas id="render-canvas"></canvas>
+  <script>
+    // 窗口控制按钮
+    document.getElementById('btn-minimize')?.addEventListener('click', () => window.electronAPI?.minimize())
+    document.getElementById('btn-maximize')?.addEventListener('click', () => window.electronAPI?.maximize())
+    document.getElementById('btn-close')?.addEventListener('click', () => window.electronAPI?.close())
+  </script>
+  <script type="module" src="/src/renderer/index.js"></script>
+</body>
+
+</html>
