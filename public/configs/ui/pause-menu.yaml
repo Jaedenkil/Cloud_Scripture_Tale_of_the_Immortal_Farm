@@ -1,0 +1,100 @@
+# 暂停菜单配置
+
+page:
+  id: pause_menu
+  name: 暂停菜单
+  type: overlay
+
+container:
+  width: "100%"
+  height: "100%"
+  background: "rgba(0, 0, 0, 0.7)"
+
+components:
+  # 主面板
+  - id: mainPanel
+    type: panel
+    width: "400px"
+    height: "auto"
+    layout:
+      horizontalAlignment: center
+      verticalAlignment: center
+    style:
+      background: "$bgDark"
+      cornerRadius: 16
+      padding: "40px"
+    children:
+      # 标题
+      - id: title
+        type: title
+        text: "游戏暂停"
+        style:
+          fontSize: 36
+          color: "$textPrimary"
+          height: "60px"
+
+      # 按钮组
+      - id: buttonStack
+        type: stack
+        layout:
+          isVertical: true
+          spacing: 16
+          top: "20px"
+        children:
+          - id: resumeBtn
+            type: button
+            text: "继续游戏"
+            action: resume
+            style:
+              width: "240px"
+
+          - id: settingsBtn
+            type: button
+            text: "设置"
+            action: openSettings
+            style:
+              width: "240px"
+              background: "$bgLight"
+
+          - id: saveBtn
+            type: button
+            text: "保存游戏"
+            action: saveGame
+            style:
+              width: "240px"
+              background: "$bgLight"
+
+          - id: mainMenuBtn
+            type: button
+            text: "返回主菜单"
+            action: goMainMenu
+            style:
+              width: "240px"
+              color: "$danger"
+
+      # 提示文字
+      - id: hint
+        type: text
+        text: "按 ESC 继续游戏"
+        style:
+          color: "$textMuted"
+          fontSize: 12
+          top: "20px"
+          horizontalAlignment: center
+
+actions:
+  resume:
+    type: setState
+    target: PLAYING
+
+  openSettings:
+    type: setState
+    target: SETTINGS
+
+  saveGame:
+    type: custom
+    handler: saveGame
+
+  goMainMenu:
+    type: setState
+    target: MAIN_MENU

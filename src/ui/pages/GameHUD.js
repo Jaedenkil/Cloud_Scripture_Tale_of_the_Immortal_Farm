@@ -7,7 +7,7 @@ import * as GUI from '@babylonjs/gui'
 import { gameState, GameStates } from '../../core/GameState.js'
 import { UITheme } from '../UIManager.js'
 
-export class GameHUD {
+export default class GameHUD {
   constructor() {
     this.container = null
     this.advancedTexture = null
@@ -245,5 +245,3 @@ export class GameHUD {
     }
   }
 }
-
-export default GameHUD

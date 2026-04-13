@@ -91,6 +91,24 @@ class GameState {
   }
 
   /**
+   * 设置配置项（支持点号路径如 audio.master）
+   */
+  setSetting(path, value) {
+    const keys = path.split('.')
+    let current = this.data.settings
+    
+    for (let i = 0; i < keys.length - 1; i++) {
+      if (!(keys[i] in current)) {
+        current[keys[i]] = {}
+      }
+      current = current[keys[i]]
+    }
+    
+    current[keys[keys.length - 1]] = value
+    this.emit('settingsChange', { key: path, value })
+  }
+
+  /**
    * 保存设置到本地存储
    */
   saveSettings() {

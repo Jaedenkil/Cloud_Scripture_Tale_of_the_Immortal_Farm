@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, session } = require('electron')
 const path = require('path')
 
 // 开发模式检测
@@ -25,6 +25,15 @@ function createWindow () {
     mainWindow.loadURL('http://localhost:5173')
     mainWindow.webContents.openDevTools({ mode: 'detach' }) // 独立窗口打开控制台
   } else {
+    // 生产模式设置 Content-Security-Policy
+    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          'Content-Security-Policy': ["default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"]
+        }
+      })
+    })
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
 }

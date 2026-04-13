@@ -6,7 +6,7 @@ import * as GUI from '@babylonjs/gui'
 import { gameState, GameStates } from '../../core/GameState.js'
 import { UITheme } from '../UIManager.js'
 
-export class PauseMenuPage {
+export default class PauseMenuPage {
   constructor() {
     this.container = null
     this.advancedTexture = null
@@ -137,5 +137,3 @@ export class PauseMenuPage {
     }
   }
 }
-
-export default PauseMenuPage

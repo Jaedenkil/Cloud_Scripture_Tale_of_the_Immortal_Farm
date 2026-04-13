@@ -1,0 +1,171 @@
+# 开发者工具配置
+
+page:
+  id: dev_tools
+  name: 开发者工具
+  type: overlay
+
+container:
+  width: "100%"
+  height: "100%"
+  background: transparent
+
+components:
+  # 左侧调试面板
+  - id: debugPanel
+    type: panel
+    width: "320px"
+    height: "auto"
+    layout:
+      horizontalAlignment: left
+      verticalAlignment: top
+      left: "20px"
+      top: "60px"
+    style:
+      background: "rgba(20, 25, 35, 0.9)"
+      cornerRadius: 8
+      padding: "16px"
+    children:
+      - id: title
+        type: text
+        text: "🛠 开发者工具"
+        style:
+          fontSize: 18
+          color: "$accent"
+          fontWeight: bold
+          height: "30px"
+
+      # 性能信息
+      - id: perfSection
+        type: section
+        label: "性能监控"
+        children:
+          - id: fpsDisplay
+            type: dynamicText
+            binding: performance.fps
+            template: "FPS: {value}"
+            style:
+              color: "$textSecondary"
+              fontSize: 14
+
+          - id: memoryDisplay
+            type: dynamicText
+            binding: performance.memory
+            template: "内存: {value} MB"
+            style:
+              color: "$textSecondary"
+              fontSize: 14
+
+          - id: drawCallsDisplay
+            type: dynamicText
+            binding: performance.drawCalls
+            template: "Draw Calls: {value}"
+            style:
+              color: "$textSecondary"
+              fontSize: 14
+
+      # 渲染选项
+      - id: renderSection
+        type: section
+        label: "渲染选项"
+        children:
+          - id: wireframeToggle
+            type: toggle
+            label: "线框模式"
+            action: toggleWireframe
+            default: false
+
+          - id: boundingBoxToggle
+            type: toggle
+            label: "边界框"
+            action: toggleBoundingBox
+            default: false
+
+          - id: gridToggle
+            type: toggle
+            label: "网格辅助线"
+            action: toggleGrid
+            default: false
+
+      # 场景工具
+      - id: sceneSection
+        type: section
+        label: "场景工具"
+        children:
+          - id: reloadBtn
+            type: button
+            text: "重载场景"
+            action: reloadScene
+            style:
+              width: "100%"
+              height: "36px"
+              fontSize: 14
+
+          - id: clearSaveBtn
+            type: button
+            text: "清除存档"
+            action: clearSave
+            style:
+              width: "100%"
+              height: "36px"
+              fontSize: 14
+              color: "$danger"
+
+      # 状态信息
+      - id: stateSection
+        type: section
+        label: "状态信息"
+        children:
+          - id: gameStateDisplay
+            type: dynamicText
+            binding: game.state
+            template: "游戏状态: {value}"
+            style:
+              color: "$textSecondary"
+              fontSize: 14
+
+          - id: playerPosDisplay
+            type: dynamicText
+            binding: player.position
+            template: "玩家位置: {value}"
+            style:
+              color: "$textSecondary"
+              fontSize: 14
+
+  # 返回按钮
+  - id: backBtn
+    type: button
+    text: "返回游戏"
+    action: goBack
+    layout:
+      horizontalAlignment: left
+      verticalAlignment: bottom
+      left: "20px"
+      bottom: "20px"
+    style:
+      width: "120px"
+
+actions:
+  toggleWireframe:
+    type: custom
+    handler: toggleWireframe
+
+  toggleBoundingBox:
+    type: custom
+    handler: toggleBoundingBox
+
+  toggleGrid:
+    type: custom
+    handler: toggleGrid
+
+  reloadScene:
+    type: custom
+    handler: reloadScene
+
+  clearSave:
+    type: custom
+    handler: clearSave
+
+  goBack:
+    type: setState
+    target: PLAYING

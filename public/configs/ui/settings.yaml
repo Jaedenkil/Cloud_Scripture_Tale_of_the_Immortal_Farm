@@ -1,0 +1,127 @@
+# 设置页面配置
+
+page:
+  id: settings
+  name: 设置
+  type: overlay
+
+container:
+  width: "100%"
+  height: "100%"
+  background: "rgba(10, 15, 25, 0.95)"
+
+components:
+  # 主面板
+  - id: mainPanel
+    type: panel
+    width: "500px"
+    height: "600px"
+    layout:
+      horizontalAlignment: center
+      verticalAlignment: center
+    style:
+      background: "$bgMedium"
+      cornerRadius: 12
+      thickness: 1
+      borderColor: "$primary"
+    children:
+      # 标题
+      - id: title
+        type: title
+        text: "设置"
+        style:
+          fontSize: 32
+          color: "$textPrimary"
+          height: "60px"
+          top: "20px"
+
+      # 设置项容器
+      - id: settingsStack
+        type: stack
+        layout:
+          isVertical: true
+          spacing: 24
+          top: "100px"
+          paddingLeft: "40px"
+          paddingRight: "40px"
+        children:
+          # 音量设置组
+          - id: volumeGroup
+            type: settingGroup
+            label: "音量设置"
+            children:
+              - id: masterVolume
+                type: slider
+                label: "主音量"
+                min: 0
+                max: 100
+                default: 80
+                setting: audio.master
+
+              - id: musicVolume
+                type: slider
+                label: "音乐"
+                min: 0
+                max: 100
+                default: 70
+                setting: audio.music
+
+              - id: sfxVolume
+                type: slider
+                label: "音效"
+                min: 0
+                max: 100
+                default: 80
+                setting: audio.sfx
+
+          # 画面设置组
+          - id: graphicsGroup
+            type: settingGroup
+            label: "画面设置"
+            children:
+              - id: quality
+                type: selector
+                label: "画质"
+                options:
+                  - { value: "low", text: "低" }
+                  - { value: "medium", text: "中" }
+                  - { value: "high", text: "高" }
+                default: "medium"
+                setting: graphics.quality
+
+              - id: fullscreen
+                type: toggle
+                label: "全屏模式"
+                default: false
+                setting: graphics.fullscreen
+
+      # 底部按钮
+      - id: buttonRow
+        type: stack
+        layout:
+          isVertical: false
+          spacing: 20
+          bottom: "30px"
+          horizontalAlignment: center
+        children:
+          - id: applyBtn
+            type: button
+            text: "应用"
+            action: applySettings
+            style:
+              width: "120px"
+
+          - id: backBtn
+            type: button
+            text: "返回"
+            action: goBack
+            style:
+              width: "120px"
+              background: "$bgLight"
+
+actions:
+  applySettings:
+    type: saveSettings
+
+  goBack:
+    type: goBack

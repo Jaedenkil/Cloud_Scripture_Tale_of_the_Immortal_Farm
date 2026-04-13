@@ -1,0 +1,131 @@
+# 主菜单页面配置
+# 视觉论：空灵、古意、静谧的修仙氛围
+
+page:
+  id: main_menu
+  name: 主菜单
+  type: fullscreen
+
+# 根容器
+container:
+  width: "100%"
+  height: "100%"
+  background: transparent
+
+# 组件列表
+components:
+  # 背景遮罩层
+  - id: bgOverlay
+    type: rectangle
+    width: "100%"
+    height: "100%"
+    style:
+      background: "rgba(15, 25, 40, 0.85)"
+      thickness: 0
+
+  # 内容堆栈容器
+  - id: contentStack
+    type: stack
+    parent: root
+    layout:
+      isVertical: true
+      horizontalAlignment: center
+      verticalAlignment: center
+    children:
+      # 游戏标题
+      - id: title
+        type: title
+        text: "云笈仙田录"
+        style:
+          fontSize: 56
+          color: "$textPrimary"
+          shadowColor: "$accent"
+          shadowBlur: 20
+          height: "100px"
+
+      # 副标题
+      - id: subtitle
+        type: subtitle
+        text: "Cloud Scripture: Tale of the Immortal Farm"
+        style:
+          color: "$textSecondary"
+          fontSize: 16
+          height: "40px"
+
+      # 间隔
+      - id: spacer1
+        type: spacer
+        height: "60px"
+
+      # 按钮组
+      - id: buttonStack
+        type: stack
+        layout:
+          isVertical: true
+          spacing: 16
+        children:
+          - id: startBtn
+            type: button
+            text: "开始游戏"
+            action: startGame
+
+          - id: continueBtn
+            type: button
+            text: "继续游戏"
+            action: continueGame
+            style:
+              background: "$bgLight"
+
+          - id: settingsBtn
+            type: button
+            text: "设置"
+            action: openSettings
+
+          - id: devBtn
+            type: button
+            text: "开发工具"
+            action: openDevTools
+            style:
+              background: "rgba(100, 60, 60, 0.5)"
+
+          - id: exitBtn
+            type: button
+            text: "退出游戏"
+            action: exitGame
+            style:
+              color: "$danger"
+
+  # 版本信息
+  - id: version
+    type: text
+    text: "v0.1.0 - 早期开发版"
+    style:
+      color: "$textMuted"
+      fontSize: 12
+      horizontalAlignment: right
+      verticalAlignment: bottom
+      paddingRight: "20px"
+      paddingBottom: "20px"
+
+# 事件动作映射
+actions:
+  startGame:
+    type: setState
+    target: PLAYING
+  
+  continueGame:
+    type: setState
+    target: PLAYING
+    # TODO: 加载存档逻辑
+
+  openSettings:
+    type: setState
+    target: SETTINGS
+
+  openDevTools:
+    type: setState
+    target: DEV_TOOLS
+
+  exitGame:
+    type: electronAPI
+    method: close

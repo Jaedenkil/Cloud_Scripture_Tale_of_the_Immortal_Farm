@@ -1,15 +1,10 @@
 import * as BABYLON from '@babylonjs/core'
 import { uiManager } from '../ui/UIManager.js'
 import { gameState, GameStates } from '../core/GameState.js'
-import MainMenuPage from '../ui/pages/MainMenu.js'
-import SettingsPage from '../ui/pages/Settings.js'
-import PauseMenuPage from '../ui/pages/PauseMenu.js'
-import DevToolsPage from '../ui/pages/DevTools.js'
-import GameHUDPage from '../ui/pages/GameHUD.js'
 
 /**
  * 云笈仙田录 - 主游戏类
- * 集成 Babylon.js 渲染与 UI 系统
+ * 集成 Babylon.js 渲染与配置驱动的 UI 系统
  */
 
 class Game {
@@ -22,7 +17,7 @@ class Game {
 
     this.scene = this.createScene()
 
-    // 初始化 UI 系统
+    // 异步初始化 UI 系统
     this.initUI()
 
     // 游戏循环
@@ -40,18 +35,20 @@ class Game {
   }
 
   /**
-   * 初始化 UI 系统
+   * 初始化 UI 系统（配置驱动）
    */
-  initUI () {
+  async initUI () {
     // 初始化 UI 管理器
     uiManager.init(this.scene)
 
-    // 注册所有 UI 页面
-    uiManager.registerPage(GameStates.MAIN_MENU, MainMenuPage)
-    uiManager.registerPage(GameStates.SETTINGS, SettingsPage)
-    uiManager.registerPage(GameStates.PAUSED, PauseMenuPage)
-    uiManager.registerPage(GameStates.DEV_TOOLS, DevToolsPage)
-    uiManager.registerPage(GameStates.PLAYING, GameHUDPage)
+    // 从配置文件加载 UI 页面
+    const success = await uiManager.loadFromConfig()
+    
+    if (success) {
+      console.log('🎮 UI 配置加载成功')
+    } else {
+      console.error('❌ UI 配置加载失败，请检查 configs/ui/ 目录')
+    }
 
     // 监听状态变化，切换 UI 页面
     gameState.on('stateChange', ({ from, to }) => {
@@ -61,9 +58,6 @@ class Game {
       // 根据状态控制 3D 场景可见性
       this.updateSceneVisibility(to)
     })
-
-    // 设置初始状态为主菜单
-    gameState.setState(GameStates.MAIN_MENU)
   }
 
   /**

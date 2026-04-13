@@ -1,0 +1,177 @@
+# 游戏内 HUD 配置
+
+page:
+  id: game_hud
+  name: 游戏HUD
+  type: hud
+  blockInput: false  # HUD 不阻挡游戏输入
+
+container:
+  width: "100%"
+  height: "100%"
+  background: transparent
+
+components:
+  # 左上角 - 玩家信息
+  - id: playerInfo
+    type: panel
+    width: "240px"
+    height: "auto"
+    layout:
+      horizontalAlignment: left
+      verticalAlignment: top
+      left: "20px"
+      top: "60px"
+    style:
+      background: "rgba(15, 20, 30, 0.7)"
+      cornerRadius: 8
+      padding: "12px"
+    children:
+      - id: playerName
+        type: dynamicText
+        binding: player.name
+        template: "{value}"
+        style:
+          color: "$textPrimary"
+          fontSize: 16
+          fontWeight: bold
+
+      - id: cultivationLevel
+        type: dynamicText
+        binding: player.cultivation
+        template: "境界: {value}"
+        style:
+          color: "$accent"
+          fontSize: 14
+
+      - id: spiritBar
+        type: progressBar
+        binding: player.spirit
+        max: player.maxSpirit
+        style:
+          width: "100%"
+          height: "8px"
+          backgroundColor: "rgba(0,0,0,0.3)"
+          fillColor: "$primary"
+          cornerRadius: 4
+
+      - id: spiritText
+        type: dynamicText
+        binding: player.spirit
+        template: "灵力: {value}/{max}"
+        style:
+          color: "$textSecondary"
+          fontSize: 12
+
+  # 右上角 - 小地图
+  - id: minimap
+    type: panel
+    width: "180px"
+    height: "180px"
+    layout:
+      horizontalAlignment: right
+      verticalAlignment: top
+      right: "20px"
+      top: "60px"
+    style:
+      background: "rgba(15, 20, 30, 0.7)"
+      cornerRadius: 8
+      borderWidth: 2
+      borderColor: "$primary"
+    children:
+      - id: minimapCanvas
+        type: canvas
+        width: "100%"
+        height: "100%"
+        renderer: minimap
+
+      - id: minimapLabel
+        type: text
+        text: "小地图"
+        style:
+          color: "$textMuted"
+          fontSize: 10
+          horizontalAlignment: center
+          bottom: "4px"
+
+  # 底部中央 - 快捷栏
+  - id: hotbar
+    type: panel
+    width: "auto"
+    height: "64px"
+    layout:
+      horizontalAlignment: center
+      verticalAlignment: bottom
+      bottom: "20px"
+    style:
+      background: "rgba(15, 20, 30, 0.8)"
+      cornerRadius: 8
+      padding: "6px"
+    children:
+      - id: hotbarSlots
+        type: slotGrid
+        columns: 9
+        rows: 1
+        slotSize: 52
+        spacing: 4
+        binding: player.hotbar
+        style:
+          slotBackground: "rgba(40, 50, 70, 0.6)"
+          slotBorder: "$primary"
+          selectedBorder: "$accent"
+          selectedWidth: 2
+
+  # 底部左侧 - 提示信息
+  - id: hintText
+    type: text
+    text: "按 ESC 暂停"
+    layout:
+      horizontalAlignment: left
+      verticalAlignment: bottom
+      left: "20px"
+      bottom: "24px"
+    style:
+      color: "$textMuted"
+      fontSize: 12
+
+  # 中央 - 交互提示（条件显示）
+  - id: interactionHint
+    type: panel
+    width: "auto"
+    height: "auto"
+    layout:
+      horizontalAlignment: center
+      verticalAlignment: center
+      top: "100px"
+    visible: false
+    binding: interaction.available
+    style:
+      background: "rgba(0, 0, 0, 0.6)"
+      cornerRadius: 6
+      padding: "8px 16px"
+    children:
+      - id: interactionText
+        type: dynamicText
+        binding: interaction.text
+        template: "[E] {value}"
+        style:
+          color: "$textPrimary"
+          fontSize: 14
+
+# 键盘快捷键
+keybindings:
+  Escape:
+    action: pause
+  
+  "1-9":
+    action: selectHotbarSlot
+    param: slotIndex
+
+actions:
+  pause:
+    type: setState
+    target: PAUSED
+
+  selectHotbarSlot:
+    type: custom
+    handler: selectHotbarSlot

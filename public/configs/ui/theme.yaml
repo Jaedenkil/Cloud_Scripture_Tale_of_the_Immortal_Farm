@@ -1,0 +1,117 @@
+# UI 主题配置
+# 修仙风格：玄青、金色、古朴内敛
+
+theme:
+  name: 仙韵
+  version: "1.0.0"
+
+# 颜色变量
+colors:
+  # 主色调
+  primary: "#1a3a4a"      # 玄青 - 深沉内敛
+  accent: "#d4af37"       # 金色 - 点睛之笔
+  
+  # 背景色
+  bgDark: "rgba(10, 15, 25, 0.95)"
+  bgMedium: "rgba(20, 30, 45, 0.9)"
+  bgLight: "rgba(35, 45, 60, 0.8)"
+  
+  # 文字色
+  textPrimary: "#e8e4d9"  # 米白 - 古纸质感
+  textSecondary: "#a8a498"
+  textMuted: "#6a6a5a"
+  
+  # 功能色
+  success: "#4a7c59"      # 青绿
+  warning: "#c9a227"      # 金黄
+  danger: "#8b4049"       # 暗红
+  info: "#4a6b8a"         # 青蓝
+
+# 字体配置
+fonts:
+  title: "SimSun, 'Noto Serif SC', serif"
+  heading: "'Microsoft YaHei', 'Noto Sans SC', sans-serif"
+  body: "'Microsoft YaHei', 'Noto Sans SC', sans-serif"
+  mono: "Consolas, 'Source Code Pro', monospace"
+
+# 尺寸配置
+sizes:
+  # 按钮
+  buttonWidth: "280px"
+  buttonHeight: "52px"
+  buttonFontSize: 18
+  buttonCornerRadius: 6
+  
+  # 面板
+  panelCornerRadius: 12
+  panelPadding: "20px"
+  
+  # 间距
+  spacingXs: "4px"
+  spacingSm: "8px"
+  spacingMd: "16px"
+  spacingLg: "24px"
+  spacingXl: "40px"
+
+# 动画配置
+animations:
+  fadeIn:
+    duration: 300
+    easing: easeOutQuad
+  
+  fadeOut:
+    duration: 200
+    easing: easeInQuad
+  
+  slideIn:
+    duration: 400
+    easing: easeOutBack
+  
+  buttonHover:
+    duration: 150
+    easing: linear
+
+# 组件默认样式
+components:
+  button:
+    width: "$buttonWidth"
+    height: "$buttonHeight"
+    fontSize: "$buttonFontSize"
+    cornerRadius: "$buttonCornerRadius"
+    background: "$primary"
+    color: "$textPrimary"
+    hoverBackground: "rgba(30, 60, 80, 0.9)"
+    activeBackground: "rgba(20, 45, 60, 0.95)"
+    borderWidth: 1
+    borderColor: "$accent"
+  
+  panel:
+    background: "$bgMedium"
+    cornerRadius: "$panelCornerRadius"
+    borderWidth: 1
+    borderColor: "rgba(212, 175, 55, 0.3)"
+  
+  title:
+    fontFamily: "$title"
+    color: "$textPrimary"
+    shadowColor: "$accent"
+    shadowBlur: 15
+  
+  text:
+    fontFamily: "$body"
+    color: "$textSecondary"
+    fontSize: 14
+  
+  slider:
+    trackHeight: "6px"
+    trackBackground: "rgba(0, 0, 0, 0.3)"
+    fillColor: "$primary"
+    thumbSize: "18px"
+    thumbColor: "$accent"
+  
+  toggle:
+    width: "48px"
+    height: "24px"
+    background: "rgba(50, 50, 50, 0.6)"
+    activeBackground: "$primary"
+    thumbColor: "$accent"

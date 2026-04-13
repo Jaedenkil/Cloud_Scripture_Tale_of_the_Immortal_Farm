@@ -1,10 +1,13 @@
 /**
  * UI 管理器
  * 使用 Babylon.js GUI 管理所有游戏界面
+ * 支持 YAML 配置驱动
  */
 
 import * as GUI from '@babylonjs/gui'
 import { gameState, GameStates } from '../core/GameState.js'
+import { configLoader } from '../core/ConfigLoader.js'
+import { ConfigurablePage } from './ConfigurablePage.js'
 
 /**
  * UI 主题配置
@@ -74,6 +77,7 @@ class UIManager {
     this.currentPage = null
     this.pages = new Map()
     this.scene = null
+    this.configLoaded = false
   }
 
   /**
@@ -91,6 +95,61 @@ class UIManager {
     gameState.on('stateChange', ({ to }) => this.onStateChange(to))
     
     console.log('[UIManager] 初始化完成')
+  }
+
+  /**
+   * 从配置文件加载所有页面
+   */
+  async loadFromConfig() {
+    try {
+      console.log('[UIManager] 开始加载 UI 配置...')
+      
+      const { index, theme, pages } = await configLoader.init()
+      
+      // 注册预加载的页面
+      for (const { pageId, config, state } of pages) {
+        const stateKey = GameStates[state]
+        if (stateKey !== undefined) {
+          const page = new ConfigurablePage(config)
+          this.registerPage(stateKey, page)
+          console.log(`[UIManager] 配置页面注册: ${pageId} -> ${state}`)
+        }
+      }
+
+      this.configLoaded = true
+      console.log('[UIManager] UI 配置加载完成')
+      
+      // 设置初始状态
+      const initialState = GameStates[index.initialState]
+      if (initialState !== undefined) {
+        gameState.setState(initialState)
+      }
+
+      return true
+    } catch (error) {
+      console.error('[UIManager] 配置加载失败:', error)
+      return false
+    }
+  }
+
+  /**
+   * 按需加载单个页面配置
+   */
+  async loadPageConfig(filename, stateName) {
+    try {
+      const config = await configLoader.loadConfig(filename)
+      const page = new ConfigurablePage(config)
+      const stateKey = GameStates[stateName]
+      
+      if (stateKey !== undefined) {
+        this.registerPage(stateKey, page)
+        return page
+      }
+      return null
+    } catch (error) {
+      console.error(`[UIManager] 加载页面配置失败: ${filename}`, error)
+      return null
+    }
   }
 
   /**

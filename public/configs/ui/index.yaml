@@ -1,0 +1,35 @@
+# UI 配置索引
+# 列出所有 UI 页面配置
+
+version: "1.0.0"
+theme: theme.yaml
+
+# 页面列表
+pages:
+  main_menu:
+    file: main-menu.yaml
+    state: MAIN_MENU
+    preload: true
+  
+  settings:
+    file: settings.yaml
+    state: SETTINGS
+    preload: true
+  
+  pause_menu:
+    file: pause-menu.yaml
+    state: PAUSED
+    preload: true
+  
+  dev_tools:
+    file: dev-tools.yaml
+    state: DEV_TOOLS
+    preload: false  # 开发工具按需加载
+  
+  game_hud:
+    file: game-hud.yaml
+    state: PLAYING
+    preload: true
+
+# 初始状态
+initialState: MAIN_MENU
