@@ -1,8 +1,15 @@
 import * as BABYLON from '@babylonjs/core'
+import { uiManager } from '../ui/UIManager.js'
+import { gameState, GameStates } from '../core/GameState.js'
+import MainMenuPage from '../ui/pages/MainMenu.js'
+import SettingsPage from '../ui/pages/Settings.js'
+import PauseMenuPage from '../ui/pages/PauseMenu.js'
+import DevToolsPage from '../ui/pages/DevTools.js'
+import GameHUDPage from '../ui/pages/GameHUD.js'
 
 /**
- * 云笈仙田录 - 基础场景
- * 使用 Babylon.js 创建一个简单的 3D 体素风格测试场景
+ * 云笈仙田录 - 主游戏类
+ * 集成 Babylon.js 渲染与 UI 系统
  */
 
 class Game {
@@ -15,6 +22,9 @@ class Game {
 
     this.scene = this.createScene()
 
+    // 初始化 UI 系统
+    this.initUI()
+
     // 游戏循环
     this.engine.runRenderLoop(() => {
       this.scene.render()
@@ -23,6 +33,79 @@ class Game {
     // 响应窗口大小变化
     window.addEventListener('resize', () => {
       this.engine.resize()
+    })
+
+    // 监听键盘事件
+    this.setupKeyboardControls()
+  }
+
+  /**
+   * 初始化 UI 系统
+   */
+  initUI () {
+    // 初始化 UI 管理器
+    uiManager.init(this.scene)
+
+    // 注册所有 UI 页面
+    uiManager.registerPage(GameStates.MAIN_MENU, MainMenuPage)
+    uiManager.registerPage(GameStates.SETTINGS, SettingsPage)
+    uiManager.registerPage(GameStates.PAUSED, PauseMenuPage)
+    uiManager.registerPage(GameStates.DEV_TOOLS, DevToolsPage)
+    uiManager.registerPage(GameStates.PLAYING, GameHUDPage)
+
+    // 监听状态变化，切换 UI 页面
+    gameState.on('stateChange', ({ from, to }) => {
+      console.log(`🎮 状态切换: ${from} -> ${to}`)
+      uiManager.showPage(to)
+
+      // 根据状态控制 3D 场景可见性
+      this.updateSceneVisibility(to)
+    })
+
+    // 设置初始状态为主菜单
+    gameState.setState(GameStates.MAIN_MENU)
+  }
+
+  /**
+   * 根据游戏状态更新 3D 场景可见性
+   */
+  updateSceneVisibility (state) {
+    const showScene = state === GameStates.PLAYING || 
+                      state === GameStates.PAUSED || 
+                      state === GameStates.DEV_TOOLS
+
+    // 设置场景中所有网格的可见性
+    this.scene.meshes.forEach(mesh => {
+      mesh.isVisible = showScene
+    })
+  }
+
+  /**
+   * 设置键盘快捷键
+   */
+  setupKeyboardControls () {
+    window.addEventListener('keydown', (e) => {
+      const currentState = gameState.getState()
+
+      switch (e.key) {
+        case 'F12':
+          // F12 切换开发者工具
+          if (currentState === GameStates.DEV_TOOLS) {
+            gameState.setState(GameStates.PLAYING)
+          } else if (currentState === GameStates.PLAYING) {
+            gameState.setState(GameStates.DEV_TOOLS)
+          }
+          break
+
+        case 'F11':
+          // F11 切换全屏
+          if (document.fullscreenElement) {
+            document.exitFullscreen()
+          } else {
+            document.documentElement.requestFullscreen()
+          }
+          break
+      }
     })
   }
 

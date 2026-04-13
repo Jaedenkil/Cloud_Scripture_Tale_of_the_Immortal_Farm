@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@babylonjs/core": "^5.0.0",
+    "@babylonjs/gui": "^5.57.1",
     "alea": "^1.0.1",
     "electron-store": "^8.1.0",
     "howler": "^2.2.4",
