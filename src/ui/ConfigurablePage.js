@@ -122,6 +122,9 @@ export class ConfigurablePage {
       case 'slotGrid':
         component = this.createSlotGrid(config)
         break
+      case 'canvas':
+        component = this.createCanvasPlaceholder(config)
+        break
       default:
         console.warn(`[ConfigurablePage] 未知组件类型: ${type}`)
         return null
@@ -597,6 +600,25 @@ export class ConfigurablePage {
     }
 
     return container
+  }
+
+  createCanvasPlaceholder(config) {
+    // Canvas 组件占位符 - 用于小地图等需要自定义渲染的区域
+    const placeholder = new GUI.Rectangle(config.id)
+    placeholder.width = config.width || '100%'
+    placeholder.height = config.height || '100%'
+    placeholder.background = 'rgba(30, 40, 60, 0.5)'
+    placeholder.thickness = 0
+    placeholder.cornerRadius = 4
+
+    // 添加占位文字
+    const text = new GUI.TextBlock(config.id + '_placeholder')
+    text.text = config.renderer || '渲染区域'
+    text.color = this.resolveValue('$textMuted')
+    text.fontSize = 12
+    placeholder.addControl(text)
+
+    return placeholder
   }
 
   // ========== 动作执行 ==========

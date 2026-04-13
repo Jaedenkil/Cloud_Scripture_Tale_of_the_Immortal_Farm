@@ -21,9 +21,11 @@ class ConfigLoader {
     // 加载索引文件
     const indexConfig = await this.loadConfig('index.yaml')
     
-    // 加载主题
+    // 加载主题（先加载原始配置，再自解析变量）
     if (indexConfig.theme) {
-      this.theme = await this.loadConfig(indexConfig.theme)
+      const rawTheme = await this.loadRawConfig(indexConfig.theme)
+      // 用主题自身作为上下文解析变量
+      this.theme = this.resolveVariables(rawTheme, rawTheme)
       console.log('[ConfigLoader] 主题加载完成:', this.theme.theme?.name)
     }
 
@@ -46,6 +48,26 @@ class ConfigLoader {
       index: indexConfig,
       theme: this.theme,
       pages: preloadedPages
+    }
+  }
+
+  /**
+   * 加载原始配置文件（不解析变量）
+   */
+  async loadRawConfig(filename) {
+    const url = this.basePath + filename
+    
+    try {
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+      
+      const yamlText = await response.text()
+      return yaml.load(yamlText)
+    } catch (error) {
+      console.error(`[ConfigLoader] 加载配置失败: ${filename}`, error)
+      throw error
     }
   }
 
@@ -168,10 +190,11 @@ class ConfigLoader {
   }
 
   /**
-   * 获取组件默认样式
+   * 获取组件默认样式（已解析变量）
    */
   getComponentDefaults(componentType) {
-    return this.theme?.components?.[componentType] || {}
+    const defaults = this.theme?.components?.[componentType] || {}
+    return this.resolveVariables(defaults)
   }
 
   /**
