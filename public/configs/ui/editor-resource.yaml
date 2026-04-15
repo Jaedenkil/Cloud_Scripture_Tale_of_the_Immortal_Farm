@@ -27,6 +27,25 @@
 #         tags: ["footstep", "stone"]
 #
 # 被引用方：材质编辑器、音效编辑器（及所有下游编辑器间接引用）
+#
+# ─── 模拟资源清单（UI 骨架阶段） ───
+#
+# 贴图 (texture):
+#   tex_grass_top        草地顶部       tags: block, grass
+#   tex_stone_side       石块侧面       tags: block, stone
+#   tex_spiritual_ore    灵石矿         tags: block, ore, spiritual
+#   tex_water_flow       流水纹理       tags: water, animated
+#   tex_farmland_wet     湿润农田       tags: block, farm
+#
+# 音频 (audio):
+#   sfx_step_stone       踩石头音效     tags: footstep, stone
+#   sfx_block_break      方块破坏音效   tags: block, break
+#   bgm_morning_field    晨间田野       tags: bgm, ambient
+#
+# 模型 (model):
+#   mdl_tree_spiritual   灵木模型       tags: tree, spiritual
+#   mdl_rock_common      普通岩石       tags: rock, common
+#
 # ═══════════════════════════════════════════════════════════════
 
 page:
@@ -142,7 +161,486 @@ components:
               textWrapping: true
               textAlign: left
 
-      # ─────────── 编辑器内容区域（待实现） ───────────
+      # ═══════════════════════════════════════
+      # 编辑器内容区域
+      # 区域：Y -120 ~ +170（约 290px 高）
+      # 布局：左侧分类标签(70px) | 分隔线 | 右侧资源列表+详情
+      # 参考：星露谷物语 的物品分类管理 + Minecraft 的资源包界面
+      # ═══════════════════════════════════════
+
+      # ─────────── 左侧分类标签栏 ───────────
+      - id: categoryNav
+        type: stack
+        layout:
+          isVertical: true
+          spacing: 3
+          top: "-30px"
+          left: "-270px"
+        style:
+          width: "70px"
+        children:
+          - id: categoryLabel
+            type: text
+            text: "分　类"
+            style:
+              width: "70px"
+              height: "12px"
+              fontSize: 7
+              color: "$textMuted"
+              textAlign: center
+
+          - id: catAll
+            type: button
+            text: "全部"
+            action: filterAll
+            style:
+              width: "70px"
+              height: "16px"
+              background: "$btnPrimary"
+              color: "$btnTextNormal"
+              fontSize: "$buttonFontSize"
+              cornerRadius: "$buttonCornerRadius"
+              thickness: "$buttonBorderWidth"
+              borderColor: "$primaryLight"
+
+          - id: catTexture
+            type: button
+            text: "贴图"
+            action: filterTexture
+            style:
+              width: "70px"
+              height: "16px"
+              background: "rgba(50, 80, 115, 0.35)"
+              color: "$textSecondary"
+              fontSize: "$buttonFontSize"
+              cornerRadius: "$buttonCornerRadius"
+              thickness: "$buttonBorderWidth"
+              borderColor: "$border"
+
+          - id: catAudio
+            type: button
+            text: "音频"
+            action: filterAudio
+            style:
+              width: "70px"
+              height: "16px"
+              background: "rgba(50, 80, 115, 0.35)"
+              color: "$textSecondary"
+              fontSize: "$buttonFontSize"
+              cornerRadius: "$buttonCornerRadius"
+              thickness: "$buttonBorderWidth"
+              borderColor: "$border"
+
+          - id: catModel
+            type: button
+            text: "模型"
+            action: filterModel
+            style:
+              width: "70px"
+              height: "16px"
+              background: "rgba(50, 80, 115, 0.35)"
+              color: "$textSecondary"
+              fontSize: "$buttonFontSize"
+              cornerRadius: "$buttonCornerRadius"
+              thickness: "$buttonBorderWidth"
+              borderColor: "$border"
+
+          - id: catSpacer
+            type: spacer
+            height: "8px"
+
+          - id: resourceCountLabel
+            type: text
+            text: "资源总数"
+            style:
+              width: "70px"
+              height: "10px"
+              fontSize: 6
+              color: "$textMuted"
+              textAlign: center
+
+          - id: resourceCountValue
+            type: dynamicText
+            binding: "editor.resource.count"
+            template: "{value}"
+            style:
+              width: "70px"
+              height: "14px"
+              fontSize: 10
+              color: "$primary"
+              textAlign: center
+
+      # ─────────── 左侧垂直分隔线 ───────────
+      - id: navDivider
+        type: rectangle
+        width: "$dividerHeight"
+        height: "250px"
+        layout:
+          top: "-10px"
+          left: "-228px"
+        style:
+          background: "$divider"
+          thickness: 0
+
+      # ─────────── 工具栏（搜索 + 导入按钮） ───────────
+      - id: toolbar
+        type: rectangle
+        width: "420px"
+        height: "20px"
+        layout:
+          top: "-118px"
+          left: "17px"
+        style:
+          background: transparent
+          thickness: 0
+        children:
+          - id: searchHint
+            type: text
+            text: "🔍 搜索资源（ID / 名称 / 标签）..."
+            layout:
+              left: "-120px"
+            style:
+              width: "200px"
+              height: "18px"
+              fontSize: 7
+              color: "$textMuted"
+              textAlign: left
+
+          - id: importBtn
+            type: button
+            text: "+ 导入资源"
+            action: importResource
+            layout:
+              left: "170px"
+            style:
+              width: "70px"
+              height: "18px"
+              fontSize: 7
+              cornerRadius: "$buttonCornerRadius"
+              background: "$btnSuccess"
+              color: "$btnTextAction"
+              thickness: 0
+
+      # ─────────── 列表标题行 ───────────
+      - id: listHeader
+        type: rectangle
+        width: "420px"
+        height: "14px"
+        layout:
+          top: "-98px"
+          left: "17px"
+        style:
+          background: "rgba(50, 80, 115, 0.25)"
+          thickness: 0
+          cornerRadius: 2
+        children:
+          - id: colId
+            type: text
+            text: "资源ID"
+            layout:
+              left: "-155px"
+            style:
+              width: "80px"
+              height: "14px"
+              fontSize: 6
+              color: "$textMuted"
+              textAlign: left
+
+          - id: colName
+            type: text
+            text: "名称"
+            layout:
+              left: "-60px"
+            style:
+              width: "80px"
+              height: "14px"
+              fontSize: 6
+              color: "$textMuted"
+              textAlign: left
+
+          - id: colType
+            type: text
+            text: "类型"
+            layout:
+              left: "30px"
+            style:
+              width: "50px"
+              height: "14px"
+              fontSize: 6
+              color: "$textMuted"
+              textAlign: left
+
+          - id: colTags
+            type: text
+            text: "标签"
+            layout:
+              left: "120px"
+            style:
+              width: "80px"
+              height: "14px"
+              fontSize: 6
+              color: "$textMuted"
+              textAlign: left
+
+      # ─────────── 资源列表（模拟数据） ───────────
+      # 每行 16px 高，间距 2px，共 10 行 = 180px
+      - id: resourceList
+        type: stack
+        layout:
+          isVertical: true
+          spacing: 2
+          top: "-5px"
+          left: "17px"
+        style:
+          width: "420px"
+        children:
+          - id: res_row_1
+            type: button
+            text: "tex_grass_top          草地顶部          贴图      block,grass"
+            action: selectResource1
+            style:
+              width: "420px"
+              height: "16px"
+              fontSize: 6
+              cornerRadius: 2
+              background: "rgba(74, 155, 232, 0.15)"
+              color: "$textPrimary"
+              thickness: 1
+              borderColor: "$primary"
+
+          - id: res_row_2
+            type: button
+            text: "tex_stone_side         石块侧面          贴图      block,stone"
+            action: selectResource2
+            style:
+              width: "420px"
+              height: "16px"
+              fontSize: 6
+              cornerRadius: 2
+              background: "rgba(50, 80, 115, 0.15)"
+              color: "$textSecondary"
+              thickness: 0
+
+          - id: res_row_3
+            type: button
+            text: "tex_spiritual_ore      灵石矿            贴图      block,ore,spiritual"
+            action: selectResource3
+            style:
+              width: "420px"
+              height: "16px"
+              fontSize: 6
+              cornerRadius: 2
+              background: "rgba(50, 80, 115, 0.15)"
+              color: "$textSecondary"
+              thickness: 0
+
+          - id: res_row_4
+            type: button
+            text: "tex_water_flow         流水纹理          贴图      water,animated"
+            action: selectResource4
+            style:
+              width: "420px"
+              height: "16px"
+              fontSize: 6
+              cornerRadius: 2
+              background: "rgba(50, 80, 115, 0.15)"
+              color: "$textSecondary"
+              thickness: 0
+
+          - id: res_row_5
+            type: button
+            text: "sfx_step_stone         踩石头音效        音频      footstep,stone"
+            action: selectResource5
+            style:
+              width: "420px"
+              height: "16px"
+              fontSize: 6
+              cornerRadius: 2
+              background: "rgba(50, 80, 115, 0.15)"
+              color: "$textSecondary"
+              thickness: 0
+
+          - id: res_row_6
+            type: button
+            text: "sfx_block_break        方块破坏音效      音频      block,break"
+            action: selectResource6
+            style:
+              width: "420px"
+              height: "16px"
+              fontSize: 6
+              cornerRadius: 2
+              background: "rgba(50, 80, 115, 0.15)"
+              color: "$textSecondary"
+              thickness: 0
+
+          - id: res_row_7
+            type: button
+            text: "bgm_morning_field      晨间田野          音频      bgm,ambient"
+            action: selectResource7
+            style:
+              width: "420px"
+              height: "16px"
+              fontSize: 6
+              cornerRadius: 2
+              background: "rgba(50, 80, 115, 0.15)"
+              color: "$textSecondary"
+              thickness: 0
+
+          - id: res_row_8
+            type: button
+            text: "mdl_tree_spiritual     灵木模型          模型      tree,spiritual"
+            action: selectResource8
+            style:
+              width: "420px"
+              height: "16px"
+              fontSize: 6
+              cornerRadius: 2
+              background: "rgba(50, 80, 115, 0.15)"
+              color: "$textSecondary"
+              thickness: 0
+
+          - id: res_row_9
+            type: button
+            text: "mdl_rock_common        普通岩石          模型      rock,common"
+            action: selectResource9
+            style:
+              width: "420px"
+              height: "16px"
+              fontSize: 6
+              cornerRadius: 2
+              background: "rgba(50, 80, 115, 0.15)"
+              color: "$textSecondary"
+              thickness: 0
+
+          - id: res_row_10
+            type: button
+            text: "tex_farmland_wet       湿润农田          贴图      block,farm"
+            action: selectResource10
+            style:
+              width: "420px"
+              height: "16px"
+              fontSize: 6
+              cornerRadius: 2
+              background: "rgba(50, 80, 115, 0.15)"
+              color: "$textSecondary"
+              thickness: 0
+
+      # ─────────── 底部详情面板 ───────────
+      - id: detailPanel
+        type: rectangle
+        visible: false
+        width: "420px"
+        height: "65px"
+        layout:
+          top: "120px"
+          left: "17px"
+        style:
+          background: "rgba(30, 52, 78, 0.6)"
+          cornerRadius: 4
+          thickness: 1
+          borderColor: "$border"
+        children:
+          - id: detailTitle
+            type: text
+            text: "资源详情"
+            layout:
+              top: "-22px"
+              left: "-155px"
+            style:
+              width: "100px"
+              height: "12px"
+              fontSize: 7
+              color: "$primary"
+              textAlign: left
+
+          - id: detailId
+            type: dynamicText
+            binding: "editor.resource.selectedId"
+            template: "ID: {value}"
+            layout:
+              top: "-8px"
+              left: "-130px"
+            style:
+              width: "150px"
+              height: "10px"
+              fontSize: 6
+              color: "$textSecondary"
+              textAlign: left
+
+          - id: detailType
+            type: dynamicText
+            binding: "editor.resource.selectedType"
+            template: "类型: {value}"
+            layout:
+              top: "4px"
+              left: "-130px"
+            style:
+              width: "150px"
+              height: "10px"
+              fontSize: 6
+              color: "$textSecondary"
+              textAlign: left
+
+          - id: detailTags
+            type: dynamicText
+            binding: "editor.resource.selectedTags"
+            template: "标签: {value}"
+            layout:
+              top: "16px"
+              left: "-130px"
+            style:
+              width: "200px"
+              height: "10px"
+              fontSize: 6
+              color: "$textSecondary"
+              textAlign: left
+
+          - id: detailPreview
+            type: canvas
+            width: "80px"
+            height: "55px"
+            renderer: "预览区域"
+            layout:
+              left: "160px"
+
+          - id: deleteBtn
+            type: button
+            text: "删除"
+            action: deleteResource
+            layout:
+              top: "20px"
+              left: "85px"
+            style:
+              width: "45px"
+              height: "15px"
+              fontSize: 6
+              cornerRadius: 2
+              background: "$btnDanger"
+              color: "$textPrimary"
+              thickness: 0
+
+      # ─────────── 底部状态栏 ───────────
+      - id: statusBar
+        type: rectangle
+        width: "580px"
+        height: "14px"
+        layout:
+          top: "163px"
+        style:
+          background: "rgba(50, 80, 115, 0.2)"
+          thickness: 0
+          cornerRadius: 2
+        children:
+          - id: statusText
+            type: dynamicText
+            binding: "editor.resource.status"
+            template: "{value}"
+            style:
+              width: "560px"
+              height: "14px"
+              fontSize: 6
+              color: "$textMuted"
+              textAlign: left
 
 actions:
   goBackToDevTools:
@@ -150,6 +648,74 @@ actions:
   toggleHelp:
     type: toggleTooltip
     targetId: helpTooltip
+  filterAll:
+    type: custom
+    handler: resourceFilterAll
+  filterTexture:
+    type: custom
+    handler: resourceFilterTexture
+  filterAudio:
+    type: custom
+    handler: resourceFilterAudio
+  filterModel:
+    type: custom
+    handler: resourceFilterModel
+  importResource:
+    type: custom
+    handler: resourceImport
+  selectResource1:
+    type: custom
+    handler: resourceSelect
+    params:
+      index: 0
+  selectResource2:
+    type: custom
+    handler: resourceSelect
+    params:
+      index: 1
+  selectResource3:
+    type: custom
+    handler: resourceSelect
+    params:
+      index: 2
+  selectResource4:
+    type: custom
+    handler: resourceSelect
+    params:
+      index: 3
+  selectResource5:
+    type: custom
+    handler: resourceSelect
+    params:
+      index: 4
+  selectResource6:
+    type: custom
+    handler: resourceSelect
+    params:
+      index: 5
+  selectResource7:
+    type: custom
+    handler: resourceSelect
+    params:
+      index: 6
+  selectResource8:
+    type: custom
+    handler: resourceSelect
+    params:
+      index: 7
+  selectResource9:
+    type: custom
+    handler: resourceSelect
+    params:
+      index: 8
+  selectResource10:
+    type: custom
+    handler: resourceSelect
+    params:
+      index: 9
+  deleteResource:
+    type: custom
+    handler: resourceDelete
 
 keybindings:
   Escape:

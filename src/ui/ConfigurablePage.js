@@ -625,7 +625,7 @@ export class ConfigurablePage {
 
       case 'custom':
         if (this.customHandlers[actionConfig.handler]) {
-          this.customHandlers[actionConfig.handler](params)
+          this.customHandlers[actionConfig.handler]({ ...actionConfig.params, ...params })
         }
         break
 

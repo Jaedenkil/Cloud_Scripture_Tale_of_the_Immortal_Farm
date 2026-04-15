@@ -29,6 +29,33 @@
 #
 # 依赖：资源管理器（音频资源）
 # 被引用方：物块编辑器、物种编辑器、天气编辑器、场景编辑器
+#
+# ─── 模拟音效清单（UI 骨架阶段） ───
+#
+#   sfx_block_break_stone  踩石头音效
+#     source: sfx_step_stone  trigger: event  volume: 0.8
+#     spatialize: true  maxDistance: 16  pitch: [-0.1, +0.1]  duration: 0.3s
+#
+#   sfx_block_break        方块破坏
+#     source: sfx_block_break  trigger: event  volume: 0.9
+#     spatialize: true  maxDistance: 24  pitch: [-0.15, +0.15]  duration: 0.5s
+#
+#   bgm_morning            晨间田野BGM
+#     source: bgm_morning_field  trigger: loop  volume: 0.6
+#     spatialize: false  maxDistance: 64  pitch: [0, 0]  duration: 3:24
+#
+#   amb_water_flow         流水环境音
+#     source: sfx_water_flow  trigger: ambient  volume: 0.5
+#     spatialize: true  maxDistance: 12  pitch: [-0.05, +0.05]  duration: 2.1s
+#
+#   sfx_cultivation_up     修炼突破
+#     source: sfx_level_up  trigger: event  volume: 1.0
+#     spatialize: false  maxDistance: 32  pitch: [0, +0.05]  duration: 1.8s
+#
+#   amb_birds              鸟鸣环境音
+#     source: sfx_birds_chirp  trigger: ambient  volume: 0.4
+#     spatialize: true  maxDistance: 20  pitch: [-0.2, +0.2]  duration: 4.2s
+#
 # ═══════════════════════════════════════════════════════════════
 
 page:
@@ -144,7 +171,484 @@ components:
               textWrapping: true
               textAlign: left
 
-      # ─────────── 编辑器内容区域（待实现） ───────────
+      # ═══════════════════════════════════════
+      # 编辑器内容区域
+      # 布局：左侧音效列表(110px) | 分隔线 | 中间属性面板 | 右侧波形预览
+      # 参考：修仙模拟器 的声音系统 + Minecraft 的音效配置
+      # ═══════════════════════════════════════
+
+      # ─────────── 左侧音效列表 ───────────
+      - id: soundListPanel
+        type: rectangle
+        width: "110px"
+        height: "240px"
+        layout:
+          top: "10px"
+          left: "-255px"
+        style:
+          background: "rgba(30, 52, 78, 0.4)"
+          cornerRadius: 4
+          thickness: 1
+          borderColor: "$border"
+        children:
+          - id: sndListTitle
+            type: text
+            text: "音效列表"
+            layout:
+              top: "-108px"
+            style:
+              width: "100px"
+              height: "12px"
+              fontSize: 7
+              color: "$textMuted"
+              textAlign: center
+
+          - id: newSndBtn
+            type: button
+            text: "+ 新建音效"
+            action: newSound
+            layout:
+              top: "-93px"
+            style:
+              width: "95px"
+              height: "15px"
+              fontSize: 6
+              cornerRadius: 2
+              background: "$btnSuccess"
+              color: "$btnTextAction"
+              thickness: 0
+
+          - id: sndListStack
+            type: stack
+            layout:
+              isVertical: true
+              spacing: 2
+              top: "-30px"
+            style:
+              width: "100px"
+            children:
+              - id: snd_item_1
+                type: button
+                text: "踩石头音效"
+                action: selectSnd1
+                style:
+                  width: "100px"
+                  height: "15px"
+                  fontSize: 6
+                  cornerRadius: 2
+                  background: "rgba(74, 155, 232, 0.2)"
+                  color: "$textPrimary"
+                  thickness: 1
+                  borderColor: "$primary"
+
+              - id: snd_item_2
+                type: button
+                text: "方块破坏"
+                action: selectSnd2
+                style:
+                  width: "100px"
+                  height: "15px"
+                  fontSize: 6
+                  cornerRadius: 2
+                  background: "rgba(50, 80, 115, 0.15)"
+                  color: "$textSecondary"
+                  thickness: 0
+
+              - id: snd_item_3
+                type: button
+                text: "晨间田野BGM"
+                action: selectSnd3
+                style:
+                  width: "100px"
+                  height: "15px"
+                  fontSize: 6
+                  cornerRadius: 2
+                  background: "rgba(50, 80, 115, 0.15)"
+                  color: "$textSecondary"
+                  thickness: 0
+
+              - id: snd_item_4
+                type: button
+                text: "流水环境音"
+                action: selectSnd4
+                style:
+                  width: "100px"
+                  height: "15px"
+                  fontSize: 6
+                  cornerRadius: 2
+                  background: "rgba(50, 80, 115, 0.15)"
+                  color: "$textSecondary"
+                  thickness: 0
+
+              - id: snd_item_5
+                type: button
+                text: "修炼突破"
+                action: selectSnd5
+                style:
+                  width: "100px"
+                  height: "15px"
+                  fontSize: 6
+                  cornerRadius: 2
+                  background: "rgba(50, 80, 115, 0.15)"
+                  color: "$textSecondary"
+                  thickness: 0
+
+              - id: snd_item_6
+                type: button
+                text: "鸟鸣环境音"
+                action: selectSnd6
+                style:
+                  width: "100px"
+                  height: "15px"
+                  fontSize: 6
+                  cornerRadius: 2
+                  background: "rgba(50, 80, 115, 0.15)"
+                  color: "$textSecondary"
+                  thickness: 0
+
+      # ─────────── 左侧垂直分隔线 ───────────
+      - id: listDivider
+        type: rectangle
+        width: "$dividerHeight"
+        height: "240px"
+        layout:
+          top: "10px"
+          left: "-193px"
+        style:
+          background: "$divider"
+          thickness: 0
+
+      # ─────────── 中间属性编辑面板 ───────────
+      - id: propsPanel
+        type: rectangle
+        visible: false
+        width: "280px"
+        height: "240px"
+        layout:
+          top: "10px"
+          left: "17px"
+        style:
+          background: transparent
+          thickness: 0
+        children:
+          # --- 基础信息 ---
+          - id: infoSection
+            type: section
+            label: "基础信息"
+            layout:
+              top: "-100px"
+            style:
+              width: "280px"
+            children:
+              - id: sndIdDisplay
+                type: dynamicText
+                binding: "editor.audio.selectedId"
+                template: "ID: {value}"
+                style:
+                  width: "280px"
+                  height: "10px"
+                  fontSize: 6
+                  color: "$textSecondary"
+                  textAlign: left
+
+              - id: sndNameDisplay
+                type: dynamicText
+                binding: "editor.audio.selectedName"
+                template: "名称: {value}"
+                style:
+                  width: "280px"
+                  height: "10px"
+                  fontSize: 6
+                  color: "$textPrimary"
+                  textAlign: left
+
+              - id: sourceRow
+                type: rectangle
+                width: "280px"
+                height: "14px"
+                style:
+                  background: transparent
+                  thickness: 0
+                children:
+                  - id: sourceLabel
+                    type: text
+                    text: "音频资源："
+                    layout:
+                      left: "-95px"
+                    style:
+                      width: "70px"
+                      height: "14px"
+                      fontSize: 6
+                      color: "$textSecondary"
+                      textAlign: left
+                  - id: sourceValue
+                    type: dynamicText
+                    binding: "editor.audio.source"
+                    template: "{value}"
+                    layout:
+                      left: "10px"
+                    style:
+                      width: "110px"
+                      height: "14px"
+                      fontSize: 6
+                      color: "$primary"
+                      textAlign: left
+                  - id: sourceBtn
+                    type: button
+                    text: "选择"
+                    action: pickSource
+                    layout:
+                      left: "110px"
+                    style:
+                      width: "40px"
+                      height: "13px"
+                      fontSize: 5
+                      cornerRadius: 2
+                      background: "$btnSecondary"
+                      color: "$btnTextNormal"
+                      thickness: 0
+
+          # --- 触发模式 ---
+          - id: triggerSection
+            type: section
+            label: "触发模式"
+            layout:
+              top: "-50px"
+            style:
+              width: "280px"
+            children:
+              - id: triggerSelector
+                type: selector
+                label: "模式"
+                options:
+                  - value: event
+                    text: "事件触发"
+                  - value: ambient
+                    text: "环境音"
+                  - value: loop
+                    text: "循环播放"
+                default: event
+                setting: "editor.audio.trigger"
+
+          # --- 音量控制 ---
+          - id: volumeSection
+            type: section
+            label: "音量控制"
+            layout:
+              top: "-5px"
+            style:
+              width: "280px"
+            children:
+              - id: volumeSlider
+                type: slider
+                label: "基础音量"
+                min: 0
+                max: 100
+                default: 80
+                setting: "editor.audio.volume"
+
+              - id: maxDistSlider
+                type: slider
+                label: "最大距离"
+                min: 1
+                max: 64
+                default: 16
+                setting: "editor.audio.maxDistance"
+
+              - id: rolloffSelector
+                type: selector
+                label: "衰减"
+                options:
+                  - value: linear
+                    text: "线性"
+                  - value: inverse
+                    text: "反比"
+                  - value: exponential
+                    text: "指数"
+                default: linear
+                setting: "editor.audio.rolloff"
+
+          # --- 变奏参数 ---
+          - id: variationSection
+            type: section
+            label: "变奏参数"
+            layout:
+              top: "65px"
+            style:
+              width: "280px"
+            children:
+              - id: pitchMinSlider
+                type: slider
+                label: "音高偏低"
+                min: -50
+                max: 0
+                default: -10
+                setting: "editor.audio.pitchMin"
+
+              - id: pitchMaxSlider
+                type: slider
+                label: "音高偏高"
+                min: 0
+                max: 50
+                default: 10
+                setting: "editor.audio.pitchMax"
+
+              - id: spatialToggle
+                type: toggle
+                label: "3D 空间音效"
+                default: true
+                setting: "editor.audio.spatialize"
+
+      # ─────────── 右侧垂直分隔线 ───────────
+      - id: previewDivider
+        type: rectangle
+        width: "$dividerHeight"
+        height: "240px"
+        layout:
+          top: "10px"
+          left: "166px"
+        style:
+          background: "$divider"
+          thickness: 0
+
+      # ─────────── 右侧预览面板 ───────────
+      - id: previewPanel
+        type: rectangle
+        width: "130px"
+        height: "240px"
+        layout:
+          top: "10px"
+          left: "236px"
+        style:
+          background: "rgba(30, 52, 78, 0.3)"
+          cornerRadius: 4
+          thickness: 1
+          borderColor: "$border"
+        children:
+          - id: previewTitle
+            type: text
+            text: "波形预览"
+            layout:
+              top: "-108px"
+            style:
+              width: "120px"
+              height: "12px"
+              fontSize: 7
+              color: "$textMuted"
+              textAlign: center
+
+          - id: waveformCanvas
+            type: canvas
+            width: "110px"
+            height: "70px"
+            renderer: "音频波形"
+            layout:
+              top: "-60px"
+
+          - id: playBtn
+            type: button
+            text: "▶ 试听"
+            action: playSound
+            layout:
+              top: "0px"
+            style:
+              width: "80px"
+              height: "18px"
+              fontSize: 7
+              cornerRadius: 3
+              background: "$btnPrimary"
+              color: "$btnTextNormal"
+              thickness: 1
+              borderColor: "$primaryLight"
+
+          - id: stopBtn
+            type: button
+            text: "⏹ 停止"
+            action: stopSound
+            layout:
+              top: "25px"
+            style:
+              width: "80px"
+              height: "18px"
+              fontSize: 7
+              cornerRadius: 3
+              background: "$btnSecondary"
+              color: "$btnTextNormal"
+              thickness: 1
+              borderColor: "$border"
+
+          - id: durationLabel
+            type: text
+            text: "时长"
+            layout:
+              top: "55px"
+            style:
+              width: "120px"
+              height: "10px"
+              fontSize: 6
+              color: "$textMuted"
+              textAlign: center
+
+          - id: durationValue
+            type: dynamicText
+            binding: "editor.audio.duration"
+            template: "{value}"
+            layout:
+              top: "68px"
+            style:
+              width: "120px"
+              height: "12px"
+              fontSize: 8
+              color: "$primary"
+              textAlign: center
+
+          - id: playbackProgress
+            type: progressBar
+            binding: "editor.audio.playback"
+            max: "editor.audio.playbackMax"
+            layout:
+              top: "85px"
+            style:
+              width: "110px"
+              height: "6px"
+              cornerRadius: 3
+
+      # ─────────── 无选中提示 ───────────
+      - id: noSelectionHint
+        type: text
+        text: "← 请从左侧列表选择一个音效进行编辑"
+        layout:
+          top: "10px"
+          left: "60px"
+        style:
+          width: "300px"
+          height: "20px"
+          fontSize: 8
+          color: "$textMuted"
+          textAlign: center
+
+      # ─────────── 底部状态栏 ───────────
+      - id: statusBar
+        type: rectangle
+        width: "580px"
+        height: "14px"
+        layout:
+          top: "163px"
+        style:
+          background: "rgba(50, 80, 115, 0.2)"
+          thickness: 0
+          cornerRadius: 2
+        children:
+          - id: statusText
+            type: dynamicText
+            binding: "editor.audio.status"
+            template: "{value}"
+            style:
+              width: "560px"
+              height: "14px"
+              fontSize: 6
+              color: "$textMuted"
+              textAlign: left
 
 actions:
   goBackToDevTools:
@@ -152,6 +656,48 @@ actions:
   toggleHelp:
     type: toggleTooltip
     targetId: helpTooltip
+  newSound:
+    type: custom
+    handler: audioNew
+  selectSnd1:
+    type: custom
+    handler: audioSelect
+    params:
+      index: 0
+  selectSnd2:
+    type: custom
+    handler: audioSelect
+    params:
+      index: 1
+  selectSnd3:
+    type: custom
+    handler: audioSelect
+    params:
+      index: 2
+  selectSnd4:
+    type: custom
+    handler: audioSelect
+    params:
+      index: 3
+  selectSnd5:
+    type: custom
+    handler: audioSelect
+    params:
+      index: 4
+  selectSnd6:
+    type: custom
+    handler: audioSelect
+    params:
+      index: 5
+  pickSource:
+    type: custom
+    handler: audioPickSource
+  playSound:
+    type: custom
+    handler: audioPlay
+  stopSound:
+    type: custom
+    handler: audioStop
 
 keybindings:
   Escape:
