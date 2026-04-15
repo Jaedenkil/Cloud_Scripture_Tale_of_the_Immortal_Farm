@@ -24,7 +24,7 @@ pages:
   dev_tools:
     file: dev-tools.yaml
     state: DEV_TOOLS
-    preload: false  # 开发工具按需加载
+    preload: true
   
   game_hud:
     file: game-hud.yaml

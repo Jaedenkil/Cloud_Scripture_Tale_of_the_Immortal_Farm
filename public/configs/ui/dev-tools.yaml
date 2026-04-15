@@ -1,4 +1,7 @@
-# 开发者工具配置
+# 开发者工具页面配置
+# 参考：settings.yaml 同款标题 + 底部操作栏布局
+# 坐标系：Babylon.js GUI 以父容器中心为原点 (0,0)
+# 虚拟分辨率 640×360，中心 (0,0)，上=-180，下=+180，左=-320，右=+320
 
 page:
   id: dev_tools
@@ -11,179 +14,112 @@ container:
   background: transparent
 
 components:
-  # 左侧调试面板
-  - id: debugPanel
-    type: panel
-    width: "120px"
-    height: "auto"
-    layout:
-      horizontalAlignment: left
-      verticalAlignment: top
-      left: "17px"
-      top: "20px"
+  # 背景遮罩（全屏半透明）
+  - id: bgOverlay
+    type: rectangle
+    width: "100%"
+    height: "100%"
     style:
-      background: "$bgMedium"
-      cornerRadius: 3
-      padding: "8px"
-      thickness: 1
-      borderColor: "$border"
+      background: "rgba(8, 16, 28, 0.88)"
+      thickness: 0
+
+  # ═══════════════════════════════════════
+  # 主面板（全屏，所有子元素从中心定位）
+  # ═══════════════════════════════════════
+  - id: mainPanel
+    type: rectangle
+    width: "100%"
+    height: "100%"
+    style:
+      background: "$bgDark"
+      cornerRadius: 0
+      thickness: 0
     children:
-      - id: title
-        type: text
-        text: "🛠 开发者工具"
+
+      # ─────────── 标题区域 ───────────
+      - id: headerArea
+        type: stack
+        layout:
+          isVertical: true
+          spacing: 2
+          top: "-135px"
         style:
-          fontSize: 10
-          color: "$primary"
-          fontWeight: bold
-          height: "13px"
-
-      # 性能信息
-      - id: perfSection
-        type: section
-        label: "性能监控"
+          width: "100%"
         children:
-          - id: fpsDisplay
-            type: dynamicText
-            binding: performance.fps
-            template: "FPS: {value}"
-            style:
-              color: "$textSecondary"
-              fontSize: 6
-
-          - id: memoryDisplay
-            type: dynamicText
-            binding: performance.memory
-            template: "内存: {value} MB"
-            style:
-              color: "$textSecondary"
-              fontSize: 6
-
-          - id: drawCallsDisplay
-            type: dynamicText
-            binding: performance.drawCalls
-            template: "Draw Calls: {value}"
-            style:
-              color: "$textSecondary"
-              fontSize: 6
-
-      # 渲染选项
-      - id: renderSection
-        type: section
-        label: "渲染选项"
-        children:
-          - id: wireframeToggle
-            type: toggle
-            label: "线框模式"
-            action: toggleWireframe
-            default: false
-
-          - id: boundingBoxToggle
-            type: toggle
-            label: "边界框"
-            action: toggleBoundingBox
-            default: false
-
-          - id: gridToggle
-            type: toggle
-            label: "网格辅助线"
-            action: toggleGrid
-            default: false
-
-      # 场景工具
-      - id: sceneSection
-        type: section
-        label: "场景工具"
-        children:
-          - id: reloadBtn
-            type: button
-            text: "重载场景"
-            action: reloadScene
+          - id: devToolsTitle
+            type: title
+            text: "开发者工具"
             style:
               width: "100%"
-              height: "16px"
-              fontSize: 7
-              background: "$btnPrimary"
+              height: "$titleLargeHeight"
+              fontSize: "$titleLarge"
               color: "$textPrimary"
-              cornerRadius: 3
-              thickness: 1
-              borderColor: "$primaryLight"
+              textAlign: center
+              shadowColor: "rgba(74, 155, 232, 0.35)"
+              shadowBlur: 3
 
-          - id: clearSaveBtn
-            type: button
-            text: "清除存档"
-            action: clearSave
+          - id: devToolsSub
+            type: text
+            text: "D E V   T O O L S"
             style:
               width: "100%"
-              height: "16px"
-              fontSize: 7
-              background: "$btnDanger"
-              color: "$textPrimary"
-              cornerRadius: 3
-              thickness: 1
-              borderColor: "#FF6B78"
+              height: "$textSmallHeight"
+              fontSize: "$textSmall"
+              color: "$textMuted"
+              textAlign: center
 
-      # 状态信息
-      - id: stateSection
-        type: section
-        label: "状态信息"
+      # ─────────── 标题下分隔线 ───────────
+      - id: headerDivider
+        type: rectangle
+        width: "90%"
+        height: "$dividerHeight"
+        layout:
+          top: "-96px"
+        style:
+          background: "$divider"
+          thickness: 0
+
+      # ─────────── 中间内容区域（暂空） ───────────
+
+      # ─────────── 底部分隔线 ───────────
+      - id: footerDivider
+        type: rectangle
+        width: "90%"
+        height: "$dividerHeight"
+        layout:
+          top: "122px"
+        style:
+          background: "$divider"
+          thickness: 0
+
+      # ─────────── 操作按钮栏 ───────────
+      - id: actionBar
+        type: stack
+        layout:
+          isVertical: false
+          spacing: 10
+          top: "140px"
+        style:
+          height: "19px"
         children:
-          - id: gameStateDisplay
-            type: dynamicText
-            binding: game.state
-            template: "游戏状态: {value}"
+          - id: cancelBtn
+            type: button
+            text: "取消"
+            action: cancelDevTools
             style:
-              color: "$textSecondary"
-              fontSize: 6
-
-          - id: playerPosDisplay
-            type: dynamicText
-            binding: player.position
-            template: "玩家位置: {value}"
-            style:
-              color: "$textSecondary"
-              fontSize: 6
-
-  # 返回按钮
-  - id: backBtn
-    type: button
-    text: "返回游戏"
-    action: goBack
-    layout:
-      horizontalAlignment: left
-      verticalAlignment: bottom
-      left: "17px"
-      bottom: "17px"
-    style:
-      width: "53px"
-      height: "16px"
-      fontSize: 7
-      background: "$btnSecondary"
-      color: "$textPrimary"
-      cornerRadius: 3
-      thickness: 1
-      borderColor: "#7A8FA5"
+              width: "53px"
+              height: "17px"
+              background: "$btnNeutral"
+              color: "$btnTextAction"
+              fontSize: "$buttonFontSize"
+              cornerRadius: "$buttonCornerRadius"
+              thickness: "$buttonBorderWidth"
+              borderColor: "#7A8290"
 
 actions:
-  toggleWireframe:
-    type: custom
-    handler: toggleWireframe
+  cancelDevTools:
+    type: goBack
 
-  toggleBoundingBox:
-    type: custom
-    handler: toggleBoundingBox
-
-  toggleGrid:
-    type: custom
-    handler: toggleGrid
-
-  reloadScene:
-    type: custom
-    handler: reloadScene
-
-  clearSave:
-    type: custom
-    handler: clearSave
-
-  goBack:
-    type: setState
-    target: PLAYING
+keybindings:
+  Escape:
+    action: cancelDevTools
