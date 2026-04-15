@@ -1,0 +1,198 @@
+# ═══════════════════════════════════════════════════════════════
+# 地形/群落编辑器 (Biome Editor)
+# ═══════════════════════════════════════════════════════════════
+# 所属层级：第三层 · 场景组合
+#
+# 作用：
+#   定义生物群落的地形生成规则。
+#   群落是场景内地形区域的基本单位——一个场景可包含多个群落，
+#   群落决定了该区域长什么样、生成什么资源、出现什么生物。
+#
+# 核心功能：
+#   - 地形噪声参数：振幅、频率、叠加层数（Octaves）、
+#     持续度（Persistence）——控制地形的起伏和细节
+#   - 方块调色板：定义该群落使用的方块组合
+#     · 地表层：草地/沙土/灵石 等（引用物块编辑器输出）
+#     · 填充层：泥土/石头
+#     · 底层：基岩/深岩
+#     · 矿脉：灵晶矿/玉石矿及出现概率和深度范围
+#   - 植被分布：哪些灵植/树木以什么密度随机生成
+#     （引用物品编辑器的灵植定义）
+#   - 生物生成表：哪些物种在什么高度范围以什么密度刷新
+#     （引用物种编辑器输出），支持模板等级加权
+#   - 环境参数：基础温度、基础湿度
+#     （温度+湿度共同决定天气触发权重和灵植生长系数）
+#   - 默认天气权重：该群落的天气概率分布覆盖
+#
+# 输出配置：configs/biomes/*.yaml
+#   格式示例：
+#     biome:
+#       id: "spirit_forest"
+#       name: "灵木林"
+#       terrain:
+#         noise:
+#           frequency: 0.02
+#           amplitude: 12
+#           octaves: 4
+#           persistence: 0.5
+#         baseHeight: 64
+#       blockPalette:
+#         surface: "spirit_grass"
+#         fill: "rich_soil"
+#         base: "stone"
+#         ores:
+#           - block: "spirit_crystal_ore"
+#             chance: 0.02
+#             minY: 10
+#             maxY: 40
+#       vegetation:
+#         - item: "spirit_tree_sapling"
+#           density: 0.08
+#         - item: "spirit_herb_seed"
+#           density: 0.04
+#       spawns:
+#         - species: "forest_deer"
+#           density: 0.01
+#           template: "normal"
+#         - species: "ancient_tree_spirit"
+#           density: 0.002
+#           template: "elite"
+#       climate:
+#         temperature: 22
+#         humidity: 0.65
+#       weatherWeights:
+#         clear: 0.4
+#         spiritual_rain: 0.3
+#         fog: 0.2
+#         cloudy: 0.1
+#
+# 依赖：物块编辑器（方块调色板）、物品编辑器（植被）、
+#       物种编辑器（生物生成）、天气编辑器（天气权重引用）
+# 被引用方：场景编辑器（场景内群落分布）
+# ═══════════════════════════════════════════════════════════════
+
+page:
+  id: editor_biome
+  name: 地形/群落编辑器
+  type: overlay
+
+container:
+  width: "100%"
+  height: "100%"
+  background: transparent
+
+components:
+  - id: bgOverlay
+    type: rectangle
+    width: "100%"
+    height: "100%"
+    style:
+      background: "rgba(8, 16, 28, 0.88)"
+      thickness: 0
+
+  - id: mainPanel
+    type: rectangle
+    width: "100%"
+    height: "100%"
+    style:
+      background: "$bgDark"
+      cornerRadius: 0
+      thickness: 0
+    children:
+      # ─────────── 顶部标题栏 ───────────
+      - id: backBtn
+        type: button
+        text: "← 返回"
+        action: goBackToDevTools
+        layout:
+          top: "-150px"
+          left: "-275px"
+        style:
+          width: "53px"
+          height: "19px"
+          fontSize: "$buttonFontSize"
+          cornerRadius: "$buttonCornerRadius"
+          background: "$btnSecondary"
+          color: "$btnTextNormal"
+          thickness: "$buttonBorderWidth"
+          borderColor: "$border"
+
+      - id: editorTitle
+        type: title
+        text: "地形/群落编辑器"
+        layout:
+          top: "-150px"
+        style:
+          width: "100%"
+          height: "$titleLargeHeight"
+          fontSize: 18
+          color: "$textPrimary"
+          textAlign: center
+          shadowColor: "rgba(74, 155, 232, 0.35)"
+          shadowBlur: 3
+
+      - id: helpBtn
+        type: button
+        text: "?"
+        action: toggleHelp
+        layout:
+          top: "-150px"
+          left: "275px"
+        style:
+          width: "19px"
+          height: "19px"
+          fontSize: 12
+          cornerRadius: 10
+          background: "rgba(74, 155, 232, 0.25)"
+          color: "$textSecondary"
+          thickness: 1
+          borderColor: "$border"
+
+      - id: headerDivider
+        type: rectangle
+        width: "90%"
+        height: "$dividerHeight"
+        layout:
+          top: "-130px"
+        style:
+          background: "$divider"
+          thickness: 0
+
+      # ─────────── 帮助气泡 ───────────
+      - id: helpTooltip
+        type: rectangle
+        visible: false
+        layout:
+          top: "-110px"
+          left: "120px"
+        style:
+          width: "260px"
+          height: "80px"
+          background: "rgba(20, 35, 55, 0.95)"
+          cornerRadius: 6
+          thickness: 1
+          borderColor: "$border"
+        children:
+          - id: helpText
+            type: text
+            text: "定义生物群落的地形生成规则。群落是场景内地形区域的基本单位，决定了该区域长什么样、生成什么资源、出现什么生物。"
+            style:
+              width: "240px"
+              height: "70px"
+              fontSize: 10
+              color: "$textSecondary"
+              textWrapping: true
+              textAlign: left
+
+      # ─────────── 编辑器内容区域（待实现） ───────────
+
+actions:
+  goBackToDevTools:
+    type: goBack
+  toggleHelp:
+    type: toggleTooltip
+    targetId: helpTooltip
+
+keybindings:
+  Escape:
+    action: goBackToDevTools

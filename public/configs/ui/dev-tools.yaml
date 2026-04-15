@@ -79,7 +79,252 @@ components:
           background: "$divider"
           thickness: 0
 
-      # ─────────── 中间内容区域（暂空） ───────────
+      # ═══════════════════════════════════════
+      # 编辑器入口（3层 × 12个编辑器）
+      # ═══════════════════════════════════════
+
+      # ─── 第一层：基础资源 ───
+      - id: layer1Label
+        type: text
+        text: "── 基础资源 ──"
+        layout:
+          top: "-78px"
+        style:
+          width: "100%"
+          height: "$textSmallHeight"
+          fontSize: "$textSmall"
+          color: "$textMuted"
+          textAlign: center
+
+      - id: layer1Row
+        type: stack
+        layout:
+          isVertical: false
+          spacing: 6
+          top: "-62px"
+        style:
+          height: "22px"
+        children:
+          - id: btnEditorResource
+            type: button
+            text: "资源管理"
+            action: openEditorResource
+            style:
+              width: "80px"
+              height: "22px"
+              fontSize: "$buttonFontSize"
+              cornerRadius: "$buttonCornerRadius"
+              background: "$btnPrimary"
+              color: "$btnTextNormal"
+              thickness: "$buttonBorderWidth"
+              borderColor: "$primaryLight"
+
+          - id: btnEditorMaterial
+            type: button
+            text: "材质编辑"
+            action: openEditorMaterial
+            style:
+              width: "80px"
+              height: "22px"
+              fontSize: "$buttonFontSize"
+              cornerRadius: "$buttonCornerRadius"
+              background: "$btnPrimary"
+              color: "$btnTextNormal"
+              thickness: "$buttonBorderWidth"
+              borderColor: "$primaryLight"
+
+          - id: btnEditorAudio
+            type: button
+            text: "音效编辑"
+            action: openEditorAudio
+            style:
+              width: "80px"
+              height: "22px"
+              fontSize: "$buttonFontSize"
+              cornerRadius: "$buttonCornerRadius"
+              background: "$btnPrimary"
+              color: "$btnTextNormal"
+              thickness: "$buttonBorderWidth"
+              borderColor: "$primaryLight"
+
+      # ─── 第二层：内容构件 ───
+      - id: layer2Label
+        type: text
+        text: "── 内容构件 ──"
+        layout:
+          top: "-32px"
+        style:
+          width: "100%"
+          height: "$textSmallHeight"
+          fontSize: "$textSmall"
+          color: "$textMuted"
+          textAlign: center
+
+      - id: layer2Row1
+        type: stack
+        layout:
+          isVertical: false
+          spacing: 6
+          top: "-16px"
+        style:
+          height: "22px"
+        children:
+          - id: btnEditorBlock
+            type: button
+            text: "物块编辑"
+            action: openEditorBlock
+            style:
+              width: "80px"
+              height: "22px"
+              fontSize: "$buttonFontSize"
+              cornerRadius: "$buttonCornerRadius"
+              background: "$btnWarning"
+              color: "$btnTextAction"
+              thickness: "$buttonBorderWidth"
+              borderColor: "$warning"
+
+          - id: btnEditorSpecies
+            type: button
+            text: "物种编辑"
+            action: openEditorSpecies
+            style:
+              width: "80px"
+              height: "22px"
+              fontSize: "$buttonFontSize"
+              cornerRadius: "$buttonCornerRadius"
+              background: "$btnWarning"
+              color: "$btnTextAction"
+              thickness: "$buttonBorderWidth"
+              borderColor: "$warning"
+
+          - id: btnEditorItem
+            type: button
+            text: "物品编辑"
+            action: openEditorItem
+            style:
+              width: "80px"
+              height: "22px"
+              fontSize: "$buttonFontSize"
+              cornerRadius: "$buttonCornerRadius"
+              background: "$btnWarning"
+              color: "$btnTextAction"
+              thickness: "$buttonBorderWidth"
+              borderColor: "$warning"
+
+      - id: layer2Row2
+        type: stack
+        layout:
+          isVertical: false
+          spacing: 6
+          top: "12px"
+        style:
+          height: "22px"
+        children:
+          - id: btnEditorWeather
+            type: button
+            text: "天气/时间"
+            action: openEditorWeather
+            style:
+              width: "80px"
+              height: "22px"
+              fontSize: "$buttonFontSize"
+              cornerRadius: "$buttonCornerRadius"
+              background: "$btnWarning"
+              color: "$btnTextAction"
+              thickness: "$buttonBorderWidth"
+              borderColor: "$warning"
+
+          - id: btnEditorParticle
+            type: button
+            text: "粒子/特效"
+            action: openEditorParticle
+            style:
+              width: "80px"
+              height: "22px"
+              fontSize: "$buttonFontSize"
+              cornerRadius: "$buttonCornerRadius"
+              background: "$btnWarning"
+              color: "$btnTextAction"
+              thickness: "$buttonBorderWidth"
+              borderColor: "$warning"
+
+      # ─── 第三层：场景组合 ───
+      - id: layer3Label
+        type: text
+        text: "── 场景组合 ──"
+        layout:
+          top: "42px"
+        style:
+          width: "100%"
+          height: "$textSmallHeight"
+          fontSize: "$textSmall"
+          color: "$textMuted"
+          textAlign: center
+
+      - id: layer3Row
+        type: stack
+        layout:
+          isVertical: false
+          spacing: 6
+          top: "58px"
+        style:
+          height: "22px"
+        children:
+          - id: btnEditorBiome
+            type: button
+            text: "群落编辑"
+            action: openEditorBiome
+            style:
+              width: "80px"
+              height: "22px"
+              fontSize: "$buttonFontSize"
+              cornerRadius: "$buttonCornerRadius"
+              background: "$btnSuccess"
+              color: "$btnTextAction"
+              thickness: "$buttonBorderWidth"
+              borderColor: "$success"
+
+          - id: btnEditorScene
+            type: button
+            text: "场景/地图"
+            action: openEditorScene
+            style:
+              width: "80px"
+              height: "22px"
+              fontSize: "$buttonFontSize"
+              cornerRadius: "$buttonCornerRadius"
+              background: "$btnSuccess"
+              color: "$btnTextAction"
+              thickness: "$buttonBorderWidth"
+              borderColor: "$success"
+
+          - id: btnEditorCharacter
+            type: button
+            text: "角色编辑"
+            action: openEditorCharacter
+            style:
+              width: "80px"
+              height: "22px"
+              fontSize: "$buttonFontSize"
+              cornerRadius: "$buttonCornerRadius"
+              background: "$btnSuccess"
+              color: "$btnTextAction"
+              thickness: "$buttonBorderWidth"
+              borderColor: "$success"
+
+          - id: btnEditorRenderStyle
+            type: button
+            text: "渲染风格"
+            action: openEditorRenderStyle
+            style:
+              width: "80px"
+              height: "22px"
+              fontSize: "$buttonFontSize"
+              cornerRadius: "$buttonCornerRadius"
+              background: "$btnSuccess"
+              color: "$btnTextAction"
+              thickness: "$buttonBorderWidth"
+              borderColor: "$success"
 
       # ─────────── 底部分隔线 ───────────
       - id: footerDivider
@@ -119,6 +364,48 @@ components:
 actions:
   cancelDevTools:
     type: goBack
+
+  # 第一层：基础资源
+  openEditorResource:
+    type: setState
+    state: EDITOR_RESOURCE
+  openEditorMaterial:
+    type: setState
+    state: EDITOR_MATERIAL
+  openEditorAudio:
+    type: setState
+    state: EDITOR_AUDIO
+
+  # 第二层：内容构件
+  openEditorBlock:
+    type: setState
+    state: EDITOR_BLOCK
+  openEditorSpecies:
+    type: setState
+    state: EDITOR_SPECIES
+  openEditorItem:
+    type: setState
+    state: EDITOR_ITEM
+  openEditorWeather:
+    type: setState
+    state: EDITOR_WEATHER
+  openEditorParticle:
+    type: setState
+    state: EDITOR_PARTICLE
+
+  # 第三层：场景组合
+  openEditorBiome:
+    type: setState
+    state: EDITOR_BIOME
+  openEditorScene:
+    type: setState
+    state: EDITOR_SCENE
+  openEditorCharacter:
+    type: setState
+    state: EDITOR_CHARACTER
+  openEditorRenderStyle:
+    type: setState
+    state: EDITOR_RENDER_STYLE
 
 keybindings:
   Escape:

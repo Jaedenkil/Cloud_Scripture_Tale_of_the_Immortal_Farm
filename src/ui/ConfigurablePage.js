@@ -233,6 +233,7 @@ export class ConfigurablePage {
     const style = config.style || {}
     
     text.text = config.text || ''
+    text.isHitTestVisible = false
     
     // 应用完整样式（已包含默认值和变量解析）
     this.parser.applyStylesToControl(text, style)
@@ -245,6 +246,7 @@ export class ConfigurablePage {
     const style = config.style || {}
     
     text.text = config.text || ''
+    text.isHitTestVisible = false
     
     // 应用完整样式
     this.parser.applyStylesToControl(text, style)
@@ -256,6 +258,7 @@ export class ConfigurablePage {
     const style = config.style || {}
     
     text.text = config.text || ''
+    text.isHitTestVisible = false
     
     // 应用完整样式
     this.parser.applyStylesToControl(text, style)
@@ -273,6 +276,7 @@ export class ConfigurablePage {
     const style = config.style || {}
     
     text.text = config.template?.replace('{value}', '--') || '--'
+    text.isHitTestVisible = false
     
     // 应用完整样式
     this.parser.applyStylesToControl(text, style)
@@ -599,7 +603,7 @@ export class ConfigurablePage {
 
     switch (actionConfig.type) {
       case 'setState':
-        const targetState = GameStates[actionConfig.target]
+        const targetState = GameStates[actionConfig.state || actionConfig.target]
         if (targetState !== undefined) {
           gameState.setState(targetState)
         }
@@ -622,6 +626,24 @@ export class ConfigurablePage {
       case 'custom':
         if (this.customHandlers[actionConfig.handler]) {
           this.customHandlers[actionConfig.handler](params)
+        }
+        break
+
+      case 'toggleTooltip':
+        const tooltip = this.components.get(actionConfig.targetId)
+        if (tooltip) {
+          const willShow = !tooltip.isVisible
+          tooltip.isVisible = willShow
+          if (willShow) {
+            // 延迟注册点击外部关闭，避免当前点击立即触发
+            setTimeout(() => {
+              const dismissHandler = () => {
+                tooltip.isVisible = false
+                this.advancedTexture.onPointerDownObservable.removeCallback(dismissHandler)
+              }
+              this.advancedTexture.onPointerDownObservable.add(dismissHandler)
+            }, 0)
+          }
         }
         break
 

@@ -31,5 +31,69 @@ pages:
     state: PLAYING
     preload: true
 
+  # ═══ 编辑器页面（从开发者工具进入） ═══
+  # 第一层：基础资源
+  editor_resource:
+    file: editor-resource.yaml
+    state: EDITOR_RESOURCE
+    preload: true
+
+  editor_material:
+    file: editor-material.yaml
+    state: EDITOR_MATERIAL
+    preload: true
+
+  editor_audio:
+    file: editor-audio.yaml
+    state: EDITOR_AUDIO
+    preload: true
+
+  # 第二层：内容构件
+  editor_block:
+    file: editor-block.yaml
+    state: EDITOR_BLOCK
+    preload: true
+
+  editor_species:
+    file: editor-species.yaml
+    state: EDITOR_SPECIES
+    preload: true
+
+  editor_item:
+    file: editor-item.yaml
+    state: EDITOR_ITEM
+    preload: true
+
+  editor_weather:
+    file: editor-weather.yaml
+    state: EDITOR_WEATHER
+    preload: true
+
+  editor_particle:
+    file: editor-particle.yaml
+    state: EDITOR_PARTICLE
+    preload: true
+
+  # 第三层：场景组合
+  editor_biome:
+    file: editor-biome.yaml
+    state: EDITOR_BIOME
+    preload: true
+
+  editor_scene:
+    file: editor-scene.yaml
+    state: EDITOR_SCENE
+    preload: true
+
+  editor_character:
+    file: editor-character.yaml
+    state: EDITOR_CHARACTER
+    preload: true
+
+  editor_render_style:
+    file: editor-render-style.yaml
+    state: EDITOR_RENDER_STYLE
+    preload: true
+
 # 初始状态
 initialState: MAIN_MENU

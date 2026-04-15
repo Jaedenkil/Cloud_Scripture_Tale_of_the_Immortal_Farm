@@ -9,7 +9,20 @@ export const GameStates = {
   SETTINGS: 'settings',
   PLAYING: 'playing',
   PAUSED: 'paused',
-  DEV_TOOLS: 'devTools'
+  DEV_TOOLS: 'devTools',
+  // 编辑器状态（从开发者工具进入）
+  EDITOR_RESOURCE: 'editorResource',
+  EDITOR_MATERIAL: 'editorMaterial',
+  EDITOR_AUDIO: 'editorAudio',
+  EDITOR_BLOCK: 'editorBlock',
+  EDITOR_SPECIES: 'editorSpecies',
+  EDITOR_ITEM: 'editorItem',
+  EDITOR_WEATHER: 'editorWeather',
+  EDITOR_PARTICLE: 'editorParticle',
+  EDITOR_BIOME: 'editorBiome',
+  EDITOR_SCENE: 'editorScene',
+  EDITOR_CHARACTER: 'editorCharacter',
+  EDITOR_RENDER_STYLE: 'editorRenderStyle'
 }
 
 class GameState {

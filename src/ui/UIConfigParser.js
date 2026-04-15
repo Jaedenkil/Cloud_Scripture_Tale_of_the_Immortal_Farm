@@ -42,6 +42,7 @@ const STYLE_PROPERTY_MAP = {
   fontWeight: 'fontWeight',
   textAlign: 'textHorizontalAlignment',
   letterSpacing: 'letterSpacing',
+  textWrapping: 'textWrapping',
   
   // 间距
   paddingTop: 'paddingTop',
@@ -343,6 +344,9 @@ export class UIConfigParser {
             'right': GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT
           }
           control[guiProperty] = alignMap[value] || GUI.Control.HORIZONTAL_ALIGNMENT_CENTER
+        } else if (styleKey === 'textWrapping') {
+          // textWrapping: true → WordWrap, false → Clip
+          control[guiProperty] = value ? GUI.TextWrapping.WordWrap : GUI.TextWrapping.Clip
         } else {
           control[guiProperty] = value
         }
