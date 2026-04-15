@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, session } = require('electron')
+const { app, BrowserWindow, ipcMain, session, screen } = require('electron')
 const path = require('path')
 
 // 开发模式检测
@@ -7,9 +7,23 @@ const isDev = !app.isPackaged
 let mainWindow = null
 
 function createWindow () {
+  // 固定窗口分辨率 1280×720（渲染基准 640×360，2倍缩放）
+  const windowWidth = 1280
+  const windowHeight = 720
+  
+  // 计算居中位置
+  const primaryDisplay = screen.getPrimaryDisplay()
+  const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize
+  const x = Math.floor((screenWidth - windowWidth) / 2)
+  const y = Math.floor((screenHeight - windowHeight) / 2)
+  
   mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 720,
+    width: windowWidth,
+    height: windowHeight,
+    x: x,
+    y: y,
+    minWidth: 1280,
+    minHeight: 720,
     title: '云笈仙田录',
     frame: false,           // 无边框窗口
     titleBarStyle: 'hidden', // 隐藏标题栏

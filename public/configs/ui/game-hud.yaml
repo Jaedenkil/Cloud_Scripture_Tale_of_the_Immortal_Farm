@@ -15,17 +15,19 @@ components:
   # 左上角 - 玩家信息
   - id: playerInfo
     type: panel
-    width: "240px"
+    width: "87px"
     height: "auto"
     layout:
       horizontalAlignment: left
       verticalAlignment: top
-      left: "20px"
-      top: "60px"
+      left: "17px"
+      top: "20px"
     style:
-      background: "rgba(15, 20, 30, 0.7)"
-      cornerRadius: 8
-      padding: "12px"
+      background: "$bgMedium"
+      cornerRadius: 3
+      padding: "5px"
+      thickness: 1
+      borderColor: "$border"
     children:
       - id: playerName
         type: dynamicText
@@ -33,7 +35,7 @@ components:
         template: "{value}"
         style:
           color: "$textPrimary"
-          fontSize: 16
+          fontSize: 8
           fontWeight: bold
 
       - id: cultivationLevel
@@ -41,8 +43,8 @@ components:
         binding: player.cultivation
         template: "境界: {value}"
         style:
-          color: "$accent"
-          fontSize: 14
+          color: "$primary"
+          fontSize: 6
 
       - id: spiritBar
         type: progressBar
@@ -50,10 +52,10 @@ components:
         max: player.maxSpirit
         style:
           width: "100%"
-          height: "8px"
+          height: "3px"
           backgroundColor: "rgba(0,0,0,0.3)"
           fillColor: "$primary"
-          cornerRadius: 4
+          cornerRadius: 1
 
       - id: spiritText
         type: dynamicText
@@ -61,22 +63,22 @@ components:
         template: "灵力: {value}/{max}"
         style:
           color: "$textSecondary"
-          fontSize: 12
+          fontSize: 6
 
   # 右上角 - 小地图
   - id: minimap
     type: panel
-    width: "180px"
-    height: "180px"
+    width: "60px"
+    height: "60px"
     layout:
       horizontalAlignment: right
       verticalAlignment: top
-      right: "20px"
-      top: "60px"
+      right: "17px"
+      top: "20px"
     style:
-      background: "rgba(15, 20, 30, 0.7)"
-      cornerRadius: 8
-      borderWidth: 2
+      background: "$bgMedium"
+      cornerRadius: 3
+      borderWidth: 1
       borderColor: "$primary"
     children:
       - id: minimapCanvas
@@ -90,36 +92,38 @@ components:
         text: "小地图"
         style:
           color: "$textMuted"
-          fontSize: 10
+          fontSize: 5
           horizontalAlignment: center
-          bottom: "4px"
+          bottom: "1px"
 
   # 底部中央 - 快捷栏
   - id: hotbar
     type: panel
     width: "auto"
-    height: "64px"
+    height: "24px"
     layout:
       horizontalAlignment: center
       verticalAlignment: bottom
-      bottom: "20px"
+      bottom: "17px"
     style:
-      background: "rgba(15, 20, 30, 0.8)"
-      cornerRadius: 8
-      padding: "6px"
+      background: "$bgMedium"
+      cornerRadius: 3
+      padding: "3px"
+      thickness: 1
+      borderColor: "$border"
     children:
       - id: hotbarSlots
         type: slotGrid
         columns: 9
         rows: 1
-        slotSize: 52
-        spacing: 4
+        slotSize: 17
+        spacing: 1
         binding: player.hotbar
         style:
-          slotBackground: "rgba(40, 50, 70, 0.6)"
+          slotBackground: "rgba(50, 80, 115, 0.6)"
           slotBorder: "$primary"
           selectedBorder: "$accent"
-          selectedWidth: 2
+          selectedWidth: 1
 
   # 底部左侧 - 提示信息
   - id: hintText
@@ -128,11 +132,11 @@ components:
     layout:
       horizontalAlignment: left
       verticalAlignment: bottom
-      left: "20px"
-      bottom: "24px"
+      left: "17px"
+      bottom: "8px"
     style:
       color: "$textMuted"
-      fontSize: 12
+      fontSize: 6
 
   # 中央 - 交互提示（条件显示）
   - id: interactionHint
@@ -142,13 +146,15 @@ components:
     layout:
       horizontalAlignment: center
       verticalAlignment: center
-      top: "100px"
+      top: "33px"
     visible: false
     binding: interaction.available
     style:
-      background: "rgba(0, 0, 0, 0.6)"
-      cornerRadius: 6
-      padding: "8px 16px"
+      background: "rgba(18, 32, 48, 0.8)"
+      cornerRadius: 3
+      padding: "3px 7px"
+      thickness: 1
+      borderColor: "$border"
     children:
       - id: interactionText
         type: dynamicText
@@ -156,7 +162,7 @@ components:
         template: "[E] {value}"
         style:
           color: "$textPrimary"
-          fontSize: 14
+          fontSize: 7
 
 # 键盘快捷键
 keybindings:

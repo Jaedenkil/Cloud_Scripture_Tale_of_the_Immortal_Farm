@@ -14,26 +14,28 @@ components:
   # 左侧调试面板
   - id: debugPanel
     type: panel
-    width: "320px"
+    width: "120px"
     height: "auto"
     layout:
       horizontalAlignment: left
       verticalAlignment: top
-      left: "20px"
-      top: "60px"
+      left: "17px"
+      top: "20px"
     style:
-      background: "rgba(20, 25, 35, 0.9)"
-      cornerRadius: 8
-      padding: "16px"
+      background: "$bgMedium"
+      cornerRadius: 3
+      padding: "8px"
+      thickness: 1
+      borderColor: "$border"
     children:
       - id: title
         type: text
         text: "🛠 开发者工具"
         style:
-          fontSize: 18
-          color: "$accent"
+          fontSize: 10
+          color: "$primary"
           fontWeight: bold
-          height: "30px"
+          height: "13px"
 
       # 性能信息
       - id: perfSection
@@ -46,7 +48,7 @@ components:
             template: "FPS: {value}"
             style:
               color: "$textSecondary"
-              fontSize: 14
+              fontSize: 6
 
           - id: memoryDisplay
             type: dynamicText
@@ -54,7 +56,7 @@ components:
             template: "内存: {value} MB"
             style:
               color: "$textSecondary"
-              fontSize: 14
+              fontSize: 6
 
           - id: drawCallsDisplay
             type: dynamicText
@@ -62,7 +64,7 @@ components:
             template: "Draw Calls: {value}"
             style:
               color: "$textSecondary"
-              fontSize: 14
+              fontSize: 6
 
       # 渲染选项
       - id: renderSection
@@ -98,8 +100,13 @@ components:
             action: reloadScene
             style:
               width: "100%"
-              height: "36px"
-              fontSize: 14
+              height: "16px"
+              fontSize: 7
+              background: "$btnPrimary"
+              color: "$textPrimary"
+              cornerRadius: 3
+              thickness: 1
+              borderColor: "$primaryLight"
 
           - id: clearSaveBtn
             type: button
@@ -107,9 +114,13 @@ components:
             action: clearSave
             style:
               width: "100%"
-              height: "36px"
-              fontSize: 14
-              color: "$danger"
+              height: "16px"
+              fontSize: 7
+              background: "$btnDanger"
+              color: "$textPrimary"
+              cornerRadius: 3
+              thickness: 1
+              borderColor: "#FF6B78"
 
       # 状态信息
       - id: stateSection
@@ -122,7 +133,7 @@ components:
             template: "游戏状态: {value}"
             style:
               color: "$textSecondary"
-              fontSize: 14
+              fontSize: 6
 
           - id: playerPosDisplay
             type: dynamicText
@@ -130,7 +141,7 @@ components:
             template: "玩家位置: {value}"
             style:
               color: "$textSecondary"
-              fontSize: 14
+              fontSize: 6
 
   # 返回按钮
   - id: backBtn
@@ -140,10 +151,17 @@ components:
     layout:
       horizontalAlignment: left
       verticalAlignment: bottom
-      left: "20px"
-      bottom: "20px"
+      left: "17px"
+      bottom: "17px"
     style:
-      width: "120px"
+      width: "53px"
+      height: "16px"
+      fontSize: 7
+      background: "$btnSecondary"
+      color: "$textPrimary"
+      cornerRadius: 3
+      thickness: 1
+      borderColor: "#7A8FA5"
 
 actions:
   toggleWireframe:

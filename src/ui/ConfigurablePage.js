@@ -6,11 +6,17 @@
 import * as GUI from '@babylonjs/gui'
 import { gameState, GameStates } from '../core/GameState.js'
 import { configLoader } from '../core/ConfigLoader.js'
+import UIConfigParser from './UIConfigParser.js'
 
 export class ConfigurablePage {
-  constructor(config) {
-    this.config = config
-    this.pageId = config.page?.id || 'unknown'
+  constructor(config, parser = null) {
+    this.rawConfig = config
+    this.parser = parser || new UIConfigParser(configLoader)
+    
+    // 解析配置（包含验证）
+    this.config = this.parser.parsePageConfig(config)
+    this.pageId = this.config.page?.id || 'unknown'
+    
     this.container = null
     this.advancedTexture = null
     this.uiManager = null
@@ -42,18 +48,18 @@ export class ConfigurablePage {
    * 根据配置创建 UI
    */
   createUI() {
-    const containerConfig = this.config.container || {}
+    const containerConfig = this.config.container
     
-    // 创建主容器
+    // 创建主容器（配置已被解析）
     this.container = new GUI.Rectangle(`${this.pageId}Container`)
-    this.container.width = containerConfig.width || '100%'
-    this.container.height = containerConfig.height || '100%'
-    this.container.background = this.resolveValue(containerConfig.background) || 'transparent'
+    this.container.width = containerConfig.width
+    this.container.height = containerConfig.height
+    this.container.background = containerConfig.background
     this.container.thickness = 0
     this.container.isVisible = false
     this.advancedTexture.addControl(this.container)
 
-    // 渲染组件
+    // 渲染组件（使用解析后的配置）
     const components = this.config.components || []
     for (const componentConfig of components) {
       const component = this.createComponent(componentConfig, this.container)
@@ -130,13 +136,33 @@ export class ConfigurablePage {
         return null
     }
 
-    if (component && parent) {
-      parent.addControl(component)
+    // 应用可见性（如果配置中指定）
+    if (component && config.visible !== undefined) {
+      component.isVisible = config.visible
     }
 
-    // 应用布局
+    // 注册可见性绑定（用于动态显示/隐藏）
+    if (component && config.binding && type !== 'dynamicText' && type !== 'progressBar') {
+      this.dynamicBindings.push({
+        control: component,
+        binding: config.binding,
+        type: 'visibility'
+      })
+    }
+
+    // 应用布局（配置已解析，直接应用）
     if (config.layout) {
-      this.applyLayout(component, config.layout)
+      this.parser.applyLayoutToControl(component, config.layout)
+    }
+
+    if (component && parent) {
+      parent.addControl(component)
+
+      // 某些 Babylon GUI 容器会在 addControl 时重新测量子控件。
+      // 布局在挂载后再次应用，避免 top/left 等偏移被首次布局覆盖。
+      if (config.layout) {
+        this.parser.applyLayoutToControl(component, config.layout)
+      }
     }
 
     // 递归创建子组件
@@ -153,181 +179,103 @@ export class ConfigurablePage {
   }
 
   /**
-   * 解析值（处理变量引用）
-   */
-  resolveValue(value) {
-    if (!value) return value
-    if (typeof value !== 'string') return value
-    
-    if (value.startsWith('$')) {
-      const varName = value.slice(1)
-      return configLoader.getColor(varName) || 
-             configLoader.getFont(varName) || 
-             configLoader.getSize(varName) || 
-             value
-    }
-    return value
-  }
-
-  /**
-   * 应用布局配置
-   */
-  applyLayout(control, layout) {
-    if (!control || !layout) return
-
-    // 对齐方式
-    if (layout.horizontalAlignment) {
-      const alignMap = {
-        'left': GUI.Control.HORIZONTAL_ALIGNMENT_LEFT,
-        'center': GUI.Control.HORIZONTAL_ALIGNMENT_CENTER,
-        'right': GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT
-      }
-      control.horizontalAlignment = alignMap[layout.horizontalAlignment] || GUI.Control.HORIZONTAL_ALIGNMENT_CENTER
-    }
-
-    if (layout.verticalAlignment) {
-      const alignMap = {
-        'top': GUI.Control.VERTICAL_ALIGNMENT_TOP,
-        'center': GUI.Control.VERTICAL_ALIGNMENT_CENTER,
-        'bottom': GUI.Control.VERTICAL_ALIGNMENT_BOTTOM
-      }
-      control.verticalAlignment = alignMap[layout.verticalAlignment] || GUI.Control.VERTICAL_ALIGNMENT_CENTER
-    }
-
-    // 位置
-    if (layout.left) control.left = layout.left
-    if (layout.right) control.left = `-${layout.right}`  // 右侧偏移转为负左偏移
-    if (layout.top) control.top = layout.top
-    if (layout.bottom) control.top = `-${layout.bottom}`
-
-    // 堆栈布局
-    if (layout.isVertical !== undefined && control.isVertical !== undefined) {
-      control.isVertical = layout.isVertical
-    }
-    if (layout.spacing !== undefined && control.spacing !== undefined) {
-      control.spacing = layout.spacing
-    }
-
-    // 内边距
-    if (layout.paddingLeft) control.paddingLeft = layout.paddingLeft
-    if (layout.paddingRight) control.paddingRight = layout.paddingRight
-    if (layout.paddingTop) control.paddingTop = layout.paddingTop
-    if (layout.paddingBottom) control.paddingBottom = layout.paddingBottom
-  }
-
-  /**
-   * 应用样式配置
+   * 应用样式配置（统一使用 parser）
+   * @deprecated 使用 parser.applyStylesToControl 替代
    */
   applyStyle(control, style) {
     if (!control || !style) return
-
-    // 背景和颜色
-    if (style.background) control.background = this.resolveValue(style.background)
-    if (style.color) control.color = this.resolveValue(style.color)
-    
-    // 边框
-    if (style.thickness !== undefined) control.thickness = style.thickness
-    if (style.borderColor) control.color = this.resolveValue(style.borderColor)
-    if (style.cornerRadius !== undefined) control.cornerRadius = style.cornerRadius
-
-    // 字体
-    if (style.fontSize) control.fontSize = style.fontSize
-    if (style.fontFamily) control.fontFamily = this.resolveValue(style.fontFamily)
-    if (style.fontWeight === 'bold') control.fontWeight = 'bold'
-
-    // 阴影
-    if (style.shadowColor) control.shadowColor = this.resolveValue(style.shadowColor)
-    if (style.shadowBlur) control.shadowBlur = style.shadowBlur
-
-    // 尺寸
-    if (style.width) control.width = style.width
-    if (style.height) control.height = style.height
-
-    // 内边距
-    if (style.paddingLeft) control.paddingLeft = style.paddingLeft
-    if (style.paddingRight) control.paddingRight = style.paddingRight
-    if (style.paddingTop) control.paddingTop = style.paddingTop
-    if (style.paddingBottom) control.paddingBottom = style.paddingBottom
+    this.parser.applyStylesToControl(control, style)
   }
 
   // ========== 组件创建方法 ==========
 
   createRectangle(config) {
     const rect = new GUI.Rectangle(config.id)
-    rect.width = config.width || '100%'
-    rect.height = config.height || '100%'
-    rect.thickness = 0
-    this.applyStyle(rect, config.style)
+    // 使用已解析的样式（包含默认值）
+    const style = config.style || {}
+    rect.width = style.width || config.width || '100%'
+    rect.height = style.height || config.height || '100%'
+    rect.thickness = style.thickness !== undefined ? style.thickness : 0
+    
+    // 应用完整样式
+    this.parser.applyStylesToControl(rect, style)
     return rect
   }
 
   createPanel(config) {
     const panel = new GUI.Rectangle(config.id)
-    panel.width = config.width || '400px'
-    panel.height = config.height || 'auto'
+    const style = config.style || {}
     
-    // 应用默认面板样式
-    const defaults = configLoader.getComponentDefaults('panel')
-    panel.background = this.resolveValue(config.style?.background || defaults.background || 'rgba(20, 30, 45, 0.9)')
-    panel.cornerRadius = config.style?.cornerRadius || defaults.cornerRadius || 12
-    panel.thickness = config.style?.borderWidth || defaults.borderWidth || 1
-    panel.color = this.resolveValue(config.style?.borderColor || defaults.borderColor || 'rgba(212, 175, 55, 0.3)')
+    panel.width = style.width || config.width || '400px'
+    panel.height = style.height || config.height || 'auto'
     
-    this.applyStyle(panel, config.style)
+    // 应用完整样式（已包含默认值）
+    this.parser.applyStylesToControl(panel, style)
     return panel
   }
 
   createStack(config) {
     const stack = new GUI.StackPanel(config.id)
-    stack.isVertical = config.layout?.isVertical !== false
-    if (config.layout?.spacing) stack.spacing = config.layout.spacing
+    const layout = config.layout || {}
+    
+    stack.isVertical = layout.isVertical !== false
+    if (layout.spacing !== undefined) stack.spacing = layout.spacing
+    
+    // 应用样式
+    if (config.style) {
+      this.parser.applyStylesToControl(stack, config.style)
+    }
     return stack
   }
 
   createTitle(config) {
-    const defaults = configLoader.getComponentDefaults('title')
     const text = new GUI.TextBlock(config.id)
+    const style = config.style || {}
+    
     text.text = config.text || ''
-    text.fontSize = config.style?.fontSize || 36
-    text.color = this.resolveValue(config.style?.color || defaults.color || '#e8e4d9')
-    text.fontFamily = this.resolveValue(config.style?.fontFamily || defaults.fontFamily || 'SimSun')
     
-    if (config.style?.shadowColor || defaults.shadowColor) {
-      text.shadowColor = this.resolveValue(config.style?.shadowColor || defaults.shadowColor)
-      text.shadowBlur = config.style?.shadowBlur || defaults.shadowBlur || 15
-    }
-    
-    if (config.style?.height) text.height = config.style.height
+    // 应用完整样式（已包含默认值和变量解析）
+    this.parser.applyStylesToControl(text, style)
     
     return text
   }
 
   createSubtitle(config) {
     const text = new GUI.TextBlock(config.id)
+    const style = config.style || {}
+    
     text.text = config.text || ''
-    text.fontSize = config.style?.fontSize || 16
-    text.color = this.resolveValue(config.style?.color || '#a8a498')
-    text.fontFamily = this.resolveValue(config.style?.fontFamily || 'Microsoft YaHei')
-    if (config.style?.height) text.height = config.style.height
+    
+    // 应用完整样式
+    this.parser.applyStylesToControl(text, style)
     return text
   }
 
   createText(config) {
     const text = new GUI.TextBlock(config.id)
-    text.text = config.text || ''
-    this.applyStyle(text, config.style)
+    const style = config.style || {}
     
-    // 默认样式
-    if (!config.style?.fontSize) text.fontSize = 14
-    if (!config.style?.color) text.color = this.resolveValue('$textSecondary')
+    text.text = config.text || ''
+    
+    // 应用完整样式
+    this.parser.applyStylesToControl(text, style)
+    
+    // 未指定宽高时自动适配内容尺寸
+    if (!style.width && !style.height) {
+      text.resizeToFit = true
+    }
     
     return text
   }
 
   createDynamicText(config) {
     const text = new GUI.TextBlock(config.id)
+    const style = config.style || {}
+    
     text.text = config.template?.replace('{value}', '--') || '--'
-    this.applyStyle(text, config.style)
+    
+    // 应用完整样式
+    this.parser.applyStylesToControl(text, style)
     
     // 注册动态绑定
     if (config.binding) {
@@ -342,32 +290,31 @@ export class ConfigurablePage {
   }
 
   createButton(config) {
-    const defaults = configLoader.getComponentDefaults('button')
+    const style = config.style || {}
     
     const btn = GUI.Button.CreateSimpleButton(config.id, config.text || '')
-    btn.width = config.style?.width || defaults.width || '280px'
-    btn.height = config.style?.height || defaults.height || '52px'
-    btn.background = this.resolveValue(config.style?.background || defaults.background || '#1a3a4a')
-    btn.color = this.resolveValue(config.style?.color || defaults.color || '#e8e4d9')
-    btn.cornerRadius = config.style?.cornerRadius || defaults.cornerRadius || 6
-    btn.thickness = defaults.borderWidth || 1
+    
+    // 应用完整样式（已包含默认值）
+    this.parser.applyStylesToControl(btn, style)
     
     // 文字样式
     const textBlock = btn.textBlock
     if (textBlock) {
-      textBlock.fontSize = config.style?.fontSize || defaults.fontSize || 18
-      textBlock.fontFamily = this.resolveValue('$body')
+      if (style.fontSize) {
+        textBlock.fontSize = style.fontSize
+      }
+      if (style.color) {
+        textBlock.color = style.color
+      }
     }
 
-    // 悬停效果
-    const hoverBg = this.resolveValue(defaults.hoverBackground || 'rgba(30, 60, 80, 0.9)')
+    // 悬停效果（简化实现）
     const normalBg = btn.background
-    
     btn.onPointerEnterObservable.add(() => {
-      btn.background = hoverBg
+      btn.alpha = 0.8
     })
     btn.onPointerOutObservable.add(() => {
-      btn.background = normalBg
+      btn.alpha = 1.0
     })
 
     // 绑定动作
@@ -383,16 +330,16 @@ export class ConfigurablePage {
   createSlider(config) {
     const container = new GUI.StackPanel(config.id + '_container')
     container.isVertical = false
-    container.height = '40px'
+    container.height = '19px'
     container.width = '100%'
     
     // 标签
     if (config.label) {
       const label = new GUI.TextBlock(config.id + '_label')
       label.text = config.label
-      label.width = '80px'
-      label.fontSize = 14
-      label.color = this.resolveValue('$textSecondary')
+      label.width = '53px'
+      label.fontSize = 8
+      label.color = this.parser.parseValue('$textSecondary')
       label.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
       container.addControl(label)
     }
@@ -402,19 +349,21 @@ export class ConfigurablePage {
     slider.minimum = config.min || 0
     slider.maximum = config.max || 100
     slider.value = config.default || 50
-    slider.height = '20px'
-    slider.width = '160px'
-    slider.color = this.resolveValue('$accent')
-    slider.background = 'rgba(0, 0, 0, 0.3)'
-    slider.thumbColor = this.resolveValue('$accent')
+    slider.height = '9px'
+    slider.width = '107px'
+    slider.color = this.parser.parseValue('$primary')
+    slider.background = 'rgba(50, 80, 115, 0.5)'
+    slider.thumbColor = this.parser.parseValue('$primaryLight')
+    slider.borderColor = this.parser.parseValue('$border')
+    slider.isThumbCircle = true
     container.addControl(slider)
 
     // 值显示
     const valueText = new GUI.TextBlock(config.id + '_value')
     valueText.text = String(Math.round(slider.value))
-    valueText.width = '50px'
-    valueText.fontSize = 14
-    valueText.color = this.resolveValue('$textSecondary')
+    valueText.width = '27px'
+    valueText.fontSize = 8
+    valueText.color = this.parser.parseValue('$textPrimary')
     container.addControl(valueText)
 
     slider.onValueChangedObservable.add((value) => {
@@ -430,27 +379,27 @@ export class ConfigurablePage {
   createToggle(config) {
     const container = new GUI.StackPanel(config.id + '_container')
     container.isVertical = false
-    container.height = '40px'
+    container.height = '19px'
     container.width = '100%'
 
     // 标签
     if (config.label) {
       const label = new GUI.TextBlock(config.id + '_label')
       label.text = config.label
-      label.width = '200px'
-      label.fontSize = 14
-      label.color = this.resolveValue('$textSecondary')
+      label.width = '107px'
+      label.fontSize = 8
+      label.color = this.parser.parseValue('$textSecondary')
       label.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
       container.addControl(label)
     }
 
     // 开关
     const checkbox = new GUI.Checkbox(config.id)
-    checkbox.width = '24px'
-    checkbox.height = '24px'
+    checkbox.width = '11px'
+    checkbox.height = '11px'
     checkbox.isChecked = config.default || false
-    checkbox.color = this.resolveValue('$accent')
-    checkbox.background = 'rgba(50, 50, 50, 0.6)'
+    checkbox.color = this.parser.parseValue('$primary')
+    checkbox.background = 'rgba(50, 80, 115, 0.5)'
     container.addControl(checkbox)
 
     checkbox.onIsCheckedChangedObservable.add((value) => {
@@ -469,15 +418,15 @@ export class ConfigurablePage {
     // 简化实现 - 使用按钮组
     const container = new GUI.StackPanel(config.id + '_container')
     container.isVertical = false
-    container.height = '40px'
+    container.height = '19px'
     container.width = '100%'
 
     if (config.label) {
       const label = new GUI.TextBlock(config.id + '_label')
       label.text = config.label
-      label.width = '80px'
-      label.fontSize = 14
-      label.color = this.resolveValue('$textSecondary')
+      label.width = '53px'
+      label.fontSize = 8
+      label.color = this.parser.parseValue('$textSecondary')
       label.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
       container.addControl(label)
     }
@@ -487,20 +436,25 @@ export class ConfigurablePage {
 
     for (const option of (config.options || [])) {
       const btn = GUI.Button.CreateSimpleButton(config.id + '_' + option.value, option.text)
-      btn.width = '60px'
-      btn.height = '30px'
-      btn.fontSize = 12
-      btn.cornerRadius = 4
-      btn.thickness = 1
+      btn.width = '45px'
+      btn.height = '15px'
+      btn.fontSize = 7
+      btn.cornerRadius = 3
+      btn.thickness = 2
       
       const isSelected = option.value === currentValue
-      btn.background = isSelected ? this.resolveValue('$primary') : 'rgba(50, 50, 50, 0.6)'
-      btn.color = this.resolveValue('$textPrimary')
+      btn.background = isSelected ? this.parser.parseValue('$primary') : 'rgba(50, 80, 115, 0.4)'
+      btn.color = this.parser.parseValue('$textPrimary')
+      btn.paddingLeft = '4px'
+      btn.paddingRight = '4px'
       
       btn.onPointerClickObservable.add(() => {
         currentValue = option.value
-        buttons.forEach(b => b.background = 'rgba(50, 50, 50, 0.6)')
-        btn.background = this.resolveValue('$primary')
+        buttons.forEach(b => {
+          b.background = 'rgba(50, 80, 115, 0.4)'
+          b.thickness = 2
+        })
+        btn.background = this.parser.parseValue('$primary')
         if (config.setting) {
           gameState.setSetting(config.setting, option.value)
         }
@@ -516,7 +470,7 @@ export class ConfigurablePage {
   createSpacer(config) {
     const spacer = new GUI.Rectangle(config.id)
     spacer.width = config.width || '1px'
-    spacer.height = config.height || '20px'
+    spacer.height = config.height || '7px'
     spacer.thickness = 0
     spacer.background = 'transparent'
     return spacer
@@ -526,16 +480,25 @@ export class ConfigurablePage {
     const container = new GUI.StackPanel(config.id)
     container.isVertical = true
     container.width = '100%'
+    container.spacing = 3
 
     if (config.label) {
       const label = new GUI.TextBlock(config.id + '_label')
       label.text = config.label
-      label.height = '30px'
-      label.fontSize = 14
-      label.color = this.resolveValue('$accent')
+      label.height = '13px'
+      label.fontSize = 8
+      label.color = this.parser.parseValue('$primary')
       label.fontWeight = 'bold'
       label.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
       container.addControl(label)
+
+      // 分节线
+      const divider = new GUI.Rectangle(config.id + '_divider')
+      divider.width = '100%'
+      divider.height = '1px'
+      divider.background = this.parser.parseValue('$divider')
+      divider.thickness = 0
+      container.addControl(divider)
     }
 
     return container
@@ -549,14 +512,14 @@ export class ConfigurablePage {
     const container = new GUI.Rectangle(config.id)
     container.width = config.style?.width || '100%'
     container.height = config.style?.height || '8px'
-    container.background = this.resolveValue(config.style?.backgroundColor || 'rgba(0,0,0,0.3)')
+    container.background = this.parser.parseValue(config.style?.backgroundColor || 'rgba(0,0,0,0.3)')
     container.cornerRadius = config.style?.cornerRadius || 4
     container.thickness = 0
 
     const fill = new GUI.Rectangle(config.id + '_fill')
     fill.width = '50%'  // 默认 50%
     fill.height = '100%'
-    fill.background = this.resolveValue(config.style?.fillColor || '$primary')
+    fill.background = this.parser.parseValue(config.style?.fillColor || '$primary')
     fill.cornerRadius = config.style?.cornerRadius || 4
     fill.thickness = 0
     fill.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT
@@ -580,16 +543,16 @@ export class ConfigurablePage {
     container.isVertical = false
     
     const cols = config.columns || 9
-    const slotSize = config.slotSize || 52
-    const spacing = config.spacing || 4
+    const slotSize = config.slotSize || 17
+    const spacing = config.spacing || 1
 
     for (let i = 0; i < cols; i++) {
       const slot = new GUI.Rectangle(`${config.id}_slot_${i}`)
       slot.width = `${slotSize}px`
       slot.height = `${slotSize}px`
-      slot.background = this.resolveValue(config.style?.slotBackground || 'rgba(40, 50, 70, 0.6)')
+      slot.background = this.parser.parseValue(config.style?.slotBackground || 'rgba(40, 50, 70, 0.6)')
       slot.thickness = 1
-      slot.color = this.resolveValue(config.style?.slotBorder || '$primary')
+      slot.color = this.parser.parseValue(config.style?.slotBorder || '$primary')
       slot.cornerRadius = 4
       
       if (i < cols - 1) {
@@ -614,8 +577,8 @@ export class ConfigurablePage {
     // 添加占位文字
     const text = new GUI.TextBlock(config.id + '_placeholder')
     text.text = config.renderer || '渲染区域'
-    text.color = this.resolveValue('$textMuted')
-    text.fontSize = 12
+    text.color = this.parser.parseValue('$textMuted')
+    text.fontSize = 4
     placeholder.addControl(text)
 
     return placeholder
@@ -709,7 +672,10 @@ export class ConfigurablePage {
     for (const binding of this.dynamicBindings) {
       const value = this.getBindingValue(data, binding.binding)
       
-      if (binding.type === 'progressBar') {
+      if (binding.type === 'visibility') {
+        // 可见性绑定：真值显示，假值隐藏
+        binding.control.isVisible = !!value
+      } else if (binding.type === 'progressBar') {
         const max = this.getBindingValue(data, binding.maxBinding) || 100
         binding.control.width = `${(value / max) * 100}%`
       } else if (binding.template) {

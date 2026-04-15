@@ -15,7 +15,8 @@ class Game {
       stencil: true
     })
 
-    this.scene = this.createScene()
+    this.scene = this.createBaseScene()
+    this.gameWorldLoaded = false  // 游戏世界是否已加载
 
     // 异步初始化 UI 系统
     this.initUI()
@@ -68,6 +69,13 @@ class Game {
                       state === GameStates.PAUSED || 
                       state === GameStates.DEV_TOOLS
 
+    // 如果进入游戏状态且世界未加载，则加载游戏世界
+    if (showScene && !this.gameWorldLoaded) {
+      console.log('🌍 开始加载游戏世界...')
+      this.loadGameWorld()
+      this.gameWorldLoaded = true
+    }
+
     // 设置场景中所有网格的可见性
     this.scene.meshes.forEach(mesh => {
       mesh.isVisible = showScene
@@ -103,11 +111,14 @@ class Game {
     })
   }
 
-  createScene () {
+  /**
+   * 创建基础场景（不包含游戏世界内容）
+   */
+  createBaseScene () {
     const scene = new BABYLON.Scene(this.engine)
 
-    // 设置天空色（仙气蓝紫色调）
-    scene.clearColor = new BABYLON.Color4(0.4, 0.6, 0.9, 1.0)
+    // 设置天空色（主菜单时使用深色，后续可改为渐变）
+    scene.clearColor = new BABYLON.Color4(0.05, 0.1, 0.15, 1.0)
 
     // 创建相机
     const camera = new BABYLON.ArcRotateCamera(
@@ -139,27 +150,37 @@ class Game {
     )
     sunLight.intensity = 0.6
 
+    return scene
+  }
+
+  /**
+   * 加载游戏世界内容（仅在开始游戏时调用）
+   */
+  loadGameWorld () {
+    // 切换天空色为游戏场景色（仙气蓝紫色调）
+    this.scene.clearColor = new BABYLON.Color4(0.4, 0.6, 0.9, 1.0)
+
     // 创建地面（草地）
-    const ground = this.createVoxelBlock(scene, 'ground', 10, 0.5, 10, new BABYLON.Color3(0.3, 0.6, 0.2))
+    const ground = this.createVoxelBlock(this.scene, 'ground', 10, 0.5, 10, new BABYLON.Color3(0.3, 0.6, 0.2))
     ground.position.y = -0.25
 
     // 创建一些体素方块（测试用）
-    const dirtBlock = this.createVoxelBlock(scene, 'dirt', 1, 1, 1, new BABYLON.Color3(0.5, 0.35, 0.2))
+    const dirtBlock = this.createVoxelBlock(this.scene, 'dirt', 1, 1, 1, new BABYLON.Color3(0.5, 0.35, 0.2))
     dirtBlock.position.set(-2, 0.5, 0)
 
-    const stoneBlock = this.createVoxelBlock(scene, 'stone', 1, 1, 1, new BABYLON.Color3(0.5, 0.5, 0.5))
+    const stoneBlock = this.createVoxelBlock(this.scene, 'stone', 1, 1, 1, new BABYLON.Color3(0.5, 0.5, 0.5))
     stoneBlock.position.set(0, 0.5, 0)
 
-    const woodBlock = this.createVoxelBlock(scene, 'wood', 1, 1, 1, new BABYLON.Color3(0.6, 0.4, 0.2))
+    const woodBlock = this.createVoxelBlock(this.scene, 'wood', 1, 1, 1, new BABYLON.Color3(0.6, 0.4, 0.2))
     woodBlock.position.set(2, 0.5, 0)
 
     // 创建一棵简单的树
-    this.createTree(scene, new BABYLON.Vector3(0, 0, -3))
+    this.createTree(this.scene, new BABYLON.Vector3(0, 0, -3))
 
     // 创建一个简单的房子轮廓
-    this.createHouse(scene, new BABYLON.Vector3(4, 0, 3))
+    this.createHouse(this.scene, new BABYLON.Vector3(4, 0, 3))
 
-    return scene
+    console.log('✅ 游戏世界加载完成')
   }
 
   /**

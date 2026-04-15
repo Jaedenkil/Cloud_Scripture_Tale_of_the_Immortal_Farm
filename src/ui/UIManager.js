@@ -1,75 +1,12 @@
 /**
  * UI 管理器
  * 使用 Babylon.js GUI 管理所有游戏界面
- * 支持 YAML 配置驱动
  */
 
 import * as GUI from '@babylonjs/gui'
 import { gameState, GameStates } from '../core/GameState.js'
-import { configLoader } from '../core/ConfigLoader.js'
 import { ConfigurablePage } from './ConfigurablePage.js'
-
-/**
- * UI 主题配置
- * 视觉论：空灵、古意、仙气、静谧
- */
-export const UITheme = {
-  // 颜色系统（克制的配色）
-  colors: {
-    // 主色调 - 玄青
-    primary: '#2d4a5e',
-    primaryLight: '#4a7a8a',
-    primaryDark: '#1a2e3a',
-    
-    // 强调色 - 金
-    accent: '#c9a227',
-    accentLight: '#e8c547',
-    accentDark: '#8a6f1a',
-    
-    // 背景
-    bgDark: 'rgba(15, 20, 30, 0.95)',
-    bgMedium: 'rgba(25, 35, 50, 0.9)',
-    bgLight: 'rgba(40, 55, 75, 0.85)',
-    
-    // 文字
-    textPrimary: '#e8e4d9',
-    textSecondary: '#a0a8b0',
-    textMuted: '#6a7280',
-    
-    // 功能色
-    success: '#4a9e6a',
-    warning: '#c9a227',
-    danger: '#a84040',
-    
-    // 边框
-    border: 'rgba(200, 200, 200, 0.15)',
-    borderHover: 'rgba(200, 180, 100, 0.4)'
-  },
-  
-  // 字体
-  fonts: {
-    title: 'KaiTi, STKaiti, serif',
-    body: 'Microsoft YaHei, sans-serif',
-    mono: 'Consolas, monospace'
-  },
-  
-  // 尺寸
-  sizes: {
-    titleLarge: 48,
-    titleMedium: 32,
-    titleSmall: 24,
-    textLarge: 18,
-    textMedium: 16,
-    textSmall: 14,
-    
-    buttonWidth: 240,
-    buttonHeight: 50,
-    buttonSpacing: 16,
-    
-    padding: 20,
-    borderRadius: 4
-  }
-}
+import { configLoader } from '../core/ConfigLoader.js'
 
 class UIManager {
   constructor() {
@@ -77,7 +14,6 @@ class UIManager {
     this.currentPage = null
     this.pages = new Map()
     this.scene = null
-    this.configLoaded = false
   }
 
   /**
@@ -88,8 +24,8 @@ class UIManager {
     
     // 创建全屏 UI
     this.advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI('UI', true, scene)
-    this.advancedTexture.idealWidth = 1920
-    this.advancedTexture.idealHeight = 1080
+    this.advancedTexture.idealWidth = 640
+    this.advancedTexture.idealHeight = 360
     
     // 监听状态变化
     gameState.on('stateChange', ({ to }) => this.onStateChange(to))
@@ -98,87 +34,13 @@ class UIManager {
   }
 
   /**
-   * 从配置文件加载所有页面
-   */
-  async loadFromConfig() {
-    try {
-      console.log('[UIManager] 开始加载 UI 配置...')
-      
-      const { index, theme, pages } = await configLoader.init()
-      
-      // 注册预加载的页面
-      for (const { pageId, config, state } of pages) {
-        const stateKey = GameStates[state]
-        if (stateKey !== undefined) {
-          const page = new ConfigurablePage(config)
-          this.registerPage(stateKey, page)
-          console.log(`[UIManager] 配置页面注册: ${pageId} -> ${state}`)
-        }
-      }
-
-      this.configLoaded = true
-      console.log('[UIManager] UI 配置加载完成')
-      
-      // 设置初始状态
-      const initialState = GameStates[index.initialState]
-      if (initialState !== undefined) {
-        gameState.setState(initialState)
-      }
-
-      return true
-    } catch (error) {
-      console.error('[UIManager] 配置加载失败:', error)
-      return false
-    }
-  }
-
-  /**
-   * 按需加载单个页面配置
-   */
-  async loadPageConfig(filename, stateName) {
-    try {
-      const config = await configLoader.loadConfig(filename)
-      const page = new ConfigurablePage(config)
-      const stateKey = GameStates[stateName]
-      
-      if (stateKey !== undefined) {
-        this.registerPage(stateKey, page)
-        return page
-      }
-      return null
-    } catch (error) {
-      console.error(`[UIManager] 加载页面配置失败: ${filename}`, error)
-      return null
-    }
-  }
-
-  /**
    * 状态变化处理
    */
   onStateChange(newState) {
-    // 隐藏当前页面
     if (this.currentPage) {
       this.hidePage(this.currentPage)
     }
-    
-    // 显示对应页面
-    switch (newState) {
-      case GameStates.MAIN_MENU:
-        this.showPage('mainMenu')
-        break
-      case GameStates.SETTINGS:
-        this.showPage('settings')
-        break
-      case GameStates.PAUSED:
-        this.showPage('pause')
-        break
-      case GameStates.DEV_TOOLS:
-        this.showPage('devTools')
-        break
-      case GameStates.PLAYING:
-        this.showPage('hud')
-        break
-    }
+    this.showPage(newState)
   }
 
   /**
@@ -211,135 +73,70 @@ class UIManager {
   }
 
   /**
-   * 创建标准按钮
+   * 从 YAML 配置加载所有 UI 页面
    */
-  createButton(text, options = {}) {
-    const button = GUI.Button.CreateSimpleButton(options.name || text, text)
-    
-    // 尺寸
-    button.width = options.width || `${UITheme.sizes.buttonWidth}px`
-    button.height = options.height || `${UITheme.sizes.buttonHeight}px`
-    
-    // 样式
-    button.color = options.color || UITheme.colors.textPrimary
-    button.background = options.background || UITheme.colors.bgMedium
-    button.cornerRadius = UITheme.sizes.borderRadius
-    button.thickness = 1
-    button.hoverCursor = 'pointer'
-    
-    // 文字样式
-    const textBlock = button.textBlock
-    if (textBlock) {
-      textBlock.fontFamily = UITheme.fonts.body
-      textBlock.fontSize = options.fontSize || UITheme.sizes.textLarge
+  async loadFromConfig() {
+    try {
+      const { index, pages } = await configLoader.init()
+
+      for (const { pageId, config, state } of pages) {
+        const pageName = GameStates[state]
+        if (pageName !== undefined) {
+          const page = new ConfigurablePage(config)
+          this.registerPage(pageName, page)
+          if (state === 'SETTINGS') {
+            this.registerSettingsHandlers(page)
+          }
+        }
+      }
+
+      // 设置初始状态，触发首个页面显示
+      const initialState = GameStates[index.initialState]
+      if (initialState !== undefined) {
+        gameState.setState(initialState)
+      }
+
+      return true
+    } catch (error) {
+      console.error('[UIManager] 配置加载失败:', error)
+      return false
     }
-    
-    // 悬停效果
-    button.onPointerEnterObservable.add(() => {
-      button.background = UITheme.colors.bgLight
-      button.thickness = 2
-      button.color = UITheme.colors.accent
-    })
-    
-    button.onPointerOutObservable.add(() => {
-      button.background = options.background || UITheme.colors.bgMedium
-      button.thickness = 1
-      button.color = options.color || UITheme.colors.textPrimary
-    })
-    
-    // 点击效果
-    button.onPointerDownObservable.add(() => {
-      button.background = UITheme.colors.primaryDark
-    })
-    
-    button.onPointerUpObservable.add(() => {
-      button.background = UITheme.colors.bgLight
-    })
-    
-    return button
   }
 
   /**
-   * 创建标题文本
+   * 注册设置页面的标签切换逻辑
    */
-  createTitle(text, options = {}) {
-    const title = new GUI.TextBlock()
-    title.text = text
-    title.color = options.color || UITheme.colors.textPrimary
-    title.fontSize = options.fontSize || UITheme.sizes.titleLarge
-    title.fontFamily = UITheme.fonts.title
-    title.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER
-    title.height = options.height || '80px'
-    
-    if (options.shadowColor) {
-      title.shadowColor = options.shadowColor
-      title.shadowBlur = options.shadowBlur || 10
+  registerSettingsHandlers(page) {
+    const theme = configLoader.getTheme()
+    const colors = theme?.colors || {}
+
+    const switchTab = (activeContentId) => {
+      const tabMap = [
+        { contentId: 'audioContent', tabId: 'tabAudio' },
+        { contentId: 'graphicsContent', tabId: 'tabGraphics' },
+        { contentId: 'languageContent', tabId: 'tabLanguage' }
+      ]
+      for (const { contentId, tabId } of tabMap) {
+        const content = page.components.get(contentId)
+        const tab = page.components.get(tabId)
+        const isActive = contentId === activeContentId
+        if (content) content.isVisible = isActive
+        if (tab) {
+          tab.background = isActive ? (colors.primary || '#4A9BE8') : 'rgba(50, 80, 115, 0.35)'
+          tab.color = isActive ? (colors.primaryLight || '#6BB3F0') : (colors.border || 'rgba(74, 155, 232, 0.4)')
+          if (tab.textBlock) {
+            tab.textBlock.color = isActive ? (colors.textPrimary || '#FFFFFF') : (colors.textSecondary || '#B0D4F1')
+          }
+        }
+      }
     }
-    
-    return title
-  }
 
-  /**
-   * 创建副标题文本
-   */
-  createSubtitle(text, options = {}) {
-    const subtitle = new GUI.TextBlock()
-    subtitle.text = text
-    subtitle.color = options.color || UITheme.colors.textSecondary
-    subtitle.fontSize = options.fontSize || UITheme.sizes.textMedium
-    subtitle.fontFamily = UITheme.fonts.body
-    subtitle.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER
-    subtitle.height = options.height || '30px'
-    
-    return subtitle
-  }
+    // 页面初始化后延迟执行，确保组件已创建
+    setTimeout(() => switchTab('audioContent'), 0)
 
-  /**
-   * 创建滑块
-   */
-  createSlider(options = {}) {
-    const slider = new GUI.Slider()
-    slider.minimum = options.min ?? 0
-    slider.maximum = options.max ?? 1
-    slider.value = options.value ?? 0.5
-    slider.width = options.width || '200px'
-    slider.height = options.height || '20px'
-    slider.color = UITheme.colors.accent
-    slider.background = UITheme.colors.bgLight
-    slider.thumbColor = UITheme.colors.textPrimary
-    slider.borderColor = UITheme.colors.border
-    slider.isThumbCircle = true
-    
-    return slider
-  }
-
-  /**
-   * 创建面板容器
-   */
-  createPanel(options = {}) {
-    const panel = new GUI.Rectangle()
-    panel.width = options.width || '400px'
-    panel.height = options.height || '500px'
-    panel.background = options.background || UITheme.colors.bgDark
-    panel.cornerRadius = UITheme.sizes.borderRadius
-    panel.thickness = options.thickness ?? 1
-    panel.color = UITheme.colors.border
-    
-    return panel
-  }
-
-  /**
-   * 创建垂直堆栈面板
-   */
-  createStackPanel(options = {}) {
-    const stack = new GUI.StackPanel()
-    stack.isVertical = options.vertical ?? true
-    stack.spacing = options.spacing ?? UITheme.sizes.buttonSpacing
-    
-    if (options.width) stack.width = options.width
-    if (options.height) stack.height = options.height
-    
-    return stack
+    page.registerHandler('switchToAudio', () => switchTab('audioContent'))
+    page.registerHandler('switchToGraphics', () => switchTab('graphicsContent'))
+    page.registerHandler('switchToLanguage', () => switchTab('languageContent'))
   }
 
   /**

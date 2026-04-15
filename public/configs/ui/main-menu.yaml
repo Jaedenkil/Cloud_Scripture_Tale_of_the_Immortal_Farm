@@ -1,5 +1,5 @@
 # 主菜单页面配置
-# 视觉论：空灵、古意、静谧的修仙氛围
+# 天蓝亮色风格
 
 page:
   id: main_menu
@@ -20,7 +20,7 @@ components:
     width: "100%"
     height: "100%"
     style:
-      background: "rgba(15, 25, 40, 0.85)"
+      background: "rgba(18, 32, 48, 0.90)"
       thickness: 0
 
   # 内容堆栈容器
@@ -37,11 +37,11 @@ components:
         type: title
         text: "云笈仙田录"
         style:
-          fontSize: 56
+          fontSize: 12
           color: "$textPrimary"
-          shadowColor: "$accent"
-          shadowBlur: 20
-          height: "100px"
+          shadowColor: "rgba(74, 155, 232, 0.5)"
+          shadowBlur: 5
+          height: "27px"
 
       # 副标题
       - id: subtitle
@@ -49,74 +49,113 @@ components:
         text: "Cloud Scripture: Tale of the Immortal Farm"
         style:
           color: "$textSecondary"
-          fontSize: 16
-          height: "40px"
+          fontSize: 6
+          height: "13px"
 
       # 间隔
       - id: spacer1
         type: spacer
-        height: "60px"
+        height: "17px"
 
       # 按钮组
       - id: buttonStack
         type: stack
         layout:
           isVertical: true
-          spacing: 16
+          spacing: 4
         children:
           - id: startBtn
             type: button
             text: "开始游戏"
             action: startGame
+            style:
+              width: "93px"
+              height: "19px"
+              fontSize: 8
+              background: "$btnSuccess"
+              color: "$btnTextAction"
+              cornerRadius: 3
+              thickness: 1
+              borderColor: "#5AF08C"
 
           - id: continueBtn
             type: button
             text: "继续游戏"
             action: continueGame
             style:
-              background: "$bgLight"
+              width: "93px"
+              height: "19px"
+              fontSize: 8
+              background: "$btnPrimary"
+              color: "$btnTextAction"
+              cornerRadius: 3
+              thickness: 1
+              borderColor: "$primaryLight"
 
           - id: settingsBtn
             type: button
             text: "设置"
             action: openSettings
+            style:
+              width: "93px"
+              height: "19px"
+              fontSize: 8
+              background: "$btnSecondary"
+              color: "$btnTextAction"
+              cornerRadius: 3
+              thickness: 1
+              borderColor: "#7A8FA5"
 
           - id: devBtn
             type: button
             text: "开发工具"
             action: openDevTools
             style:
-              background: "rgba(100, 60, 60, 0.5)"
+              width: "93px"
+              height: "19px"
+              fontSize: 8
+              background: "$btnWarning"
+              color: "$btnTextAction"
+              cornerRadius: 3
+              thickness: 1
+              borderColor: "#FFB84D"
 
           - id: exitBtn
             type: button
             text: "退出游戏"
             action: exitGame
             style:
-              color: "$danger"
+              width: "93px"
+              height: "19px"
+              fontSize: 8
+              background: "$btnDanger"
+              color: "$btnTextAction"
+              cornerRadius: 3
+              thickness: 1
+              borderColor: "#FF6B78"
 
   # 版本信息
   - id: version
     type: text
     text: "v0.1.0 - 早期开发版"
-    style:
-      color: "$textMuted"
-      fontSize: 12
+    layout:
       horizontalAlignment: right
       verticalAlignment: bottom
-      paddingRight: "20px"
-      paddingBottom: "20px"
+      right: "17px"
+      bottom: "17px"
+    style:
+      color: "$textMuted"
+      fontSize: 6
 
 # 事件动作映射
 actions:
   startGame:
     type: setState
     target: PLAYING
-  
+
   continueGame:
     type: setState
     target: PLAYING
-    # TODO: 加载存档逻辑
 
   openSettings:
     type: setState

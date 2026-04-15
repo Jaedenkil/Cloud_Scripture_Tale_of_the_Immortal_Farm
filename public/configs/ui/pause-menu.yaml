@@ -14,63 +14,108 @@ components:
   # 主面板
   - id: mainPanel
     type: panel
-    width: "400px"
+    width: "140px"
     height: "auto"
     layout:
       horizontalAlignment: center
       verticalAlignment: center
     style:
       background: "$bgDark"
-      cornerRadius: 16
-      padding: "40px"
+      cornerRadius: 4
+      thickness: 1
+      borderColor: "$border"
+      padding: "17px"
     children:
       # 标题
       - id: title
         type: title
         text: "游戏暂停"
         style:
-          fontSize: 36
+          fontSize: 12
           color: "$textPrimary"
-          height: "60px"
+          height: "20px"
+
+      # 分隔线
+      - id: pauseDivider
+        type: rectangle
+        width: "100%"
+        height: "1px"
+        style:
+          background: "$divider"
+          thickness: 0
+
+      # 间隔
+      - id: spacerAfterDivider
+        type: spacer
+        height: "7px"
 
       # 按钮组
       - id: buttonStack
         type: stack
         layout:
           isVertical: true
-          spacing: 16
-          top: "20px"
+          spacing: 4
         children:
           - id: resumeBtn
             type: button
             text: "继续游戏"
             action: resume
             style:
-              width: "240px"
+              width: "93px"
+              height: "19px"
+              fontSize: 8
+              background: "$btnSuccess"
+              color: "$btnTextAction"
+              cornerRadius: 3
+              thickness: 1
+              borderColor: "#5AF08C"
 
           - id: settingsBtn
             type: button
             text: "设置"
             action: openSettings
             style:
-              width: "240px"
-              background: "$bgLight"
+              width: "93px"
+              height: "19px"
+              fontSize: 8
+              background: "$btnPrimary"
+              color: "$btnTextAction"
+              cornerRadius: 3
+              thickness: 1
+              borderColor: "$primaryLight"
 
           - id: saveBtn
             type: button
             text: "保存游戏"
             action: saveGame
             style:
-              width: "240px"
-              background: "$bgLight"
+              width: "93px"
+              height: "19px"
+              fontSize: 8
+              background: "$btnSecondary"
+              color: "$btnTextAction"
+              cornerRadius: 3
+              thickness: 1
+              borderColor: "#7A8FA5"
 
           - id: mainMenuBtn
             type: button
             text: "返回主菜单"
             action: goMainMenu
             style:
-              width: "240px"
-              color: "$danger"
+              width: "93px"
+              height: "19px"
+              fontSize: 8
+              background: "$btnDanger"
+              color: "$btnTextAction"
+              cornerRadius: 3
+              thickness: 1
+              borderColor: "#FF6B78"
+
+      # 间隔
+      - id: spacerBeforeHint
+        type: spacer
+        height: "7px"
 
       # 提示文字
       - id: hint
@@ -78,8 +123,7 @@ components:
         text: "按 ESC 继续游戏"
         style:
           color: "$textMuted"
-          fontSize: 12
-          top: "20px"
+          fontSize: 6
           horizontalAlignment: center
 
 actions:
