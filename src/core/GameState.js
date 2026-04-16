@@ -52,7 +52,8 @@ class GameState {
         seed: null,
         time: 0,
         weather: 'clear'
-      }
+      },
+      editor: {}
     }
   }
 
