@@ -1,0 +1,9 @@
+material:
+  id: mat_wood
+  name: 木板材质
+  diffuse: tex_wood_plank
+  normal: tex_wood_n
+  emissive: null
+  alpha: 1.0
+  uvScale: [1, 1]
+  blendMode: opaque

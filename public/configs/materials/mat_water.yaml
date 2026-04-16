@@ -1,0 +1,9 @@
+material:
+  id: mat_water
+  name: 流水材质
+  diffuse: tex_water_flow
+  normal: tex_water_n
+  emissive: null
+  alpha: 0.8
+  uvScale: [1, 1]
+  blendMode: alphaBlend

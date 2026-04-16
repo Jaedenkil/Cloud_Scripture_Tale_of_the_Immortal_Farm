@@ -1,0 +1,49 @@
+# 资源清单 (Resource Manifest)
+# 所有资源的 ID → 文件路径映射
+
+resources:
+  # ─── 贴图 (texture) ───
+  - id: tex_spiritual_ore
+    type: texture
+    path: textures/tex_spiritual_ore.png
+    tags: [block, ore, spiritual]
+
+  - id: tex_spiritual_ore_e
+    type: texture
+    path: textures/tex_spiritual_ore_e.png
+    tags: [block, ore, spiritual, emissive]
+
+  - id: tex_grass_top
+    type: texture
+    path: textures/tex_grass_top.png
+    tags: [block, grass]
+
+  - id: tex_grass_n
+    type: texture
+    path: textures/tex_grass_n.png
+    tags: [block, grass, normal]
+
+  - id: tex_water_flow
+    type: texture
+    path: textures/tex_water_flow.png
+    tags: [water, animated]
+
+  - id: tex_water_n
+    type: texture
+    path: textures/tex_water_n.png
+    tags: [water, normal]
+
+  - id: tex_wood_plank
+    type: texture
+    path: textures/tex_wood_plank.png
+    tags: [block, wood]
+
+  - id: tex_wood_n
+    type: texture
+    path: textures/tex_wood_n.png
+    tags: [block, wood, normal]
+
+  - id: tex_farmland_wet
+    type: texture
+    path: textures/tex_farmland_wet.png
+    tags: [block, farm]

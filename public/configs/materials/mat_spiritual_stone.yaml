@@ -1,0 +1,9 @@
+material:
+  id: mat_spiritual_stone
+  name: 灵石材质
+  diffuse: tex_spiritual_ore
+  normal: null
+  emissive: tex_spiritual_ore_e
+  alpha: 1.0
+  uvScale: [1, 1]
+  blendMode: opaque

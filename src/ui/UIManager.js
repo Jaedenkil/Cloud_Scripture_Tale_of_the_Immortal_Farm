@@ -7,6 +7,7 @@ import * as GUI from '@babylonjs/gui'
 import { gameState, GameStates } from '../core/GameState.js'
 import { ConfigurablePage } from './ConfigurablePage.js'
 import { configLoader } from '../core/ConfigLoader.js'
+import { MaterialPreview } from './MaterialPreview.js'
 
 class UIManager {
   constructor() {
@@ -273,14 +274,28 @@ class UIManager {
 
     // 模拟材质数据
     const mockMaterials = [
-      { id: 'mat_spiritual_stone', name: '灵石材质', diffuse: 'tex_spiritual_ore', normal: '(无)', emissive: 'tex_spiritual_ore_e', alpha: 100, blendMode: 'opaque' },
-      { id: 'mat_grass', name: '草地材质', diffuse: 'tex_grass_top', normal: 'tex_grass_n', emissive: '(无)', alpha: 100, blendMode: 'opaque' },
-      { id: 'mat_water', name: '流水材质', diffuse: 'tex_water_flow', normal: 'tex_water_n', emissive: '(无)', alpha: 80, blendMode: 'alphaBlend' },
-      { id: 'mat_wood', name: '木板材质', diffuse: 'tex_wood_plank', normal: 'tex_wood_n', emissive: '(无)', alpha: 100, blendMode: 'opaque' },
-      { id: 'mat_farmland', name: '灵田土壤', diffuse: 'tex_farmland_wet', normal: '(无)', emissive: '(无)', alpha: 100, blendMode: 'opaque' }
+      { id: 'mat_spiritual_stone', name: '灵石材质', diffuse: 'tex_spiritual_ore', normal: '(无)', emissive: 'tex_spiritual_ore_e', alpha: 1.0, blendMode: 'opaque' },
+      { id: 'mat_grass', name: '草地材质', diffuse: 'tex_grass_top', normal: 'tex_grass_n', emissive: '(无)', alpha: 1.0, blendMode: 'opaque' },
+      { id: 'mat_water', name: '流水材质', diffuse: 'tex_water_flow', normal: 'tex_water_n', emissive: '(无)', alpha: 0.8, blendMode: 'alphaBlend' },
+      { id: 'mat_wood', name: '木板材质', diffuse: 'tex_wood_plank', normal: 'tex_wood_n', emissive: '(无)', alpha: 1.0, blendMode: 'opaque' },
+      { id: 'mat_farmland', name: '灵田土壤', diffuse: 'tex_farmland_wet', normal: '(无)', emissive: '(无)', alpha: 1.0, blendMode: 'opaque' }
     ]
 
+    // 资源 ID → 文件路径映射
+    const resourceMap = {
+      'tex_spiritual_ore': 'textures/tex_spiritual_ore.png',
+      'tex_spiritual_ore_e': 'textures/tex_spiritual_ore_e.png',
+      'tex_grass_top': 'textures/tex_grass_top.png',
+      'tex_grass_n': 'textures/tex_grass_n.png',
+      'tex_water_flow': 'textures/tex_water_flow.png',
+      'tex_water_n': 'textures/tex_water_n.png',
+      'tex_wood_plank': 'textures/tex_wood_plank.png',
+      'tex_wood_n': 'textures/tex_wood_n.png',
+      'tex_farmland_wet': 'textures/tex_farmland_wet.png'
+    }
+
     let selectedIndex = -1
+    let materialPreview = null
 
     if (!gameState.data.editor) gameState.data.editor = {}
     gameState.data.editor.material = {
@@ -293,6 +308,30 @@ class UIManager {
     }
 
     const matItemIds = ['mat_item_1', 'mat_item_2', 'mat_item_3', 'mat_item_4', 'mat_item_5']
+
+    // 延迟初始化 3D 预览（等页面组件创建完成）
+    setTimeout(() => {
+      if (this.scene) {
+        materialPreview = new MaterialPreview(this.scene, 256)
+        const canvasCtrl = page.components.get('previewCanvas')
+        if (canvasCtrl) {
+          materialPreview.attachToGUIControl(canvasCtrl, this.advancedTexture)
+        }
+        console.log('[UIManager] 材质 3D 预览已初始化')
+      }
+    }, 100)
+
+    // 页面显示/隐藏时控制预览可见性
+    const origShow = page.show.bind(page)
+    const origHide = page.hide.bind(page)
+    page.show = () => {
+      origShow()
+      if (materialPreview && selectedIndex >= 0) materialPreview.show()
+    }
+    page.hide = () => {
+      origHide()
+      if (materialPreview) materialPreview.hide()
+    }
 
     const selectMaterial = (index) => {
       if (index < 0 || index >= mockMaterials.length) return
@@ -325,6 +364,11 @@ class UIManager {
       gameState.data.editor.material.emissive = mat.emissive
       gameState.data.editor.material.status = `编辑中: ${mat.name} (${mat.id})`
       page.update(gameState.data)
+
+      // 更新 3D 预览
+      if (materialPreview) {
+        materialPreview.applyMaterial(mat, resourceMap)
+      }
     }
 
     page.registerHandler('materialSelect', (params) => selectMaterial(params.index))
@@ -341,6 +385,13 @@ class UIManager {
       if (selectedIndex >= 0) {
         gameState.data.editor.material.status = `⚠ 删除 ${mockMaterials[selectedIndex].id} — 模拟操作`
         page.update(gameState.data)
+      }
+    })
+
+    // 形状切换处理器（通过 selector 的 setting 变更触发）
+    gameState.on('settingsChange', ({ key, value }) => {
+      if (key === 'editor.material.previewShape' && materialPreview) {
+        materialPreview.setShape(value)
       }
     })
 

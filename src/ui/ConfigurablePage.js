@@ -578,14 +578,32 @@ export class ConfigurablePage {
     placeholder.thickness = 0
     placeholder.cornerRadius = 4
 
-    // 添加占位文字
+    // 添加占位文字（可被外部替换）
     const text = new GUI.TextBlock(config.id + '_placeholder')
     text.text = config.renderer || '渲染区域'
     text.color = this.parser.parseValue('$textMuted')
     text.fontSize = 4
     placeholder.addControl(text)
 
+    // 存储配置供外部读取
+    placeholder._canvasConfig = config
+
     return placeholder
+  }
+
+  /**
+   * 替换 canvas 占位符内容为自定义 GUI 控件
+   * @param {string} canvasId - canvas 组件 ID
+   * @param {GUI.Control} control - 替换进去的 GUI 控件
+   */
+  replaceCanvasContent(canvasId, control) {
+    const container = this.components.get(canvasId)
+    if (!container) return
+    // 移除占位文字
+    const placeholderText = container.getChildByName(canvasId + '_placeholder')
+    if (placeholderText) container.removeControl(placeholderText)
+    container.background = 'transparent'
+    container.addControl(control)
   }
 
   // ========== 动作执行 ==========
