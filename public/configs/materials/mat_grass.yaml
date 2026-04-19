@@ -1,9 +1,0 @@
-material:
-  id: mat_grass
-  name: 草地材质
-  diffuse: tex_grass_top
-  normal: tex_grass_n
-  emissive: null
-  alpha: 1.0
-  uvScale: [1, 1]
-  blendMode: opaque

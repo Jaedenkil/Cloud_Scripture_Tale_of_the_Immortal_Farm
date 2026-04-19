@@ -1,9 +1,0 @@
-material:
-  id: mat_farmland
-  name: 灵田土壤
-  diffuse: tex_farmland_wet
-  normal: null
-  emissive: null
-  alpha: 1.0
-  uvScale: [1, 1]
-  blendMode: opaque
