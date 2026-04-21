@@ -1,0 +1,54 @@
+page:
+  id: game-hud
+  name: 云笈仙田录 · 游戏内
+  subtitle: 灵田经营进行中
+  description: 游戏主界面占位页，后续将接入真实 HUD 与世界交互。
+layout:
+  viewportBase: full-window
+  designBaseline: current-content-area
+  style:
+    rows: "$style.pages.gameHud.rows"
+    sectionGap: "$style.pages.gameHud.sectionGap"
+    sectionRadius: "$style.pages.gameHud.sectionRadius"
+    stripPadding: "$style.pages.gameHud.stripPadding"
+    actionPadding: "$style.pages.gameHud.actionPadding"
+    titleSize: "$style.pages.gameHud.titleSize"
+    subtitleSize: "$style.pages.gameHud.subtitleSize"
+    descFontSize: "$style.pages.gameHud.descFontSize"
+  root:
+    width: 100%
+    height: 100%
+    overflowX: hidden
+    overflowY: hidden
+  zones:
+    - id: top
+      role: status-zone
+      heightRatio: 0.2
+    - id: center
+      role: primary-interaction-zone
+      heightRatio: 0.58
+    - id: bottom
+      role: quick-action-zone
+      heightRatio: 0.22
+  acceptance:
+    noHorizontalScroll: true
+summary:
+  - id: player
+    label: 修士
+    value: 云隐弟子
+  - id: season
+    label: 时令
+    value: 暮春 · 午时
+  - id: location
+    label: 区域
+    value: 初始灵田
+actions:
+  - id: back-main
+    text: 返回首页
+    type: secondary
+  - id: open-settings
+    text: 游戏设置
+    type: primary
+  - id: open-devtools
+    text: 开发工具
+    type: tool

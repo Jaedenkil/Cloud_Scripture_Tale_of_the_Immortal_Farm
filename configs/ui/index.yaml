@@ -1,0 +1,17 @@
+ui:
+  version: 1
+  defaultTheme: sky-cloud-black
+  defaultPage: main-menu
+  styleParams: ./styles/style-params.yaml
+  themes:
+    - id: sky-cloud-black
+      path: ./themes/theme.sky-cloud-black.yaml
+  pages:
+    - id: main-menu
+      path: ./pages/main-menu.yaml
+    - id: game-hud
+      path: ./pages/game-hud.yaml
+    - id: settings
+      path: ./pages/settings.yaml
+    - id: dev-tools-workbench
+      path: ./pages/dev-tools-workbench.yaml

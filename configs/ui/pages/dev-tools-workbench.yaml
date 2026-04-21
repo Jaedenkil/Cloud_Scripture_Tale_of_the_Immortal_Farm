@@ -1,0 +1,177 @@
+page:
+  id: dev-tools-workbench
+  name: 开发工具总控台
+  type: workbench
+  description: 开发工具入口切换页，当前阶段只负责分类导航与工具切换。
+  subtitle: 当前阶段先完成分类与工具切换，主体区域预留给后续预览与操作。
+  statusNote: 当前页面仅实现开发工具间切换。
+layout:
+  viewportBase: full-window
+  designBaseline: current-content-area
+  style:
+    heroMinHeight: "$style.pages.workbench.heroMinHeight"
+    categoryGap: "$style.pages.workbench.categoryGap"
+    toolGridColumns: "$style.pages.workbench.toolGridColumns"
+    contentColumns: "$style.pages.workbench.contentColumns"
+    navColumnWidth: "$style.pages.workbench.navColumnWidth"
+    toolListMinHeight: "$style.pages.workbench.toolListMinHeight"
+    detailMinHeight: "$style.pages.workbench.detailMinHeight"
+    stageMinHeight: "$style.pages.workbench.stageMinHeight"
+    statusPanelPadding: "$style.pages.workbench.statusPanelPadding"
+  root:
+    width: 100%
+    height: 100%
+    overflowX: hidden
+    overflowY: hidden
+  zones:
+    - id: hero
+      role: title-zone
+      heightRatio: 0.24
+    - id: category
+      role: category-switch-zone
+      heightRatio: 0.16
+    - id: content
+      role: tool-switch-zone
+      heightRatio: 0.60
+  sectionConstraints:
+    keepInsideWindow: true
+    overflowX: hidden
+    overflowY: hidden
+  acceptance:
+    noHorizontalScroll: true
+    noCardOverflowOutsideWindow: true
+  sections:
+    hero:
+      badge: 开发工具导航
+      primaryAction:
+        id: back-home
+        text: 返回首页
+        type: secondary
+    category:
+      title: 分类切换
+      description: 先选工具域，再进入对应工作面。
+    content:
+      leftTitle: 工具列表
+      rightTitle: 工作面预留区
+categories:
+  - id: world
+    name: 世界与地图
+    summary: 地块、地貌与天气相关工具入口。
+    tools:
+      - tile-editor
+      - biome-editor
+      - weather-editor
+  - id: resource
+    name: 资源与素材
+    summary: 资源、材质与粒子相关工具入口。
+    tools:
+      - resource-browser
+      - material-editor
+      - particle-editor
+  - id: actor
+    name: 角色与动作
+    summary: 角色骨架、动作与属性相关工具入口。
+    tools:
+      - species-skeleton
+      - character-motion
+      - character-attributes
+tools:
+  - id: tile-editor
+    name: 物块编辑器
+    previewEngine: phaser
+    summary: 地块属性、建造规则与邻接效果预览
+    status: 规划中
+    note: 当前阶段只开放入口切换，后续接入地块预览与规则编辑。
+    cards:
+      - id: tile-base
+        title: 基础属性
+        fields: 地块类型,可通行性,层级
+      - id: tile-rule
+        title: 规则开关
+        fields: 建造条件,采集条件,掉落规则
+  - id: biome-editor
+    name: 地貌编辑器
+    previewEngine: phaser
+    summary: 生物群系刷区与视觉过渡预览
+    status: 规划中
+    note: 当前阶段只开放入口切换，后续接入刷区预览与参数编辑。
+    cards:
+      - id: biome-weights
+        title: 权重分布
+        fields: 平原,山地,水域
+  - id: weather-editor
+    name: 天气编辑器
+    previewEngine: phaser
+    summary: 天气状态覆盖与场景表现预览
+    status: 规划中
+    note: 当前阶段只开放入口切换，后续接入天气预览与配置面板。
+    cards:
+      - id: weather-state
+        title: 天气状态
+        fields: 晴,云,雨
+  - id: resource-browser
+    name: 资源管理器
+    previewEngine: phaser
+    summary: 贴图、音频、特效资源预览与引用追踪
+    status: 规划中
+    note: 当前阶段只开放入口切换，后续接入资源预览与引用追踪。
+    cards:
+      - id: res-import
+        title: 资源导入
+        fields: 命名规范,冲突检测
+  - id: material-editor
+    name: 材质编辑器
+    previewEngine: phaser
+    summary: 材质参数与视觉响应预览
+    status: 规划中
+    note: 当前阶段只开放入口切换，后续接入材质预览与参数编辑。
+    cards:
+      - id: mat-light
+        title: 光照参数
+        fields: 反照率,阴影强度
+  - id: particle-editor
+    name: 粒子编辑器
+    previewEngine: phaser
+    summary: 粒子参数实时调节预览
+    status: 规划中
+    note: 当前阶段只开放入口切换，后续接入粒子预览与参数调节。
+    cards:
+      - id: particle-core
+        title: 发射参数
+        fields: 速度,寿命,扩散
+  - id: species-skeleton
+    name: 物种骨架工具
+    previewEngine: skeleton
+    summary: 骨架节点、骨骼连线与基础体型叠加预览
+    status: 规划中
+    note: 当前阶段只开放入口切换，后续接入骨架预览与节点编辑。
+    cards:
+      - id: skeleton-nodes
+        title: 节点配置
+        fields: 节点ID,X,Y
+      - id: skeleton-bones
+        title: 连线配置
+        fields: from,to
+  - id: character-motion
+    name: 角色动作工具
+    previewEngine: skeleton
+    summary: 基础动作映射与动作切换预览
+    status: 规划中
+    note: 当前阶段只开放入口切换，后续接入动作映射与状态预览。
+    cards:
+      - id: motion-map
+        title: 动作映射
+        fields: idle,walk,work,interact,hurt,death
+  - id: character-attributes
+    name: 角色属性工具
+    previewEngine: phaser
+    summary: 种族模板与职业模板属性叠加预览
+    status: 规划中
+    note: 当前阶段只开放入口切换，后续接入属性编辑与结果视图。
+    cards:
+      - id: attr-primary
+        title: 一级属性
+        fields: 力量,敏捷,体质,精神
+      - id: attr-bonus
+        title: 二级加成
+        fields: 伤害,防御,治疗强度

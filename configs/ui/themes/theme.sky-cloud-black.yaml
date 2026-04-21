@@ -1,0 +1,105 @@
+theme:
+  id: sky-cloud-black
+  name: 天蓝云白纯黑
+  palette:
+    sky:
+      300: "#78C8FF"
+      500: "#3DA8F5"
+      700: "#1977BF"
+    cloud:
+      100: "#FFFFFF"
+      300: "#EAF4FF"
+      500: "#C6D8EA"
+      700: "#8EA3B8"
+    black:
+      100: "#1A1A1A"
+      300: "#101419"
+      500: "#090C10"
+      700: "#05070A"
+      900: "#000000"
+  textTypes:
+    - id: display
+      fontFamily: "$style.fonts.display"
+      size: 40
+      color: "#FFFFFF"
+      usage: 页面主标题、关键场景标题
+    - id: title
+      fontFamily: "$style.fonts.title"
+      size: 30
+      color: "#EAF4FF"
+      usage: 面板标题、弹窗标题
+    - id: section
+      fontFamily: "$style.fonts.section"
+      size: 24
+      color: "#78C8FF"
+      usage: 功能区分组标题
+    - id: body
+      fontFamily: "$style.fonts.body"
+      size: 18
+      color: "#C6D8EA"
+      usage: 说明文本、交互描述
+    - id: meta
+      fontFamily: "$style.fonts.meta"
+      size: 14
+      color: "#8EA3B8"
+      usage: 标签、辅助信息、注释
+  buttonTypes:
+    - id: primary
+      textColor: "#000000"
+      background: "#3DA8F5"
+      border: true
+      borderColor: "#78C8FF"
+      borderWidth: 1
+    - id: secondary
+      textColor: "#EAF4FF"
+      background: "#101419"
+      border: true
+      borderColor: "#3DA8F5"
+      borderWidth: 1
+    - id: ghost
+      textColor: "#78C8FF"
+      background: "transparent"
+      border: true
+      borderColor: "#8EA3B8"
+      borderWidth: 1
+    - id: danger
+      textColor: "#FFFFFF"
+      background: "#5A1F1F"
+      border: true
+      borderColor: "#D96B6B"
+      borderWidth: 1
+    - id: tool
+      textColor: "#C6D8EA"
+      background: "#090C10"
+      border: false
+      borderColor: "transparent"
+      borderWidth: 0
+  borderTypes:
+    - id: base
+      strokeColor: "#8EA3B8"
+      strokeWidth: 1
+      background: "#101419"
+    - id: focus
+      strokeColor: "#78C8FF"
+      strokeWidth: 2
+      background: "#101419"
+    - id: group
+      strokeColor: "#3DA8F5"
+      strokeWidth: 1
+      background: "#090C10"
+      dashed: true
+    - id: divider
+      strokeColor: "#8EA3B8"
+      strokeWidth: 1
+      background: "transparent"
+    - id: emphasis
+      strokeColor: "#78C8FF"
+      strokeWidth: 3
+      background: "#090C10"
+  previewRules:
+    defaultEngine: phaser
+    defaultLayout: left-category-center-preview-right-cards
+    exceptionTools:
+      - species-skeleton
+      - character-motion
+    exceptionEngine: skeleton

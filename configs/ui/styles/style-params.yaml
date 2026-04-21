@@ -1,0 +1,57 @@
+style:
+  fonts:
+    display: '"zpix", "Fusion Pixel 12px Monospaced SC", "Press Start 2P", monospace'
+    title: '"zpix", "Fusion Pixel 12px Monospaced SC", "Press Start 2P", monospace'
+    section: '"zpix", "Fusion Pixel 12px Monospaced SC", "Press Start 2P", monospace'
+    body: '"zpix", "Fusion Pixel 12px Monospaced SC", "Press Start 2P", monospace'
+    meta: '"zpix", "Fusion Pixel 12px Monospaced SC", "Press Start 2P", monospace'
+  common:
+    appPadding: 18
+    panelGap: 14
+    panelRadius: 12
+    panelPadding: 14
+    menuButtonRadius: 0
+    menuButtonPaddingY: 11
+    menuButtonPaddingX: 14
+    menuButtonFontSize: 18
+    menuButtonListGap: 10
+    mobileBreakpoint: 1220
+  pages:
+    mainMenu:
+      rowsDesktop: "0.28fr 0.38fr 0.18fr 0.16fr"
+      rowsMobile: "0.30fr 0.36fr 0.20fr 0.14fr"
+      zonePaddingX: 16
+      zonePaddingY: 10
+      buttonListWidth: 380
+      titleSize: 56
+      taglineSize: 20
+      descriptionFontSize: 14
+      footerNoteFontSize: 13
+    settings:
+      shellMaxWidth: 980
+      cardWidth: 760
+      cardRadius: 14
+      cardPadding: 22
+      titleSize: 40
+      sectionMarginTop: 18
+      sectionPadding: 14
+      sectionRadius: 10
+    workbench:
+      heroMinHeight: 108
+      categoryGap: 8
+      toolGridColumns: "repeat(2, minmax(0, 1fr))"
+      contentColumns: "minmax(280px, 300px) minmax(0, 1fr)"
+      navColumnWidth: 300
+      toolListMinHeight: 0
+      detailMinHeight: 0
+      stageMinHeight: 420
+      statusPanelPadding: 12
+    gameHud:
+      rows: "0.2fr 0.58fr 0.22fr"
+      sectionGap: 12
+      sectionRadius: 12
+      stripPadding: 12
+      actionPadding: 12
+      titleSize: 42
+      subtitleSize: 20
+      descFontSize: 15

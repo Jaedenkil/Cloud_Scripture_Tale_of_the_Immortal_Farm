@@ -1,0 +1,67 @@
+page:
+  id: main-menu
+  name: 云笈仙田录
+  subtitle: Tale of the Immortal Farm
+  description: 配置驱动游戏主页
+  hero:
+    title: 云笈仙田录
+    tagline: 归云入田，问道成仙
+  buttons:
+    - id: start
+      text: 开始游戏
+      type: primary
+      action: start-game
+      description: 进入游戏内界面
+    - id: settings
+      text: 设置
+      type: secondary
+      action: open-settings
+      description: 打开系统设置
+    - id: development
+      text: 开发
+      type: tool
+      action: open-devtools
+      description: 进入开发工具总控台
+    - id: exit
+      text: 退出游戏
+      type: danger
+      action: quit-game
+      description: 关闭当前应用
+layout:
+  viewportBase: full-window
+  designBaseline: current-content-area
+  style:
+    rowsDesktop: "$style.pages.mainMenu.rowsDesktop"
+    rowsMobile: "$style.pages.mainMenu.rowsMobile"
+    zonePaddingX: "$style.pages.mainMenu.zonePaddingX"
+    zonePaddingY: "$style.pages.mainMenu.zonePaddingY"
+    buttonListWidth: "$style.pages.mainMenu.buttonListWidth"
+    titleSize: "$style.pages.mainMenu.titleSize"
+    taglineSize: "$style.pages.mainMenu.taglineSize"
+    descriptionFontSize: "$style.pages.mainMenu.descriptionFontSize"
+    footerNoteFontSize: "$style.pages.mainMenu.footerNoteFontSize"
+  root:
+    width: 100%
+    height: 100%
+    overflowX: hidden
+    overflowY: hidden
+  zones:
+    - id: header
+      role: title-zone
+      heightRatio: 0.28
+    - id: action
+      role: primary-action-zone
+      heightRatio: 0.52
+    - id: footer
+      role: secondary-info-zone
+      heightRatio: 0.20
+  cardConstraints:
+    keepInsideWindow: true
+    widthMode: window-ratio
+    maxWidthRatio: 0.5
+    minWidthPx: 360
+    overflowX: hidden
+    overflowY: auto
+  acceptance:
+    noHorizontalScroll: true
+    noCardOverflowOutsideWindow: true
