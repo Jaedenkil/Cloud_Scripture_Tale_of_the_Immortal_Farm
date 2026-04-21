@@ -112,13 +112,32 @@ tools:
   - id: resource-browser
     name: 资源管理器
     previewEngine: phaser
-    summary: 贴图、音频、特效资源预览与引用追踪
-    status: 规划中
-    note: 当前阶段只开放入口切换，后续接入资源预览与引用追踪。
+    summary: 静态索引扫描、分类呈现与验证报告
+    status: 可用
+    note: 通过扫描本地文件建立引用，展示图集、音乐、UI皮肤分类及中英文双语索引，提供宽敞的列表与预览区域。
+    layoutOverrides:
+      # 遵循非主体功能紧凑、主体宽松的原则
+      leftPanelWidth: "220px"  # 左侧分类树紧凑
+      gap: "16px"
     cards:
-      - id: res-import
-        title: 资源导入
-        fields: 命名规范,冲突检测
+      - id: res-category-tree
+        title: 资源分类 (Category)
+        type: stack
+        style:
+          width: "100%"
+          overflowY: "auto"
+          overflowX: "hidden"
+        fields: 分类列表,选项参数
+      - id: res-data-view
+        title: 索引数据与预览 (Data & Preview)
+        type: stack
+        style:
+          width: "100%"
+          flex: 1
+          overflowY: "auto"
+          overflowX: "hidden"
+          padding: "24px"  # 主体展示区宽松
+        fields: 资源标识,中文名,静态路径引用,完整性校验,回退命中状态
   - id: material-editor
     name: 材质编辑器
     previewEngine: phaser

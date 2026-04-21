@@ -1,0 +1,23 @@
+version: 1
+rules:
+  generic:
+    description: 通用资源命名规则（小写字母、数字、中横线、下划线）
+    pattern: "^[a-z0-9][a-z0-9_-]*$"
+  tile:
+    description: 地块贴图命名规则
+    pattern: "^(?<type>[a-z0-9]+)_(?<part>top|side-left|side-right|transition)(?:_(?<transition>[a-z0-9]+))?(?:_(?<direction>n|e|s|w|ne|se|sw|nw))?(?:_(?<variant>v[0-9]+))?$"
+    requiredParts:
+      - top
+      - side-left
+      - side-right
+assetTypeMap:
+  texture:
+    exts: [".png", ".jpg", ".jpeg", ".webp"]
+  audio:
+    exts: [".mp3", ".wav", ".ogg"]
+  spine:
+    exts: [".json", ".skel", ".atlas"]
+  font:
+    exts: [".ttf", ".otf", ".woff", ".woff2"]
+  config:
+    exts: [".yaml", ".yml", ".json"]

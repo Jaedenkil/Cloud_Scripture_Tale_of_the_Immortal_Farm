@@ -7,6 +7,7 @@
     "start": "concurrently -k \"npm run dev:vite\" \"npm run dev:electron\"",
     "dev:vite": "vite",
     "dev:electron": "wait-on http://localhost:5173 && electron .",
+    "dev:resource-index": "node scripts/dev/build-resource-index.mjs",
     "build": "vite build && electron-builder",
     "preview": "vite preview"
   },

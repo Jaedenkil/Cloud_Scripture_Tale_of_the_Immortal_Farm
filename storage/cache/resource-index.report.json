@@ -1,0 +1,103 @@
+{
+  "version": "v1",
+  "generatedAt": "2026-04-21T09:54:04.094Z",
+  "items": [
+    {
+      "id": "dirt_block",
+      "type": "texture",
+      "subtype": "",
+      "sourcePath": "assets/runtime/textures/dirt_block.png",
+      "runtimePath": "assets/runtime/textures/dirt_block.png",
+      "packScope": "default",
+      "logicalAliases": [],
+      "references": [],
+      "fallbackChain": [
+        {
+          "level": "current",
+          "path": "assets/runtime/textures/dirt_block.png",
+          "status": "hit"
+        },
+        {
+          "level": "default",
+          "path": "assets/runtime/textures/dirt_block.png",
+          "status": "hit"
+        },
+        {
+          "level": "builtin",
+          "path": "assets/runtime/textures/dirt_block.png",
+          "status": "hit"
+        }
+      ],
+      "validation": {
+        "ok": true
+      },
+      "previewMeta": {},
+      "issues": []
+    },
+    {
+      "id": "grass_block",
+      "type": "texture",
+      "subtype": "",
+      "sourcePath": "assets/runtime/textures/grass_block.png",
+      "runtimePath": "assets/runtime/textures/grass_block.png",
+      "packScope": "default",
+      "logicalAliases": [],
+      "references": [],
+      "fallbackChain": [
+        {
+          "level": "current",
+          "path": "assets/runtime/textures/grass_block.png",
+          "status": "hit"
+        },
+        {
+          "level": "default",
+          "path": "assets/runtime/textures/grass_block.png",
+          "status": "hit"
+        },
+        {
+          "level": "builtin",
+          "path": "assets/runtime/textures/grass_block.png",
+          "status": "hit"
+        }
+      ],
+      "validation": {
+        "ok": true
+      },
+      "previewMeta": {},
+      "issues": []
+    },
+    {
+      "id": "water_block",
+      "type": "texture",
+      "subtype": "",
+      "sourcePath": "assets/runtime/textures/water_block.png",
+      "runtimePath": "assets/runtime/textures/water_block.png",
+      "packScope": "default",
+      "logicalAliases": [],
+      "references": [],
+      "fallbackChain": [
+        {
+          "level": "current",
+          "path": "assets/runtime/textures/water_block.png",
+          "status": "hit"
+        },
+        {
+          "level": "default",
+          "path": "assets/runtime/textures/water_block.png",
+          "status": "hit"
+        },
+        {
+          "level": "builtin",
+          "path": "assets/runtime/textures/water_block.png",
+          "status": "hit"
+        }
+      ],
+      "validation": {
+        "ok": true
+      },
+      "previewMeta": {},
+      "issues": []
+    }
+  ],
+  "issues": []
+}

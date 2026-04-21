@@ -1,41 +1,11 @@
 import Phaser from 'phaser'
-import { load } from 'js-yaml'
-
-import uiIndexRaw from '../../configs/ui/index.yaml?raw'
-import themeRaw from '../../configs/ui/themes/theme.sky-cloud-black.yaml?raw'
-import workbenchRaw from '../../configs/ui/pages/dev-tools-workbench.yaml?raw'
-import mainMenuRaw from '../../configs/ui/pages/main-menu.yaml?raw'
-import gameHudRaw from '../../configs/ui/pages/game-hud.yaml?raw'
-import settingsRaw from '../../configs/ui/pages/settings.yaml?raw'
-import styleParamsRaw from '../../configs/ui/styles/style-params.yaml?raw'
-
-const styleParamsConfig = load(styleParamsRaw) || {}
-
-function getValueByPath(source, path) {
-  const parts = path.split('.').filter(Boolean)
-  let current = source
-  for (const part of parts) {
-    if (!current || typeof current !== 'object') {
-      return undefined
-    }
-    current = current[part]
-  }
-  return current
-}
-
-function resolveStyleParams(node) {
-  if (Array.isArray(node)) {
-    return node.map((item) => resolveStyleParams(item))
-  }
-  if (node && typeof node === 'object') {
-    return Object.fromEntries(Object.entries(node).map(([key, value]) => [key, resolveStyleParams(value)]))
-  }
-  if (typeof node === 'string' && node.startsWith('$style.')) {
-    const resolved = getValueByPath(styleParamsConfig, node.slice(1))
-    return resolved === undefined ? node : resolved
-  }
-  return node
-}
+import {
+  getPageConfig,
+  getResourceTypes,
+  styleParamsConfig,
+  themeConfig,
+  uiIndex
+} from './page-registry.js'
 
 function toCssSize(value, fallback) {
   if (value === undefined || value === null || value === '') {
@@ -52,12 +22,10 @@ function toCssNumber(value, fallback) {
   return Number.isFinite(parsed) ? parsed : fallback
 }
 
-const uiIndex = resolveStyleParams(load(uiIndexRaw))
-const themeConfig = resolveStyleParams(load(themeRaw))
-const workbench = resolveStyleParams(load(workbenchRaw))
-const mainMenu = resolveStyleParams(load(mainMenuRaw))
-const gameHud = resolveStyleParams(load(gameHudRaw))
-const settingsPage = resolveStyleParams(load(settingsRaw))
+const workbench = getPageConfig('dev-tools-workbench') || {}
+const mainMenu = getPageConfig('main-menu') || {}
+const gameHud = getPageConfig('game-hud') || {}
+const settingsPage = getPageConfig('settings') || {}
 const settingsSections = settingsPage?.page?.sections || settingsPage?.layout?.sections || []
 const settingsResolutionOptions = settingsSections?.[0]?.fields?.[0]?.options || []
 
@@ -502,7 +470,16 @@ function applyStyles() {
       line-height: 1.45;
     }
 
+    .dev-shell {
+      height: calc(100vh - ${appPaddingPx * 2}px);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow: hidden;
+    }
+
     .dev-main {
+      flex: 1;
       min-height: 0;
       display: grid;
       grid-template-columns: ${workbenchStyle.contentColumns || 'minmax(340px, 0.92fr) minmax(420px, 1.08fr)'};
@@ -511,29 +488,15 @@ function applyStyles() {
     }
 
     .dev-column {
+      display: flex;
+      flex-direction: column;
       min-height: 0;
-      display: grid;
-      grid-template-rows: auto minmax(0, 1fr);
       gap: 8px;
-      overflow: hidden;
-    }
-
-    .dev-section-title {
-      margin: 0;
-      color: var(--sky-300);
-      font-family: var(--font-title);
-      font-size: 18px;
-    }
-
-    .dev-section-desc {
-      margin: 4px 0 0;
-      color: var(--cloud-700);
-      font-size: 12px;
-      line-height: 1.45;
     }
 
     .dev-tool-grid {
-      min-height: ${toCssSize(workbenchStyle.toolListMinHeight, '340px')};
+      flex: 1;
+      min-height: 0;
       display: grid;
       grid-template-columns: 1fr;
       gap: 8px;
@@ -543,10 +506,28 @@ function applyStyles() {
       padding-right: 4px;
     }
 
+    .dev-sys-info {
+      height: 100px;
+      flex-shrink: 0;
+      padding: 10px;
+      background: rgba(9, 12, 16, 0.8);
+      border: 1px solid rgba(142, 163, 184, 0.25);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--cloud-500);
+      overflow: hidden;
+    }
+    .dev-sys-info-row { display: flex; justify-content: space-between; }
+    .dev-sys-info-val { color: var(--cloud-100); }
+
     .dev-focus {
-      min-height: ${toCssSize(workbenchStyle.detailMinHeight, '340px')};
-      display: grid;
-      grid-template-rows: auto minmax(${toCssSize(workbenchStyle.stageMinHeight, '420px')}, 1fr) auto;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
       gap: 10px;
       padding: ${toCssSize(workbenchStyle.statusPanelPadding, '16px')};
       border: 1px solid rgba(120, 200, 255, 0.4);
@@ -555,38 +536,31 @@ function applyStyles() {
     }
 
     .dev-focus-head {
-      display: grid;
-      gap: 6px;
-      align-content: start;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
     }
 
-    .dev-focus-kicker {
-      color: var(--cloud-700);
-      font-size: 12px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
+    .dev-focus-head-left {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
     }
 
-    .dev-focus-title {
-      margin: 0;
-      color: var(--cloud-100);
-      font-family: var(--font-display);
-      font-size: 22px;
-      line-height: 1.2;
-    }
-
-    .dev-focus-summary {
-      margin: 0;
-      color: var(--cloud-500);
-      font-size: 13px;
-      line-height: 1.55;
-      max-width: 36em;
+    .dev-focus-head-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: right;
     }
 
     .dev-stage {
-      min-height: ${toCssSize(workbenchStyle.stageMinHeight, '420px')};
-      display: grid;
-      grid-template-rows: 1fr auto;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
       gap: 12px;
       padding: 14px;
       border: 1px dashed rgba(61, 168, 245, 0.62);
@@ -918,14 +892,8 @@ function getButtonStyle(typeId) {
 function renderMainMenu() {
   const menuConfig = mainMenu?.page || {}
   const menuHero = menuConfig.hero || mainMenu?.hero || {}
-  const defaultMenuButtons = [
-    { id: 'start', text: '开始游戏', type: 'primary', action: 'start-game', description: '进入游戏内界面' },
-    { id: 'settings', text: '设置', type: 'secondary', action: 'open-settings', description: '打开系统设置' },
-    { id: 'development', text: '开发', type: 'tool', action: 'open-devtools', description: '进入开发工具总控台' },
-    { id: 'exit', text: '退出游戏', type: 'danger', action: 'quit-game', description: '关闭当前应用' }
-  ]
-  const menuButtonSource = (menuConfig.buttons || mainMenu?.buttons || defaultMenuButtons)
-  const menuButtons = (Array.isArray(menuButtonSource) && menuButtonSource.length > 0 ? menuButtonSource : defaultMenuButtons)
+  const menuButtonSource = menuConfig.buttons || mainMenu?.buttons || []
+  const menuButtons = menuButtonSource
     .map((button) => {
       return `
         <button
@@ -1124,9 +1092,133 @@ function normalizeFields(fields) {
   return []
 }
 
+function getWorkbenchTemplateByToolId(toolId) {
+  if (toolId === 'resource-browser') {
+    return 'resource-browser'
+  }
+  return 'default'
+}
+
+let cachedResourceIndex = null
+let resourceBrowserState = {
+  typeKey: getResourceTypes()[0]?.key || 'texture',
+  selectedId: null
+}
+
+async function loadResourceIndex() {
+  if (cachedResourceIndex) return cachedResourceIndex
+  try {
+    // Load from vite server during dev or use a proper IPC call in production.
+    // For now we fetch the report json from dev server if available, or just mock fallback since we're in UI rendering phase
+    const res = await fetch('/storage/cache/resource-index.report.json')
+    if (res.ok) {
+      cachedResourceIndex = await res.json()
+      return cachedResourceIndex
+    }
+  } catch (e) {
+    console.warn("Failed to load resource index, using empty state", e)
+  }
+  return { items: [], issues: [] }
+}
+
+function renderResourceBrowserStage() {
+  const types = getResourceTypes()
+
+  const typeButtons = types.map(t => {
+    const active = resourceBrowserState.typeKey === t.key ? 'primary' : 'secondary'
+    return `<button class="btn" style="${getButtonStyle(active)}" data-res-type="${t.key}">${t.name}</button>`
+  }).join('')
+
+  const data = cachedResourceIndex || { items: [] }
+  const items = data.items.filter(i => i.type === resourceBrowserState.typeKey)
+  
+  const selectedItem = items.find(i => i.id === resourceBrowserState.selectedId)
+
+  const itemListHtml = items.map(item => {
+    const isSelected = item.id === resourceBrowserState.selectedId
+    const hasError = item.issues && item.issues.length > 0
+    const bg = isSelected ? 'rgba(61, 168, 245, 0.2)' : (hasError ? 'rgba(245, 61, 61, 0.1)' : 'rgba(9, 12, 16, 0.6)')
+    const border = hasError ? '1px dashed #f53d3d' : '1px solid rgba(142, 163, 184, 0.3)'
+    return `
+      <div class="dev-stage-cell" style="background: ${bg}; border: ${border}; cursor:pointer;" data-res-id="${item.id}">
+        <div class="dev-stage-value">${item.id}</div>
+        <div class="dev-stage-label">${item.sourcePath}</div>
+      </div>
+    `
+  }).join('') || '<div class="dev-stage-label" style="padding: 10px;">该分类下暂无资源</div>'
+
+  let detailHtml = '<div class="dev-stage-label" style="padding: 10px;">点击左侧资源查看详情</div>'
+  if (selectedItem) {
+    const refs = (selectedItem.references || []).map(r => `<div>${r}</div>`).join('') || '无引用'
+    const fallbacks = (selectedItem.fallbackChain || []).map(f => `<div>[${f.level}] ${f.status === 'hit' ? '✅' : '❌'} ${f.path || ''}</div>`).join('')
+    const issues = (selectedItem.issues || []).map(i => `<div style="color:#f53d3d;">⚠️ ${i}</div>`).join('') || '<div style="color:#2ecc71;">✅ 校验通过</div>'
+    
+    // T15: 地块资源专项提示
+    let tileHint = ''
+    if (selectedItem.type === 'texture' && selectedItem.id && selectedItem.id.includes('_')) {
+        const partsCheck = ['top', 'side-left', 'side-right', 'transition', 'variant']
+        const hasParts = partsCheck.map(p => `[${selectedItem.id.includes(p) ? '✅' : ' '}] ${p}`).join(' ')
+        tileHint = `<div style="margin-top:10px; padding: 10px; background: rgba(0,0,0,0.3); border: 1px dashed var(--sky-500);"><strong>地块专项检测:</strong> <br/>${hasParts}</div>`
+    }
+
+    let mediaPreview = ''
+    if (selectedItem.type === 'texture') {
+      mediaPreview = `
+        <div style="margin-top:10px; background: rgba(0,0,0,0.5); border: 1px solid var(--cloud-800); border-radius: 4px; padding: 10px; display: flex; align-items: center; justify-content: center; height: 180px; flex-shrink: 0;">
+          <img src="/${selectedItem.runtimePath || selectedItem.sourcePath}" style="max-width: 100%; max-height: 100%; object-fit: contain; image-rendering: pixelated;" />
+        </div>
+      `
+    } else if (selectedItem.type === 'audio') {
+      mediaPreview = `
+        <div style="margin-top:10px; background: rgba(0,0,0,0.5); border: 1px solid var(--cloud-800); border-radius: 4px; padding: 10px; display: flex; align-items: center; justify-content: center;">
+          <audio controls src="/${selectedItem.runtimePath || selectedItem.sourcePath}" style="width: 100%; height: 32px; outline: none;"></audio>
+        </div>
+      `
+    }
+
+    detailHtml = `
+      <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px; min-height: 0; overflow-y: auto; overflow-x: hidden;">
+        <h4 style="margin:0; color: var(--cloud-100); font-family: var(--font-title);">${selectedItem.id}</h4>
+        <div style="font-size: 12px; color: var(--cloud-500);">${selectedItem.sourcePath}</div>
+        ${mediaPreview}
+        <hr style="border: 0; border-top: 1px solid rgba(142, 163, 184, 0.3); width: 100%;" />
+        
+        <div><strong>校验结果:</strong><br/>${issues}</div>
+        ${tileHint}
+        
+        <div><strong>引用追踪:</strong><br/>
+          <div class="dev-stage-label" style="background: rgba(0,0,0,0.2); padding: 5px;">${refs}</div>
+        </div>
+        
+        <div><strong>回退链分析:</strong><br/>
+          <div class="dev-stage-label" style="background: rgba(0,0,0,0.2); padding: 5px;">${fallbacks}</div>
+        </div>
+      </div>
+    `
+  }
+
+  return `
+    <div class="dev-stage" data-template-id="resource-browser" style="display: flex; flex-direction: column; flex: 1; min-height: 0; gap: 16px;">
+      <div style="flex-shrink: 0; display: flex; gap: 8px; border-bottom: 1px solid rgba(142, 163, 184, 0.3); padding-bottom: 10px; overflow-x: hidden;">
+        ${typeButtons}
+      </div>
+      <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; min-height: 0; overflow: hidden;">
+        <div style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
+          ${itemListHtml}
+        </div>
+        <div style="border-left: 1px dashed rgba(61, 168, 245, 0.62); padding-left: 16px; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; min-height: 0;">
+          ${detailHtml}
+        </div>
+      </div>
+    </div>
+  `
+}
+
 function renderWorkbench() {
   const category = getCategoryById(state.categoryId)
   const currentTool = getToolById(state.toolId)
+  const templateId = getWorkbenchTemplateByToolId(currentTool?.id)
+  const isResourceBrowser = templateId === 'resource-browser'
   const sections = workbench?.layout?.sections || {}
   const heroSection = sections.hero || {}
   const categorySection = sections.category || {}
@@ -1171,6 +1263,16 @@ function renderWorkbench() {
     })
     .join('')
 
+  const stageMarkup = isResourceBrowser
+    ? renderResourceBrowserStage()
+    : `
+      <div class="dev-stage" data-template-id="default">
+        <div style="display:flex; justify-content:center; align-items:center; height:100%; color:var(--cloud-700)">
+           该工具区域当前为空视图，准备用于画布挂载。
+        </div>
+      </div>
+    `
+
   root.innerHTML = `
     <div class="dev-shell">
       <section class="dev-hero">
@@ -1205,47 +1307,23 @@ function renderWorkbench() {
 
         <div class="dev-column">
           <div>
-            <h2 class="dev-section-title">${contentSection.rightTitle || '当前工具'}</h2>
-            <p class="dev-section-desc">主体区域预留给后续预览、操作项与配置编辑。</p>
+            <h2 class="dev-section-title">${isResourceBrowser ? '工作面板' : (contentSection.rightTitle || '当前工具')}</h2>
           </div>
-          <section class="dev-focus">
-            <div class="dev-focus-head">
-              <div class="dev-focus-kicker">当前选择 / ${category?.name || '未选分类'}</div>
-              <h3 class="dev-focus-title">${currentTool?.name || '未选择工具'}</h3>
-              <p class="dev-focus-summary">${currentTool?.summary || '请选择左侧工具。'}</p>
+        <section class="dev-focus">
+          <div class="dev-focus-head" style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="dev-focus-head-left" style="display:flex; align-items:flex-end; gap:8px;">
+              <h3 class="dev-focus-title" style="margin:0; font-size:22px; color:var(--cloud-100);">${currentTool?.name || '未选择'}</h3>
+              <span class="dev-focus-kicker" style="font-size:12px; color:var(--cloud-700);">${category?.name || '未选'}</span>
             </div>
-
-            <div class="dev-stage">
-              <div class="dev-stage-copy">
-                <div class="dev-stage-kicker">预览与操作区预留</div>
-                <h4 class="dev-stage-title">未来的预览画布、参数区和操作栏将落在这里</h4>
-                <p class="dev-stage-desc">当前阶段保持工作面完整留白，只保留必要的入口信息，避免非主体模块提前占用主空间。</p>
-              </div>
-              <div class="dev-stage-band">
-                <div class="dev-stage-cell">
-                  <div class="dev-stage-label">当前状态</div>
-                  <div class="dev-stage-value">${currentTool?.status || '未开放'}</div>
-                </div>
-                <div class="dev-stage-cell">
-                  <div class="dev-stage-label">预留类型</div>
-                  <div class="dev-stage-value">预览区 / 参数区 / 操作区</div>
-                </div>
-                <div class="dev-stage-cell">
-                  <div class="dev-stage-label">当前阶段</div>
-                  <div class="dev-stage-value">仅支持工具切换</div>
-                </div>
-              </div>
+            <div class="dev-focus-head-right" style="display:flex; align-items:center; gap:12px;">
+              <span class="chip" style="color:var(--sky-300); border-color:var(--sky-500); padding:2px 8px; font-size:12px; border-radius:12px;">${currentTool?.status || '未开放'}</span>
+              <div class="dev-focus-summary" style="max-width:320px; font-size:12px; color:var(--cloud-500);">${currentTool?.summary || ''}</div>
             </div>
+          </div>
 
-            <div class="dev-focus-status">
-              <strong>${currentTool?.status || '未开放'}</strong>
-              <p>${currentTool?.note || '当前页面只处理工具切换，具体功能实现将在后续阶段接入。'}</p>
-              <p>${category?.name || '未选分类'}</p>
-            </div>
-
-            <div class="dev-scope-list">${scopes || '<div class="dev-scope-item"><div class="dev-scope-title">暂无范围</div><div class="dev-scope-meta">当前工具未配置后续模块。</div></div>'}</div>
-          </section>
-        </div>
+          ${stageMarkup}
+        </section>
+      </div>
       </section>
     </div>
   `
@@ -1504,17 +1582,39 @@ function bindEvents() {
     })
   }
   root.querySelectorAll('[data-category-id]').forEach((button) => {
-    button.addEventListener('click', () => {
+    button.addEventListener('click', async () => {
       state.categoryId = button.dataset.categoryId
       const category = getCategoryById(state.categoryId)
       state.toolId = category?.tools[0] || ''
+      if (state.toolId === 'resource-browser') {
+        await loadResourceIndex()
+      }
       renderWorkbench()
     })
   })
 
   root.querySelectorAll('[data-tool-id]').forEach((button) => {
-    button.addEventListener('click', () => {
+    button.addEventListener('click', async () => {
       state.toolId = button.dataset.toolId
+      if (state.toolId === 'resource-browser') {
+        await loadResourceIndex()
+      }
+      renderWorkbench()
+    })
+  })
+
+  // 资源管理器专属事件绑定
+  root.querySelectorAll('[data-res-type]').forEach((button) => {
+    button.addEventListener('click', () => {
+      resourceBrowserState.typeKey = button.dataset.resType
+      resourceBrowserState.selectedId = null
+      renderWorkbench()
+    })
+  })
+
+  root.querySelectorAll('[data-res-id]').forEach((cell) => {
+    cell.addEventListener('click', () => {
+      resourceBrowserState.selectedId = cell.dataset.resId
       renderWorkbench()
     })
   })

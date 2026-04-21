@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "resource-index.schema.json",
+  "title": "Resource Index",
+  "type": "object",
+  "required": ["version", "generatedAt", "items", "issues"],
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "generatedAt": {
+      "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "sourcePath", "runtimePath", "references", "fallbackChain", "validation", "issues"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string" },
+          "subtype": { "type": "string" },
+          "sourcePath": { "type": "string" },
+          "runtimePath": { "type": "string" },
+          "packScope": { "type": "string" },
+          "logicalAliases": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "references": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "fallbackChain": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["level", "path", "status"],
+              "properties": {
+                "level": { "type": "string" },
+                "path": { "type": "string" },
+                "status": { "type": "string" }
+              }
+            }
+          },
+          "validation": {
+            "type": "object",
+            "required": ["ok"],
+            "properties": {
+              "ok": { "type": "boolean" },
+              "ruleId": { "type": "string" }
+            }
+          },
+          "previewMeta": {
+            "type": "object"
+          },
+          "issues": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": { "type": "string" },
+          "message": { "type": "string" },
+          "path": { "type": "string" }
+        }
+      }
+    }
+  }
+}

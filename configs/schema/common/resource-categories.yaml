@@ -1,0 +1,42 @@
+# 资源分类与参数类型静态索引字典
+# 作用：提供资源管理器面板渲染及内核底层调用的映射依据。
+# UI层只呈现中文（name, desc），内核接口传递英文键值（key）。
+
+resource_types:
+  - key: "texture"
+    name: "贴图图集"
+    desc: "环境构建、地块拼装及独立图像素材"
+  - key: "spine"
+    name: "骨骼动画"
+    desc: "动态角色的骨骼装配数据文件与配套图集"
+  - key: "audio"
+    name: "音频音效"
+    desc: "BGM背景音乐及各类交互音效源文件"
+  - key: "font"
+    name: "字体库"
+    desc: "界面文本渲染使用的字体文件集"
+  - key: "ui-skin"
+    name: "UI皮肤"
+    desc: "界面主题与样式切图预设"
+  - key: "config"
+    name: "静态配置"
+    desc: "控制游戏规则、掉落、属性的纯数据配置"
+
+# 专项分类参数示例（例如地块部位等）
+resource_parameters:
+  tile_parts:
+    - key: "top"
+      name: "地块顶部"
+      desc: "地块在伪3D渲染中的正上方顶面纹理"
+    - key: "side-left"
+      name: "地块左侧"
+      desc: "地块朝向左下方的侧边纹理"
+    - key: "side-right"
+      name: "地块右侧"
+      desc: "地块朝向右下方的侧边纹理"
+    - key: "transition"
+      name: "过渡衔接"
+      desc: "不同地貌相互连接时的过渡切图"
+    - key: "variant"
+      name: "变体差分"
+      desc: "同质地块添加随机性的不同表现切图"
