@@ -12,9 +12,9 @@
 
 ## 快速导航
 
-- [完整UI方案.md](architecture/完整UI方案.md)
 - [等距伪3D地块系统设计总结.md](architecture/等距伪3D地块系统设计总结.md)
 - [分辨率对照表.md](architecture/分辨率对照表.md)
+- [UI多层Scene分层架构方案.md](architecture/UI多层Scene分层架构方案.md)
 - [开发工具规划与角色规格.md](tool-guides/开发工具规划与角色规格.md)
 - [依赖清单-方案A.md](tool-guides/依赖清单-方案A.md)
 
