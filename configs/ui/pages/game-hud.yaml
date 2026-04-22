@@ -46,9 +46,18 @@ actions:
   - id: back-main
     text: 返回首页
     type: secondary
+    visible: true
+    disabled: false
   - id: open-settings
     text: 游戏设置
     type: primary
+    visible:
+      var: capabilities.canGetResolution
+    disabled:
+      not:
+        var: capabilities.canGetResolution
   - id: open-devtools
     text: 开发工具
     type: tool
+    visible: true
+    disabled: false

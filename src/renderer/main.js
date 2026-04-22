@@ -1,11 +1,33 @@
 import Phaser from 'phaser'
 import {
+  UiConfigLoader
+} from './page-registry.js'
+import {
+  RuleEngine
+} from '../data-runtime/rule-evaluator/rule-engine.js'
+import {
+  ActionExecutor
+} from '../ui-runtime/action-executor.js'
+import {
+  RESOURCE_BROWSER_VISUAL_STYLE_KEYS
+} from '../ui-runtime/resource-browser-visual-style-keys.mjs'
+import baseThemeCss from './styles/base-theme.css?raw'
+import pageLayoutCssTemplate from './styles/page-layout.css?raw'
+
+const uiConfigLoader = new UiConfigLoader({
+  onUnresolvedStylePath(stylePath) {
+    console.warn(`[ui-config] unresolved style reference: ${stylePath}`)
+  }
+})
+
+const {
   getPageConfig,
+  getActionDefinition,
   getResourceTypes,
   styleParamsConfig,
   themeConfig,
   uiIndex
-} from './page-registry.js'
+} = uiConfigLoader.createRuntimeConfig()
 
 function toCssSize(value, fallback) {
   if (value === undefined || value === null || value === '') {
@@ -20,6 +42,13 @@ function toCssSize(value, fallback) {
 function toCssNumber(value, fallback) {
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : fallback
+}
+
+function buildInlineStyle(styleMap = {}) {
+  return Object.entries(styleMap)
+    .filter(([, value]) => value !== undefined && value !== null && value !== '')
+    .map(([key, value]) => `${key}:${value};`)
+    .join('')
 }
 
 const workbench = getPageConfig('dev-tools-workbench') || {}
@@ -39,6 +68,53 @@ const state = {
   notice: '',
   selectedResolutionId: settingsResolutionOptions?.[0]?.id || '',
   currentResolutionText: ''
+}
+
+const ruleEngine = new RuleEngine()
+
+function getResolvedActionDefinition(actionId, localOverride = {}) {
+  const baseDefinition = getActionDefinition(actionId) || {}
+  return {
+    id: actionId,
+    ...baseDefinition,
+    ...localOverride
+  }
+}
+
+const actionExecutor = new ActionExecutor({
+  getState: () => state,
+  patchState: (patch) => {
+    Object.assign(state, patch)
+  },
+  ruleEngine,
+  handlers: {
+    async refreshCurrentResolutionText() {
+      await refreshCurrentResolutionText()
+    },
+    async applyResolution() {
+      await applyResolution()
+    },
+    closeWindow() {
+      window.close()
+    },
+    getCapabilities() {
+      return {
+        canSetResolution: Boolean(window.electronAPI?.setWindowResolution),
+        canGetResolution: Boolean(window.electronAPI?.getWindowResolution)
+      }
+    }
+  },
+  onAfterExecute(result) {
+    if (result?.shouldRender === false) {
+      return
+    }
+    renderApp()
+  }
+})
+
+async function executeAction(actionId, localOverride = {}) {
+  const actionDefinition = getResolvedActionDefinition(actionId, localOverride)
+  await actionExecutor.execute(actionDefinition)
 }
 
 function getToolById(toolId) {
@@ -62,8 +138,23 @@ function getThemeLookup() {
   }
 }
 
-function applyStyles() {
-  const { palette, textTypes } = getThemeLookup()
+const STYLE_TAG_IDS = {
+  common: 'ui-style-common-params',
+  base: 'ui-style-base-theme',
+  page: 'ui-style-page-layout'
+}
+
+function upsertStyleTag(styleId, cssText) {
+  let style = document.getElementById(styleId)
+  if (!style) {
+    style = document.createElement('style')
+    style.id = styleId
+    document.head.appendChild(style)
+  }
+  style.textContent = cssText
+}
+
+function getCommonStyleContext() {
   const commonStyle = styleParamsConfig?.style?.common || {}
   const menuStyle = mainMenu?.layout?.style || {}
   const settingsStyle = settingsPage?.layout?.style || {}
@@ -76,16 +167,54 @@ function applyStyles() {
   const layoutColumns = workbenchStyle.columns || '270px minmax(420px, 1fr) 320px'
   const mobileBreakpoint = toCssNumber(commonStyle.mobileBreakpoint, 1220)
 
-  const style = document.createElement('style')
-  style.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+  return {
+    commonStyle,
+    menuStyle,
+    settingsStyle,
+    workbenchStyle,
+    gameHudStyle,
+    appPaddingPx,
+    panelGap,
+    panelRadius,
+    panelPadding,
+    layoutColumns,
+    mobileBreakpoint
+  }
+}
 
+function loadCommonStyleParams() {
+  const commonContext = getCommonStyleContext()
+  const { appPaddingPx, panelGap, panelRadius, panelPadding } = commonContext
+  const cssText = `
     @font-face {
       font-family: 'zpix';
-      src: local('zpix'), url('https://cdn.jsdelivr.net/gh/SolidZORO/zpix-pixel-font@master/dist/zpix.ttf') format('truetype');
+      src: local('zpix');
       font-display: swap;
     }
 
+    :root {
+      --app-padding: ${appPaddingPx}px;
+      --app-padding-double: ${appPaddingPx * 2}px;
+      --panel-gap: ${panelGap};
+      --panel-radius: ${panelRadius};
+      --panel-padding: ${panelPadding};
+    }
+
+    #app {
+      min-height: 100vh;
+      box-sizing: border-box;
+      padding: var(--app-padding);
+      overflow: hidden;
+    }
+  `
+  upsertStyleTag(STYLE_TAG_IDS.common, cssText)
+  return commonContext
+}
+
+function loadBaseThemeStyles() {
+  const { palette, textTypes } = getThemeLookup()
+  const baseThemeStyle = styleParamsConfig?.style?.baseTheme || {}
+  const cssText = `
     :root {
       --sky-300: ${palette.sky[300]};
       --sky-500: ${palette.sky[500]};
@@ -101,779 +230,254 @@ function applyStyles() {
       --font-display: ${textTypes.display.fontFamily};
       --font-title: ${textTypes.title.fontFamily};
       --font-body: ${textTypes.body.fontFamily};
-    }
-
-    body {
-      margin: 0;
-      background: radial-gradient(circle at 20% 0%, var(--black-100) 0%, var(--black-900) 58%);
-      color: var(--cloud-300);
-      font-family: var(--font-body);
-    }
-
-    #app {
-      min-height: 100vh;
-      box-sizing: border-box;
-      padding: ${appPaddingPx}px;
-      overflow: hidden;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: ${layoutColumns};
-      gap: ${panelGap};
-      min-height: calc(100vh - ${appPaddingPx * 2}px);
-      max-width: calc(100vw - ${appPaddingPx * 2}px);
-    }
-
-    .panel {
-      background: linear-gradient(180deg, rgba(16, 20, 25, 0.95) 0%, rgba(5, 7, 10, 0.95) 100%);
-      border: 1px solid rgba(142, 163, 184, 0.35);
-      border-radius: ${panelRadius};
-      padding: ${panelPadding};
-      box-sizing: border-box;
-      min-height: 0;
-      overflow: hidden;
-    }
-
-    .panel h1 {
-      margin: 0;
-      font-family: var(--font-display);
-      font-size: 32px;
-      color: var(--cloud-100);
-    }
-
-    .panel h2 {
-      margin: 0;
-      font-family: var(--font-title);
-      font-size: 24px;
-      color: var(--sky-300);
-    }
-
-    .panel h3 {
-      margin: 0 0 8px;
-      font-size: 20px;
-      color: var(--sky-300);
-    }
-
-    .menu-shell {
-      width: 100%;
-      min-height: calc(100vh - ${appPaddingPx * 2}px);
-      display: grid;
-      grid-template-rows: ${menuStyle.rowsDesktop || '0.28fr 0.38fr 0.18fr 0.16fr'};
-      overflow: hidden;
-    }
-
-    .menu-zone {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: ${toCssSize(menuStyle.zonePaddingY, '10px')} ${toCssSize(menuStyle.zonePaddingX, '16px')};
-      box-sizing: border-box;
-    }
-
-    .menu-zone-top {
-      flex-direction: column;
-      justify-content: flex-end;
-      gap: 8px;
-    }
-
-    .menu-zone-middle {
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .menu-title {
-      font-family: var(--font-display);
-      color: var(--cloud-100);
-      margin: 0;
-      font-size: ${toCssSize(menuStyle.titleSize, '56px')};
-      text-align: center;
-      letter-spacing: 3px;
-    }
-
-    .menu-tagline {
-      margin: 0;
-      text-align: center;
-      color: var(--sky-300);
-      font-size: ${toCssSize(menuStyle.taglineSize, '20px')};
-      font-family: var(--font-title);
-    }
-
-    .menu-btn-list {
-      display: grid;
-      gap: ${toCssSize(commonStyle.menuButtonListGap, '10px')};
-      width: min(100%, ${toCssSize(menuStyle.buttonListWidth, '380px')});
-      margin: 0;
-    }
-
-    .menu-btn {
-      width: 100%;
-      border-radius: ${toCssSize(commonStyle.menuButtonRadius, '10px')};
-      padding: ${toCssSize(commonStyle.menuButtonPaddingY, '11px')} ${toCssSize(commonStyle.menuButtonPaddingX, '14px')};
-      text-align: center;
-      font-size: ${toCssSize(commonStyle.menuButtonFontSize, '18px')};
-      cursor: pointer;
-      transition: transform 0.12s ease, box-shadow 0.12s ease;
-    }
-
-    .menu-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 0 0 1px rgba(120, 200, 255, 0.5) inset;
-    }
-
-    .menu-desc {
-      margin-top: 0;
-      font-size: ${toCssSize(menuStyle.descriptionFontSize, '14px')};
-      color: var(--cloud-700);
-      text-align: center;
-      min-height: 20px;
-    }
-
-    .menu-footer-note {
-      font-size: ${toCssSize(menuStyle.footerNoteFontSize, '13px')};
-      color: var(--cloud-700);
-      text-align: center;
-    }
-
-    .settings-shell {
-      max-width: ${toCssSize(settingsStyle.shellMaxWidth, '980px')};
-      margin: 0 auto;
-      min-height: calc(100vh - ${appPaddingPx * 2}px);
-      display: grid;
-      place-items: center;
-    }
-
-    .settings-card {
-      width: min(100%, ${toCssSize(settingsStyle.cardWidth, '760px')});
-      background: linear-gradient(180deg, rgba(16, 20, 25, 0.95) 0%, rgba(5, 7, 10, 0.95) 100%);
-      border: 1px solid rgba(142, 163, 184, 0.35);
-      border-radius: ${toCssSize(settingsStyle.cardRadius, '14px')};
-      padding: ${toCssSize(settingsStyle.cardPadding, '22px')};
-      box-sizing: border-box;
-    }
-
-    .settings-title {
-      margin: 0;
-      font-size: ${toCssSize(settingsStyle.titleSize, '40px')};
-      color: var(--cloud-100);
-      font-family: var(--font-display);
-      text-align: center;
-    }
-
-    .settings-desc {
-      margin-top: 8px;
-      font-size: 15px;
-      color: var(--cloud-700);
-      text-align: center;
-    }
-
-    .settings-section {
-      margin-top: ${toCssSize(settingsStyle.sectionMarginTop, '18px')};
-      padding: ${toCssSize(settingsStyle.sectionPadding, '14px')};
-      border: 1px dashed rgba(61, 168, 245, 0.6);
-      border-radius: ${toCssSize(settingsStyle.sectionRadius, '10px')};
-      background: rgba(9, 12, 16, 0.75);
-    }
-
-    .settings-section-title {
-      margin: 0;
-      font-size: 22px;
-      color: var(--sky-300);
-      font-family: var(--font-title);
-    }
-
-    .settings-field {
-      margin-top: 12px;
-    }
-
-    .settings-label {
-      font-size: 16px;
-      color: var(--cloud-300);
-      margin-bottom: 6px;
-      display: block;
-    }
-
-    .settings-help {
-      margin-top: 6px;
-      font-size: 13px;
-      color: var(--cloud-700);
-    }
-
-    .settings-select {
-      width: 100%;
-      box-sizing: border-box;
-      background: var(--black-300);
-      color: var(--cloud-100);
-      border: 1px solid rgba(120, 200, 255, 0.45);
-      border-radius: 8px;
-      padding: 10px;
-      font-size: 15px;
-    }
-
-    .settings-actions {
-      margin-top: 14px;
-      display: flex;
-      gap: 10px;
-    }
-
-    .settings-status {
-      margin-top: 12px;
-      color: var(--cloud-500);
-      font-size: 14px;
-      min-height: 20px;
-    }
-
-    .inline-actions {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 8px;
-    }
-
-    .btn-inline {
-      width: auto;
-      font-size: 13px;
-      padding: 6px 10px;
-    }
-
-    .meta {
-      font-size: 14px;
-      color: var(--cloud-700);
-      margin-top: 6px;
-    }
-
-    .category-list,
-    .tool-list,
-    .card-list {
-      display: grid;
-      gap: 8px;
-      margin-top: 12px;
-      max-height: ${workbenchStyle.cardListMaxHeight || 'calc(100vh - 180px)'};
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding-right: 4px;
-    }
-
-    .dev-shell {
-      min-height: calc(100vh - ${appPaddingPx * 2}px);
-      display: grid;
-      grid-template-rows: auto auto minmax(0, 1fr);
-      gap: 10px;
-      overflow: hidden;
-    }
-
-    .dev-hero {
-      min-height: ${toCssSize(workbenchStyle.heroMinHeight, '180px')};
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 10px;
-      align-items: center;
-      padding: 8px 0 6px;
-      border-bottom: 1px solid rgba(120, 200, 255, 0.25);
-    }
-
-    .dev-hero-copy {
-      display: grid;
-      gap: 6px;
-      max-width: 680px;
-    }
-
-    .dev-kicker {
-      color: var(--sky-300);
-      font-size: 12px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .dev-title {
-      margin: 0;
-      font-family: var(--font-display);
-      font-size: 26px;
-      line-height: 1.1;
-      color: var(--cloud-100);
-    }
-
-    .dev-subtitle {
-      margin: 0;
-      max-width: 620px;
-      color: var(--cloud-700);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .dev-status-line {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      color: var(--cloud-700);
-      font-size: 12px;
-    }
-
-    .dev-status-chip {
-      display: inline-flex;
-      align-items: center;
-      border: 1px solid rgba(120, 200, 255, 0.5);
-      padding: 2px 6px;
-      color: var(--sky-300);
-      background: rgba(9, 12, 16, 0.8);
-    }
-
-    .dev-category-strip {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: ${toCssSize(workbenchStyle.categoryGap, '10px')};
-      overflow: hidden;
-    }
-
-    .dev-category-btn,
-    .dev-tool-btn,
-    .btn,
-    .menu-btn {
-      border-radius: 0;
-    }
-
-    .dev-category-btn,
-    .dev-tool-btn {
-      width: 100%;
-      padding: 10px 12px;
-      text-align: left;
-      cursor: pointer;
-      transition: transform 0.08s steps(2, end), box-shadow 0.08s steps(2, end), background-color 0.08s steps(2, end);
-      background: var(--black-300);
-      color: var(--cloud-300);
-      border: 1px solid rgba(142, 163, 184, 0.45);
-      box-sizing: border-box;
-    }
-
-    .dev-category-btn:hover,
-    .dev-tool-btn:hover,
-    .btn:hover,
-    .menu-btn:hover {
-      transform: translate(-1px, -1px);
-      box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.95);
-    }
-
-    .dev-category-name,
-    .dev-tool-name {
-      display: block;
-      color: var(--cloud-100);
-      font-size: 14px;
-      line-height: 1.35;
-    }
-
-    .dev-category-meta,
-    .dev-tool-meta {
-      display: block;
-      margin-top: 4px;
-      color: var(--cloud-700);
-      font-size: 11px;
-      line-height: 1.45;
-    }
-
-    .dev-shell {
-      height: calc(100vh - ${appPaddingPx * 2}px);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      overflow: hidden;
-    }
-
-    .dev-main {
-      flex: 1;
-      min-height: 0;
-      display: grid;
-      grid-template-columns: ${workbenchStyle.contentColumns || 'minmax(340px, 0.92fr) minmax(420px, 1.08fr)'};
-      gap: 12px;
-      overflow: hidden;
-    }
-
-    .dev-column {
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      gap: 8px;
-    }
-
-    .dev-tool-grid {
-      flex: 1;
-      min-height: 0;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 8px;
-      align-content: start;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding-right: 4px;
-    }
-
-    .dev-sys-info {
-      height: 100px;
-      flex-shrink: 0;
-      padding: 10px;
-      background: rgba(9, 12, 16, 0.8);
-      border: 1px solid rgba(142, 163, 184, 0.25);
-      border-radius: 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      font-size: 11px;
-      color: var(--cloud-500);
-      overflow: hidden;
-    }
-    .dev-sys-info-row { display: flex; justify-content: space-between; }
-    .dev-sys-info-val { color: var(--cloud-100); }
-
-    .dev-focus {
-      flex: 1;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding: ${toCssSize(workbenchStyle.statusPanelPadding, '16px')};
-      border: 1px solid rgba(120, 200, 255, 0.4);
-      background: linear-gradient(180deg, rgba(16, 20, 25, 0.96) 0%, rgba(5, 7, 10, 0.92) 100%);
-      overflow: hidden;
-    }
-
-    .dev-focus-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      flex-shrink: 0;
-    }
-
-    .dev-focus-head-left {
-      display: flex;
-      align-items: baseline;
-      gap: 10px;
-    }
-
-    .dev-focus-head-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      text-align: right;
-    }
-
-    .dev-stage {
-      flex: 1;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 14px;
-      border: 1px dashed rgba(61, 168, 245, 0.62);
-      background:
-        linear-gradient(180deg, rgba(9, 12, 16, 0.82) 0%, rgba(9, 12, 16, 0.92) 100%),
-        linear-gradient(rgba(120, 200, 255, 0.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(120, 200, 255, 0.08) 1px, transparent 1px);
-      background-size: auto, 28px 28px, 28px 28px;
-      overflow: hidden;
-    }
-
-    .dev-stage-copy {
-      display: grid;
-      align-content: center;
-      justify-items: start;
-      gap: 10px;
-      max-width: 420px;
-    }
-
-    .dev-stage-kicker {
-      color: var(--sky-300);
-      font-size: 12px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
-    .dev-stage-title {
-      margin: 0;
-      color: var(--cloud-100);
-      font-size: 18px;
-      font-family: var(--font-title);
-      line-height: 1.4;
-    }
-
-    .dev-stage-desc {
-      margin: 0;
-      color: var(--cloud-500);
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .dev-stage-band {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      align-content: end;
-    }
-
-    .dev-stage-cell {
-      display: grid;
-      gap: 4px;
-      padding: 8px 10px;
-      background: rgba(0, 0, 0, 0.26);
-      border: 1px solid rgba(142, 163, 184, 0.28);
-    }
-
-    .dev-stage-label {
-      color: var(--cloud-700);
-      font-size: 11px;
-    }
-
-    .dev-stage-value {
-      color: var(--cloud-100);
-      font-size: 13px;
-      line-height: 1.45;
-    }
-
-    .dev-focus-status {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      padding: 0;
-      border: 0;
-      background: transparent;
-    }
-
-    .dev-focus-status strong,
-    .dev-focus-status p {
-      margin: 0;
-      padding: 5px 8px;
-      color: var(--cloud-500);
-      font-size: 12px;
-      line-height: 1.4;
-      border: 1px solid rgba(142, 163, 184, 0.24);
-      background: rgba(9, 12, 16, 0.45);
-    }
-
-    .dev-focus-status strong {
-      color: var(--cloud-100);
-      border-color: rgba(120, 200, 255, 0.45);
-    }
-
-    .dev-scope-list {
-      min-height: 0;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      align-content: start;
-      gap: 8px;
-      overflow-y: hidden;
-      overflow-x: hidden;
-    }
-
-    .dev-scope-item {
-      display: grid;
-      gap: 4px;
-      padding: 8px 10px;
-      border-left: 2px solid var(--sky-500);
-      background: rgba(9, 12, 16, 0.58);
-    }
-
-    .dev-scope-title {
-      color: var(--cloud-100);
-      font-size: 14px;
-    }
-
-    .dev-scope-meta {
-      color: var(--cloud-700);
-      font-size: 11px;
-      line-height: 1.45;
-    }
-
-    .hud-shell {
-      width: 100%;
-      min-height: calc(100vh - ${appPaddingPx * 2}px);
-      display: grid;
-      grid-template-rows: ${gameHudStyle.rows || '0.2fr 0.58fr 0.22fr'};
-      gap: ${toCssSize(gameHudStyle.sectionGap, '12px')};
-      overflow: hidden;
-    }
-
-    .hud-strip,
-    .hud-stage,
-    .hud-actions {
-      border: 1px solid rgba(142, 163, 184, 0.35);
-      border-radius: ${toCssSize(gameHudStyle.sectionRadius, '12px')};
-      background: linear-gradient(180deg, rgba(16, 20, 25, 0.95) 0%, rgba(5, 7, 10, 0.95) 100%);
-      box-sizing: border-box;
-      overflow: hidden;
-    }
-
-    .hud-strip {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      padding: ${toCssSize(gameHudStyle.stripPadding, '12px')};
-    }
-
-    .hud-item {
-      border: 1px dashed rgba(61, 168, 245, 0.6);
-      border-radius: 8px;
-      padding: 8px 10px;
-      min-width: 0;
-    }
-
-    .hud-item-label {
-      font-size: 12px;
-      color: var(--cloud-700);
-    }
-
-    .hud-item-value {
-      margin-top: 4px;
-      font-size: 16px;
-      color: var(--cloud-100);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .hud-stage {
-      display: grid;
-      place-items: center;
-      padding: 16px;
-      text-align: center;
-    }
-
-    .hud-title {
-      margin: 0;
-      font-family: var(--font-display);
-      color: var(--cloud-100);
-      font-size: ${toCssSize(gameHudStyle.titleSize, '42px')};
-    }
-
-    .hud-subtitle {
-      margin-top: 8px;
-      font-size: ${toCssSize(gameHudStyle.subtitleSize, '20px')};
-      color: var(--sky-300);
-      font-family: var(--font-title);
-    }
-
-    .hud-desc {
-      margin-top: 10px;
-      color: var(--cloud-500);
-      font-size: ${toCssSize(gameHudStyle.descFontSize, '15px')};
-      max-width: 760px;
-    }
-
-    .hud-actions {
-      padding: ${toCssSize(gameHudStyle.actionPadding, '12px')};
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      align-content: center;
-    }
-
-    .btn {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 10px 12px;
-      border-radius: 0;
-      text-align: left;
-      cursor: pointer;
-      font-size: 14px;
-      transition: transform 0.08s steps(2, end), box-shadow 0.08s steps(2, end), background-color 0.08s steps(2, end);
-      background: var(--black-300);
-      color: var(--cloud-300);
-      border: 1px solid rgba(142, 163, 184, 0.35);
-    }
-
-    .btn:hover {
-      transform: translate(-1px, -1px);
-      box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.95);
-    }
-
-    .btn.active {
-      color: #000;
-      background: var(--sky-500);
-      border-color: var(--sky-300);
-    }
-
-    .preview-shell {
-      margin-top: 12px;
-      border: 2px solid var(--sky-300);
-      border-radius: 10px;
-      overflow: hidden;
-      background: #000;
-      min-height: 460px;
-      position: relative;
-    }
-
-    #preview-surface {
-      width: 100%;
-      min-height: 460px;
-    }
-
-    .card-item {
-      border: 1px dashed rgba(61, 168, 245, 0.7);
-      border-radius: 10px;
-      padding: 10px;
-      background: rgba(9, 12, 16, 0.9);
-    }
-
-    .card-item-title {
-      font-size: 16px;
-      color: var(--cloud-100);
-      margin-bottom: 8px;
-    }
-
-    .chip-wrap {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .chip {
-      border-radius: 999px;
-      border: 1px solid rgba(198, 216, 234, 0.45);
-      padding: 2px 8px;
-      font-size: 12px;
-      color: var(--cloud-500);
-    }
-
-    .spec-preview {
-      margin-top: 14px;
-      border-top: 1px solid rgba(142, 163, 184, 0.3);
-      padding-top: 12px;
-      display: grid;
-      gap: 10px;
-    }
-
-    .text-sample {
-      border: 1px solid rgba(142, 163, 184, 0.35);
-      border-radius: 8px;
-      padding: 8px;
-    }
-
-    @media (max-width: ${mobileBreakpoint}px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-
-      .dev-hero,
-      .dev-main {
-        grid-template-columns: 1fr;
-      }
-
-      .dev-category-strip,
-      .dev-tool-grid,
-      .dev-stage-band,
-      .dev-scope-list {
-        grid-template-columns: 1fr;
-      }
-
-      .hud-strip,
-      .hud-actions {
-        grid-template-columns: 1fr;
-      }
-
-      .menu-shell {
-        grid-template-rows: ${menuStyle.rowsMobile || '0.30fr 0.36fr 0.20fr 0.14fr'};
-      }
-    }
+      --base-body-background: ${baseThemeStyle.bodyBackground || 'radial-gradient(circle at 20% 0%, var(--black-100) 0%, var(--black-900) 58%)'};
+      --base-body-color: ${baseThemeStyle.bodyColor || 'var(--cloud-300)'};
+      --base-panel-background: ${baseThemeStyle.panelBackground || 'linear-gradient(180deg, rgba(16, 20, 25, 0.95) 0%, rgba(5, 7, 10, 0.95) 100%)'};
+      --base-panel-border: ${baseThemeStyle.panelBorder || '1px solid rgba(142, 163, 184, 0.35)'};
+      --base-h1-margin: ${baseThemeStyle.h1Margin || '0'};
+      --base-h1-font-size: ${toCssSize(baseThemeStyle.h1FontSize, '32px')};
+      --base-h1-color: ${baseThemeStyle.h1Color || 'var(--cloud-100)'};
+      --base-h2-margin: ${baseThemeStyle.h2Margin || '0'};
+      --base-h2-font-size: ${toCssSize(baseThemeStyle.h2FontSize, '24px')};
+      --base-h2-color: ${baseThemeStyle.h2Color || 'var(--sky-300)'};
+      --base-h3-margin: ${baseThemeStyle.h3Margin || '0 0 8px'};
+      --base-h3-font-size: ${toCssSize(baseThemeStyle.h3FontSize, '20px')};
+      --base-h3-color: ${baseThemeStyle.h3Color || 'var(--sky-300)'};
+    }
+    ${baseThemeCss}
   `
-  document.head.appendChild(style)
+  upsertStyleTag(STYLE_TAG_IDS.base, cssText)
+}
+
+function loadPageUiStyles(commonContext) {
+  const {
+    commonStyle,
+    menuStyle,
+    settingsStyle,
+    workbenchStyle,
+    gameHudStyle,
+    appPaddingPx,
+    layoutColumns,
+    mobileBreakpoint
+  } = commonContext
+  const pageLayoutStyle = styleParamsConfig?.style?.pageLayout || {}
+  const cssText = `
+    :root {
+      --layout-columns: ${layoutColumns};
+      --menu-rows-desktop: ${menuStyle.rowsDesktop || '0.28fr 0.38fr 0.18fr 0.16fr'};
+      --menu-rows-mobile: ${menuStyle.rowsMobile || '0.30fr 0.36fr 0.20fr 0.14fr'};
+      --menu-zone-padding-y: ${toCssSize(menuStyle.zonePaddingY, '10px')};
+      --menu-zone-padding-x: ${toCssSize(menuStyle.zonePaddingX, '16px')};
+      --menu-title-size: ${toCssSize(menuStyle.titleSize, '56px')};
+      --menu-tagline-size: ${toCssSize(menuStyle.taglineSize, '20px')};
+      --menu-button-list-gap: ${toCssSize(commonStyle.menuButtonListGap, '10px')};
+      --menu-button-list-width: ${toCssSize(menuStyle.buttonListWidth, '380px')};
+      --menu-button-radius: ${toCssSize(commonStyle.menuButtonRadius, '10px')};
+      --menu-button-padding-y: ${toCssSize(commonStyle.menuButtonPaddingY, '11px')};
+      --menu-button-padding-x: ${toCssSize(commonStyle.menuButtonPaddingX, '14px')};
+      --menu-button-font-size: ${toCssSize(commonStyle.menuButtonFontSize, '18px')};
+      --menu-description-font-size: ${toCssSize(menuStyle.descriptionFontSize, '14px')};
+      --menu-footer-note-font-size: ${toCssSize(menuStyle.footerNoteFontSize, '13px')};
+      --settings-shell-max-width: ${toCssSize(settingsStyle.shellMaxWidth, '980px')};
+      --settings-card-width: ${toCssSize(settingsStyle.cardWidth, '760px')};
+      --settings-card-radius: ${toCssSize(settingsStyle.cardRadius, '14px')};
+      --settings-card-padding: ${toCssSize(settingsStyle.cardPadding, '22px')};
+      --settings-title-size: ${toCssSize(settingsStyle.titleSize, '40px')};
+      --settings-section-margin-top: ${toCssSize(settingsStyle.sectionMarginTop, '18px')};
+      --settings-section-padding: ${toCssSize(settingsStyle.sectionPadding, '14px')};
+      --settings-section-radius: ${toCssSize(settingsStyle.sectionRadius, '10px')};
+      --workbench-card-list-max-height: ${workbenchStyle.cardListMaxHeight || 'calc(100vh - 180px)'};
+      --workbench-hero-min-height: ${toCssSize(workbenchStyle.heroMinHeight, '180px')};
+      --workbench-category-gap: ${toCssSize(workbenchStyle.categoryGap, '10px')};
+      --workbench-content-columns: ${workbenchStyle.contentColumns || 'minmax(340px, 0.92fr) minmax(420px, 1.08fr)'};
+      --workbench-status-panel-padding: ${toCssSize(workbenchStyle.statusPanelPadding, '16px')};
+      --gamehud-rows: ${gameHudStyle.rows || '0.2fr 0.58fr 0.22fr'};
+      --gamehud-section-gap: ${toCssSize(gameHudStyle.sectionGap, '12px')};
+      --gamehud-section-radius: ${toCssSize(gameHudStyle.sectionRadius, '12px')};
+      --gamehud-strip-padding: ${toCssSize(gameHudStyle.stripPadding, '12px')};
+      --gamehud-action-padding: ${toCssSize(gameHudStyle.actionPadding, '12px')};
+      --gamehud-title-size: ${toCssSize(gameHudStyle.titleSize, '42px')};
+      --gamehud-subtitle-size: ${toCssSize(gameHudStyle.subtitleSize, '20px')};
+      --gamehud-desc-font-size: ${toCssSize(gameHudStyle.descFontSize, '15px')};
+      --page-menu-zone-top-gap: ${toCssSize(pageLayoutStyle.menuZoneTopGap, '8px')};
+      --page-menu-title-letter-spacing: ${toCssSize(pageLayoutStyle.menuTitleLetterSpacing, '3px')};
+      --page-menu-button-transition-duration: ${pageLayoutStyle.menuButtonTransitionDuration || '0.12s'};
+      --page-menu-button-hover-translate-y: ${toCssSize(pageLayoutStyle.menuButtonHoverTranslateY, '-1px')};
+      --page-menu-button-hover-shadow: ${pageLayoutStyle.menuButtonHoverShadow || '0 0 0 1px rgba(120, 200, 255, 0.5) inset'};
+      --page-menu-desc-min-height: ${toCssSize(pageLayoutStyle.menuDescMinHeight, '20px')};
+      --page-settings-card-background: ${pageLayoutStyle.settingsCardBackground || 'linear-gradient(180deg, rgba(16, 20, 25, 0.95) 0%, rgba(5, 7, 10, 0.95) 100%)'};
+      --page-settings-card-border: ${pageLayoutStyle.settingsCardBorder || '1px solid rgba(142, 163, 184, 0.35)'};
+      --page-settings-desc-margin-top: ${toCssSize(pageLayoutStyle.settingsDescMarginTop, '8px')};
+      --page-settings-desc-font-size: ${toCssSize(pageLayoutStyle.settingsDescFontSize, '15px')};
+      --page-settings-section-border: ${pageLayoutStyle.settingsSectionBorder || '1px dashed rgba(61, 168, 245, 0.6)'};
+      --page-settings-section-background: ${pageLayoutStyle.settingsSectionBackground || 'rgba(9, 12, 16, 0.75)'};
+      --page-settings-section-title-size: ${toCssSize(pageLayoutStyle.settingsSectionTitleSize, '22px')};
+      --page-settings-field-margin-top: ${toCssSize(pageLayoutStyle.settingsFieldMarginTop, '12px')};
+      --page-settings-label-font-size: ${toCssSize(pageLayoutStyle.settingsLabelFontSize, '16px')};
+      --page-settings-label-margin-bottom: ${toCssSize(pageLayoutStyle.settingsLabelMarginBottom, '6px')};
+      --page-settings-help-margin-top: ${toCssSize(pageLayoutStyle.settingsHelpMarginTop, '6px')};
+      --page-settings-help-font-size: ${toCssSize(pageLayoutStyle.settingsHelpFontSize, '13px')};
+      --page-settings-select-border: ${pageLayoutStyle.settingsSelectBorder || '1px solid rgba(120, 200, 255, 0.45)'};
+      --page-settings-select-radius: ${toCssSize(pageLayoutStyle.settingsSelectRadius, '8px')};
+      --page-settings-select-padding: ${toCssSize(pageLayoutStyle.settingsSelectPadding, '10px')};
+      --page-settings-select-font-size: ${toCssSize(pageLayoutStyle.settingsSelectFontSize, '15px')};
+      --page-settings-actions-margin-top: ${toCssSize(pageLayoutStyle.settingsActionsMarginTop, '14px')};
+      --page-settings-actions-gap: ${toCssSize(pageLayoutStyle.settingsActionsGap, '10px')};
+      --page-settings-status-margin-top: ${toCssSize(pageLayoutStyle.settingsStatusMarginTop, '12px')};
+      --page-settings-status-font-size: ${toCssSize(pageLayoutStyle.settingsStatusFontSize, '14px')};
+      --page-settings-status-min-height: ${toCssSize(pageLayoutStyle.settingsStatusMinHeight, '20px')};
+      --page-inline-actions-margin-top: ${toCssSize(pageLayoutStyle.inlineActionsMarginTop, '8px')};
+      --page-btn-inline-font-size: ${toCssSize(pageLayoutStyle.btnInlineFontSize, '13px')};
+      --page-btn-inline-padding-y: ${toCssSize(pageLayoutStyle.btnInlinePaddingY, '6px')};
+      --page-btn-inline-padding-x: ${toCssSize(pageLayoutStyle.btnInlinePaddingX, '10px')};
+      --page-meta-font-size: ${toCssSize(pageLayoutStyle.metaFontSize, '14px')};
+      --page-meta-margin-top: ${toCssSize(pageLayoutStyle.metaMarginTop, '6px')};
+      --page-card-list-gap: ${toCssSize(pageLayoutStyle.cardListGap, '8px')};
+      --page-card-list-margin-top: ${toCssSize(pageLayoutStyle.cardListMarginTop, '12px')};
+      --page-card-list-padding-right: ${toCssSize(pageLayoutStyle.cardListPaddingRight, '4px')};
+      --page-dev-shell-gap: ${toCssSize(pageLayoutStyle.devShellGap, '12px')};
+      --page-dev-hero-gap: ${toCssSize(pageLayoutStyle.devHeroGap, '10px')};
+      --page-dev-hero-padding-top: ${toCssSize(pageLayoutStyle.devHeroPaddingTop, '8px')};
+      --page-dev-hero-padding-bottom: ${toCssSize(pageLayoutStyle.devHeroPaddingBottom, '6px')};
+      --page-dev-hero-border-bottom: ${pageLayoutStyle.devHeroBorderBottom || '1px solid rgba(120, 200, 255, 0.25)'};
+      --page-dev-hero-copy-gap: ${toCssSize(pageLayoutStyle.devHeroCopyGap, '6px')};
+      --page-dev-hero-copy-max-width: ${toCssSize(pageLayoutStyle.devHeroCopyMaxWidth, '680px')};
+      --page-dev-kicker-font-size: ${toCssSize(pageLayoutStyle.devKickerFontSize, '12px')};
+      --page-dev-kicker-letter-spacing: ${toCssSize(pageLayoutStyle.devKickerLetterSpacing, '2px')};
+      --page-dev-title-font-size: ${toCssSize(pageLayoutStyle.devTitleFontSize, '26px')};
+      --page-dev-subtitle-max-width: ${toCssSize(pageLayoutStyle.devSubtitleMaxWidth, '620px')};
+      --page-dev-subtitle-font-size: ${toCssSize(pageLayoutStyle.devSubtitleFontSize, '13px')};
+      --page-dev-status-line-gap: ${toCssSize(pageLayoutStyle.devStatusLineGap, '8px')};
+      --page-dev-status-line-font-size: ${toCssSize(pageLayoutStyle.devStatusLineFontSize, '12px')};
+      --page-dev-status-chip-border: ${pageLayoutStyle.devStatusChipBorder || '1px solid rgba(120, 200, 255, 0.5)'};
+      --page-dev-status-chip-padding-y: ${toCssSize(pageLayoutStyle.devStatusChipPaddingY, '2px')};
+      --page-dev-status-chip-padding-x: ${toCssSize(pageLayoutStyle.devStatusChipPaddingX, '6px')};
+      --page-dev-status-chip-background: ${pageLayoutStyle.devStatusChipBackground || 'rgba(9, 12, 16, 0.8)'};
+      --page-dev-category-btn-padding-y: ${toCssSize(pageLayoutStyle.devCategoryBtnPaddingY, '10px')};
+      --page-dev-category-btn-padding-x: ${toCssSize(pageLayoutStyle.devCategoryBtnPaddingX, '12px')};
+      --page-dev-category-btn-transition-duration: ${pageLayoutStyle.devCategoryBtnTransitionDuration || '0.08s'};
+      --page-dev-category-btn-bg: ${pageLayoutStyle.devCategoryBtnBackground || 'var(--black-300)'};
+      --page-dev-category-btn-color: ${pageLayoutStyle.devCategoryBtnColor || 'var(--cloud-300)'};
+      --page-dev-category-btn-border: ${pageLayoutStyle.devCategoryBtnBorder || '1px solid rgba(142, 163, 184, 0.45)'};
+      --page-dev-category-btn-hover-translate: ${toCssSize(pageLayoutStyle.devCategoryBtnHoverTranslate, '-1px')};
+      --page-dev-category-btn-hover-shadow: ${pageLayoutStyle.devCategoryBtnHoverShadow || '2px 2px 0 rgba(0, 0, 0, 0.95)'};
+      --page-dev-category-name-font-size: ${toCssSize(pageLayoutStyle.devCategoryNameFontSize, '14px')};
+      --page-dev-category-meta-margin-top: ${toCssSize(pageLayoutStyle.devCategoryMetaMarginTop, '4px')};
+      --page-dev-category-meta-font-size: ${toCssSize(pageLayoutStyle.devCategoryMetaFontSize, '11px')};
+      --page-dev-main-gap: ${toCssSize(pageLayoutStyle.devMainGap, '12px')};
+      --page-dev-column-gap: ${toCssSize(pageLayoutStyle.devColumnGap, '8px')};
+      --page-dev-tool-grid-gap: ${toCssSize(pageLayoutStyle.devToolGridGap, '8px')};
+      --page-dev-tool-grid-padding-right: ${toCssSize(pageLayoutStyle.devToolGridPaddingRight, '4px')};
+      --page-dev-sys-info-height: ${toCssSize(pageLayoutStyle.devSysInfoHeight, '100px')};
+      --page-dev-sys-info-padding: ${toCssSize(pageLayoutStyle.devSysInfoPadding, '10px')};
+      --page-dev-sys-info-bg: ${pageLayoutStyle.devSysInfoBackground || 'rgba(9, 12, 16, 0.8)'};
+      --page-dev-sys-info-border: ${pageLayoutStyle.devSysInfoBorder || '1px solid rgba(142, 163, 184, 0.25)'};
+      --page-dev-sys-info-radius: ${toCssSize(pageLayoutStyle.devSysInfoRadius, '4px')};
+      --page-dev-sys-info-gap: ${toCssSize(pageLayoutStyle.devSysInfoGap, '6px')};
+      --page-dev-sys-info-font-size: ${toCssSize(pageLayoutStyle.devSysInfoFontSize, '11px')};
+      --page-dev-focus-gap: ${toCssSize(pageLayoutStyle.devFocusGap, '10px')};
+      --page-dev-focus-border: ${pageLayoutStyle.devFocusBorder || '1px solid rgba(120, 200, 255, 0.4)'};
+      --page-dev-focus-bg: ${pageLayoutStyle.devFocusBackground || 'linear-gradient(180deg, rgba(16, 20, 25, 0.96) 0%, rgba(5, 7, 10, 0.92) 100%)'};
+      --page-dev-focus-head-gap: ${toCssSize(pageLayoutStyle.devFocusHeadGap, '16px')};
+      --page-dev-focus-head-left-gap: ${toCssSize(pageLayoutStyle.devFocusHeadLeftGap, '10px')};
+      --page-dev-focus-head-right-gap: ${toCssSize(pageLayoutStyle.devFocusHeadRightGap, '12px')};
+      --page-dev-focus-title-font-size: ${toCssSize(pageLayoutStyle.devFocusTitleFontSize, '22px')};
+      --page-dev-focus-kicker-font-size: ${toCssSize(pageLayoutStyle.devFocusKickerFontSize, '12px')};
+      --page-dev-focus-summary-max-width: ${toCssSize(pageLayoutStyle.devFocusSummaryMaxWidth, '320px')};
+      --page-dev-focus-summary-font-size: ${toCssSize(pageLayoutStyle.devFocusSummaryFontSize, '12px')};
+      --page-dev-stage-gap: ${toCssSize(pageLayoutStyle.devStageGap, '12px')};
+      --page-dev-stage-padding: ${toCssSize(pageLayoutStyle.devStagePadding, '14px')};
+      --page-dev-stage-border: ${pageLayoutStyle.devStageBorder || '1px dashed rgba(61, 168, 245, 0.62)'};
+      --page-dev-stage-bg-primary: ${pageLayoutStyle.devStageBackgroundPrimary || 'linear-gradient(180deg, rgba(9, 12, 16, 0.82) 0%, rgba(9, 12, 16, 0.92) 100%)'};
+      --page-dev-stage-bg-grid: ${pageLayoutStyle.devStageBackgroundGrid || 'rgba(120, 200, 255, 0.08)'};
+      --page-dev-stage-bg-grid-line-width: ${toCssSize(pageLayoutStyle.devStageBackgroundGridLineWidth, '1px')};
+      --page-dev-stage-bg-grid-size: ${toCssSize(pageLayoutStyle.devStageBackgroundGridSize, '28px')};
+      --page-dev-stage-copy-gap: ${toCssSize(pageLayoutStyle.devStageCopyGap, '10px')};
+      --page-dev-stage-copy-max-width: ${toCssSize(pageLayoutStyle.devStageCopyMaxWidth, '420px')};
+      --page-dev-stage-kicker-font-size: ${toCssSize(pageLayoutStyle.devStageKickerFontSize, '12px')};
+      --page-dev-stage-kicker-letter-spacing: ${toCssSize(pageLayoutStyle.devStageKickerLetterSpacing, '1px')};
+      --page-dev-stage-title-font-size: ${toCssSize(pageLayoutStyle.devStageTitleFontSize, '18px')};
+      --page-dev-stage-desc-font-size: ${toCssSize(pageLayoutStyle.devStageDescFontSize, '13px')};
+      --page-dev-stage-band-gap: ${toCssSize(pageLayoutStyle.devStageBandGap, '8px')};
+      --page-dev-stage-cell-gap: ${toCssSize(pageLayoutStyle.devStageCellGap, '4px')};
+      --page-dev-stage-cell-padding-y: ${toCssSize(pageLayoutStyle.devStageCellPaddingY, '8px')};
+      --page-dev-stage-cell-padding-x: ${toCssSize(pageLayoutStyle.devStageCellPaddingX, '10px')};
+      --page-dev-stage-cell-bg: ${pageLayoutStyle.devStageCellBackground || 'rgba(0, 0, 0, 0.26)'};
+      --page-dev-stage-cell-border: ${pageLayoutStyle.devStageCellBorder || '1px solid rgba(142, 163, 184, 0.28)'};
+      --page-dev-stage-label-font-size: ${toCssSize(pageLayoutStyle.devStageLabelFontSize, '11px')};
+      --page-dev-stage-value-font-size: ${toCssSize(pageLayoutStyle.devStageValueFontSize, '13px')};
+      --page-dev-focus-status-gap: ${toCssSize(pageLayoutStyle.devFocusStatusGap, '8px')};
+      --page-dev-focus-status-item-padding-y: ${toCssSize(pageLayoutStyle.devFocusStatusItemPaddingY, '5px')};
+      --page-dev-focus-status-item-padding-x: ${toCssSize(pageLayoutStyle.devFocusStatusItemPaddingX, '8px')};
+      --page-dev-focus-status-item-font-size: ${toCssSize(pageLayoutStyle.devFocusStatusItemFontSize, '12px')};
+      --page-dev-focus-status-item-border: ${pageLayoutStyle.devFocusStatusItemBorder || '1px solid rgba(142, 163, 184, 0.24)'};
+      --page-dev-focus-status-item-bg: ${pageLayoutStyle.devFocusStatusItemBackground || 'rgba(9, 12, 16, 0.45)'};
+      --page-dev-focus-status-strong-border-color: ${pageLayoutStyle.devFocusStatusStrongBorderColor || 'rgba(120, 200, 255, 0.45)'};
+      --page-dev-scope-list-gap: ${toCssSize(pageLayoutStyle.devScopeListGap, '8px')};
+      --page-dev-scope-item-gap: ${toCssSize(pageLayoutStyle.devScopeItemGap, '4px')};
+      --page-dev-scope-item-padding-y: ${toCssSize(pageLayoutStyle.devScopeItemPaddingY, '8px')};
+      --page-dev-scope-item-padding-x: ${toCssSize(pageLayoutStyle.devScopeItemPaddingX, '10px')};
+      --page-dev-scope-item-border-left: ${pageLayoutStyle.devScopeItemBorderLeft || '2px solid var(--sky-500)'};
+      --page-dev-scope-item-bg: ${pageLayoutStyle.devScopeItemBackground || 'rgba(9, 12, 16, 0.58)'};
+      --page-dev-scope-title-font-size: ${toCssSize(pageLayoutStyle.devScopeTitleFontSize, '14px')};
+      --page-dev-scope-meta-font-size: ${toCssSize(pageLayoutStyle.devScopeMetaFontSize, '11px')};
+      --page-hud-panel-border: ${pageLayoutStyle.hudPanelBorder || '1px solid rgba(142, 163, 184, 0.35)'};
+      --page-hud-panel-background: ${pageLayoutStyle.hudPanelBackground || 'linear-gradient(180deg, rgba(16, 20, 25, 0.95) 0%, rgba(5, 7, 10, 0.95) 100%)'};
+      --page-hud-strip-gap: ${toCssSize(pageLayoutStyle.hudStripGap, '10px')};
+      --page-hud-item-border: ${pageLayoutStyle.hudItemBorder || '1px dashed rgba(61, 168, 245, 0.6)'};
+      --page-hud-item-radius: ${toCssSize(pageLayoutStyle.hudItemRadius, '8px')};
+      --page-hud-item-padding-y: ${toCssSize(pageLayoutStyle.hudItemPaddingY, '8px')};
+      --page-hud-item-padding-x: ${toCssSize(pageLayoutStyle.hudItemPaddingX, '10px')};
+      --page-hud-item-label-font-size: ${toCssSize(pageLayoutStyle.hudItemLabelFontSize, '12px')};
+      --page-hud-item-value-margin-top: ${toCssSize(pageLayoutStyle.hudItemValueMarginTop, '4px')};
+      --page-hud-item-value-font-size: ${toCssSize(pageLayoutStyle.hudItemValueFontSize, '16px')};
+      --page-hud-subtitle-margin-top: ${toCssSize(pageLayoutStyle.hudSubtitleMarginTop, '8px')};
+      --page-hud-stage-padding: ${toCssSize(pageLayoutStyle.hudStagePadding, '16px')};
+      --page-hud-desc-margin-top: ${toCssSize(pageLayoutStyle.hudDescMarginTop, '10px')};
+      --page-hud-desc-max-width: ${toCssSize(pageLayoutStyle.hudDescMaxWidth, '760px')};
+      --page-hud-actions-gap: ${toCssSize(pageLayoutStyle.hudActionsGap, '10px')};
+      --page-btn-padding-y: ${toCssSize(pageLayoutStyle.btnPaddingY, '10px')};
+      --page-btn-padding-x: ${toCssSize(pageLayoutStyle.btnPaddingX, '12px')};
+      --page-btn-font-size: ${toCssSize(pageLayoutStyle.btnFontSize, '14px')};
+      --page-btn-border: ${pageLayoutStyle.btnBorder || '1px solid rgba(142, 163, 184, 0.35)'};
+      --page-btn-background: ${pageLayoutStyle.btnBackground || 'var(--black-300)'};
+      --page-btn-color: ${pageLayoutStyle.btnColor || 'var(--cloud-300)'};
+      --page-btn-transition-duration: ${pageLayoutStyle.btnTransitionDuration || '0.08s'};
+      --page-btn-hover-translate: ${toCssSize(pageLayoutStyle.btnHoverTranslate, '-1px')};
+      --page-btn-hover-shadow: ${pageLayoutStyle.btnHoverShadow || '2px 2px 0 rgba(0, 0, 0, 0.95)'};
+      --page-btn-active-color: ${pageLayoutStyle.btnActiveColor || '#000'};
+      --page-btn-active-background: ${pageLayoutStyle.btnActiveBackground || 'var(--sky-500)'};
+      --page-btn-active-border-color: ${pageLayoutStyle.btnActiveBorderColor || 'var(--sky-300)'};
+      --page-preview-shell-margin-top: ${toCssSize(pageLayoutStyle.previewShellMarginTop, '12px')};
+      --page-preview-shell-border: ${pageLayoutStyle.previewShellBorder || '2px solid var(--sky-300)'};
+      --page-preview-shell-radius: ${toCssSize(pageLayoutStyle.previewShellRadius, '10px')};
+      --page-preview-shell-background: ${pageLayoutStyle.previewShellBackground || '#000'};
+      --page-preview-shell-min-height: ${toCssSize(pageLayoutStyle.previewShellMinHeight, '460px')};
+      --page-preview-surface-min-height: ${toCssSize(pageLayoutStyle.previewSurfaceMinHeight, '460px')};
+      --page-card-item-border: ${pageLayoutStyle.cardItemBorder || '1px dashed rgba(61, 168, 245, 0.7)'};
+      --page-card-item-radius: ${toCssSize(pageLayoutStyle.cardItemRadius, '10px')};
+      --page-card-item-padding: ${toCssSize(pageLayoutStyle.cardItemPadding, '10px')};
+      --page-card-item-bg: ${pageLayoutStyle.cardItemBackground || 'rgba(9, 12, 16, 0.9)'};
+      --page-card-item-title-font-size: ${toCssSize(pageLayoutStyle.cardItemTitleFontSize, '16px')};
+      --page-card-item-title-margin-bottom: ${toCssSize(pageLayoutStyle.cardItemTitleMarginBottom, '8px')};
+      --page-chip-wrap-gap: ${toCssSize(pageLayoutStyle.chipWrapGap, '6px')};
+      --page-chip-border: ${pageLayoutStyle.chipBorder || '1px solid rgba(198, 216, 234, 0.45)'};
+      --page-chip-padding-y: ${toCssSize(pageLayoutStyle.chipPaddingY, '2px')};
+      --page-chip-padding-x: ${toCssSize(pageLayoutStyle.chipPaddingX, '8px')};
+      --page-chip-font-size: ${toCssSize(pageLayoutStyle.chipFontSize, '12px')};
+      --page-chip-radius: ${toCssSize(pageLayoutStyle.chipRadius, '999px')};
+      --page-chip-status-radius: ${toCssSize(pageLayoutStyle.chipStatusRadius, '12px')};
+      --page-spec-preview-margin-top: ${toCssSize(pageLayoutStyle.specPreviewMarginTop, '14px')};
+      --page-spec-preview-border-top: ${pageLayoutStyle.specPreviewBorderTop || '1px solid rgba(142, 163, 184, 0.3)'};
+      --page-spec-preview-padding-top: ${toCssSize(pageLayoutStyle.specPreviewPaddingTop, '12px')};
+      --page-spec-preview-gap: ${toCssSize(pageLayoutStyle.specPreviewGap, '10px')};
+      --page-text-sample-border: ${pageLayoutStyle.textSampleBorder || '1px solid rgba(142, 163, 184, 0.35)'};
+      --page-text-sample-radius: ${toCssSize(pageLayoutStyle.textSampleRadius, '8px')};
+      --page-text-sample-padding: ${toCssSize(pageLayoutStyle.textSamplePadding, '8px')};
+    }
+    ${pageLayoutCssTemplate.replaceAll('__MOBILE_BREAKPOINT__', `${mobileBreakpoint}px`)}
+  `
+  upsertStyleTag(STYLE_TAG_IDS.page, cssText)
 }
 
 function getButtonType(typeId) {
@@ -895,12 +499,17 @@ function renderMainMenu() {
   const menuButtonSource = menuConfig.buttons || mainMenu?.buttons || []
   const menuButtons = menuButtonSource
     .map((button) => {
+      const actionDefinition = getResolvedActionDefinition(button.action, button)
+      if (!actionExecutor.isVisible(actionDefinition)) {
+        return ''
+      }
+      const disabled = actionExecutor.isDisabled(actionDefinition)
       return `
         <button
           class="menu-btn"
           style="${getButtonStyle(button.type)}"
           data-menu-action="${button.action}"
-          data-menu-description="${button.description}"
+          ${disabled ? 'disabled' : ''}
         >
           ${button.text}
         </button>
@@ -946,7 +555,12 @@ function renderGameHud() {
 
   const actionHtml = hudActions
     .map((action) => {
-      return `<button class="menu-btn" style="${getButtonStyle(action.type)}" data-hud-action="${action.id}">${action.text}</button>`
+      const actionDefinition = getResolvedActionDefinition(action.id, action)
+      if (!actionExecutor.isVisible(actionDefinition)) {
+        return ''
+      }
+      const disabled = actionExecutor.isDisabled(actionDefinition)
+      return `<button class="menu-btn" style="${getButtonStyle(action.type)}" data-hud-action="${action.id}" ${disabled ? 'disabled' : ''}>${action.text}</button>`
     })
     .join('')
 
@@ -963,19 +577,9 @@ function renderGameHud() {
   `
 
   root.querySelectorAll('[data-hud-action]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const action = button.dataset.hudAction
-      if (action === 'back-main') {
-        executeMenuAction('open-main-menu', '返回首页')
-        return
-      }
-      if (action === 'open-settings') {
-        executeMenuAction('open-settings', '打开系统设置')
-        return
-      }
-      if (action === 'open-devtools') {
-        executeMenuAction('open-devtools', '进入开发工具总控台')
-      }
+    button.addEventListener('click', async () => {
+      const actionId = button.dataset.hudAction
+      await executeAction(actionId)
     })
   })
 }
@@ -1022,7 +626,12 @@ function renderSettingsPage() {
   const actionList = settingsPage?.page?.actions || settingsPage?.layout?.actions || []
   const actions = actionList
     .map((action) => {
-      return `<button class="menu-btn" style="${getButtonStyle(action.type)}" data-settings-action="${action.id}">${action.text}</button>`
+      const actionDefinition = getResolvedActionDefinition(action.id, action)
+      if (!actionExecutor.isVisible(actionDefinition)) {
+        return ''
+      }
+      const disabled = actionExecutor.isDisabled(actionDefinition)
+      return `<button class="menu-btn" style="${getButtonStyle(action.type)}" data-settings-action="${action.id}" ${disabled ? 'disabled' : ''}>${action.text}</button>`
     })
     .join('')
 
@@ -1051,8 +660,13 @@ function renderSettingsPage() {
 function renderTextSpecPreview() {
   return themeConfig.theme.textTypes
     .map((item) => {
+      const sampleStyle = buildInlineStyle({
+        'font-family': item.fontFamily,
+        'font-size': `${item.size}px`,
+        color: item.color
+      })
       return `
-        <div class="text-sample" style="font-family:${item.fontFamily};font-size:${item.size}px;color:${item.color};">
+        <div class="text-sample" style="${sampleStyle}">
           ${item.id.toUpperCase()} 示例文字
           <div class="meta">${item.usage}</div>
         </div>
@@ -1065,7 +679,13 @@ function renderButtonSpecPreview() {
   return themeConfig.theme.buttonTypes
     .map((item) => {
       const border = item.border ? `${item.borderWidth}px solid ${item.borderColor}` : 'none'
-      return `<button class="btn" style="background:${item.background};color:${item.textColor};border:${border};cursor:default;">${item.id.toUpperCase()} 按钮</button>`
+      const buttonStyle = buildInlineStyle({
+        background: item.background,
+        color: item.textColor,
+        border,
+        cursor: 'default'
+      })
+      return `<button class="btn" style="${buttonStyle}">${item.id.toUpperCase()} 按钮</button>`
     })
     .join('')
 }
@@ -1074,7 +694,15 @@ function renderBorderSpecPreview() {
   return themeConfig.theme.borderTypes
     .map((item) => {
       const dash = item.dashed ? 'dashed' : 'solid'
-      return `<div style="border:${item.strokeWidth}px ${dash} ${item.strokeColor};background:${item.background};border-radius:8px;padding:8px;color:#c6d8ea;font-size:13px;">${item.id} / ${item.strokeWidth}px</div>`
+      const previewStyle = buildInlineStyle({
+        border: `${item.strokeWidth}px ${dash} ${item.strokeColor}`,
+        background: item.background,
+        'border-radius': '8px',
+        padding: '8px',
+        color: '#c6d8ea',
+        'font-size': '13px'
+      })
+      return `<div style="${previewStyle}">${item.id} / ${item.strokeWidth}px</div>`
     })
     .join('')
 }
@@ -1105,6 +733,18 @@ let resourceBrowserState = {
   selectedId: null
 }
 
+function buildResourceBrowserRuleContext(extra = {}) {
+  return {
+    state: {
+      ...state,
+      resourceBrowser: {
+        ...resourceBrowserState
+      }
+    },
+    ...extra
+  }
+}
+
 async function loadResourceIndex() {
   if (cachedResourceIndex) return cachedResourceIndex
   try {
@@ -1121,12 +761,118 @@ async function loadResourceIndex() {
   return { items: [], issues: [] }
 }
 
-function renderResourceBrowserStage() {
+function renderResourceBrowserStage(currentTool = {}) {
   const types = getResourceTypes()
+  const controlRules = currentTool.resourceBrowserControls || {}
+  const rawVisualStyles = controlRules.visualStyles || {}
+  const visualStyles = Object.fromEntries(
+    RESOURCE_BROWSER_VISUAL_STYLE_KEYS.map((key) => [key, rawVisualStyles[key]])
+  )
+  const typeButtonRule = controlRules.typeButton || {}
+  const itemCellRule = controlRules.itemCell || {}
+  const selectedBg = visualStyles.selectedBg
+  const errorBg = visualStyles.errorBg
+  const defaultBg = visualStyles.defaultBg
+  const errorBorder = visualStyles.errorBorder
+  const defaultBorder = visualStyles.defaultBorder
+  const disabledOpacity = visualStyles.disabledOpacity
+  const enabledOpacity = visualStyles.enabledOpacity
+  const disabledCursor = visualStyles.disabledCursor
+  const enabledCursor = visualStyles.enabledCursor
+  const stageRootGap = visualStyles.stageRootGap
+  const typeBarGap = visualStyles.typeBarGap
+  const typeBarBorderBottom = visualStyles.typeBarBorderBottom
+  const typeBarPaddingBottom = visualStyles.typeBarPaddingBottom
+  const contentGridGap = visualStyles.contentGridGap
+  const itemListGap = visualStyles.itemListGap
+  const itemListPaddingRight = visualStyles.itemListPaddingRight
+  const detailColumnBorderLeft = visualStyles.detailColumnBorderLeft
+  const detailColumnPaddingLeft = visualStyles.detailColumnPaddingLeft
+  const emptyListPadding = visualStyles.emptyListPadding
+  const detailContainerGap = visualStyles.detailContainerGap
+  const detailContainerPadding = visualStyles.detailContainerPadding
+  const detailTitleColor = visualStyles.detailTitleColor
+  const detailTitleFontFamily = visualStyles.detailTitleFontFamily
+  const detailPathFontSize = visualStyles.detailPathFontSize
+  const detailPathColor = visualStyles.detailPathColor
+  const detailDividerBorderTop = visualStyles.detailDividerBorderTop
+  const detailInfoCardBg = visualStyles.detailInfoCardBg
+  const detailInfoCardPadding = visualStyles.detailInfoCardPadding
+  const issueErrorColor = visualStyles.issueErrorColor
+  const issueSuccessColor = visualStyles.issueSuccessColor
+  const tileHintMarginTop = visualStyles.tileHintMarginTop
+  const tileHintPadding = visualStyles.tileHintPadding
+  const tileHintBg = visualStyles.tileHintBg
+  const tileHintBorder = visualStyles.tileHintBorder
+  const mediaPreviewMarginTop = visualStyles.mediaPreviewMarginTop
+  const mediaPreviewBg = visualStyles.mediaPreviewBg
+  const mediaPreviewBorder = visualStyles.mediaPreviewBorder
+  const mediaPreviewRadius = visualStyles.mediaPreviewRadius
+  const mediaPreviewPadding = visualStyles.mediaPreviewPadding
+  const mediaPreviewTextureHeight = visualStyles.mediaPreviewTextureHeight
+  const mediaPreviewAudioHeight = visualStyles.mediaPreviewAudioHeight
+  const mediaImageMaxWidth = visualStyles.mediaImageMaxWidth
+  const mediaImageMaxHeight = visualStyles.mediaImageMaxHeight
+  const mediaImageObjectFit = visualStyles.mediaImageObjectFit
+  const mediaImageRendering = visualStyles.mediaImageRendering
+  const mediaAudioWidth = visualStyles.mediaAudioWidth
+  const mediaAudioOutline = visualStyles.mediaAudioOutline
+  const detailContainerStyle = buildInlineStyle({
+    display: 'flex',
+    'flex-direction': 'column',
+    gap: detailContainerGap,
+    padding: detailContainerPadding,
+    'min-height': '0',
+    'overflow-y': 'auto',
+    'overflow-x': 'hidden'
+  })
+  const detailDividerStyle = buildInlineStyle({
+    border: '0',
+    'border-top': detailDividerBorderTop,
+    width: '100%'
+  })
+  const detailInfoCardStyle = buildInlineStyle({
+    background: detailInfoCardBg,
+    padding: detailInfoCardPadding
+  })
+  const mediaPreviewContainerStyle = buildInlineStyle({
+    'margin-top': mediaPreviewMarginTop,
+    background: mediaPreviewBg,
+    border: mediaPreviewBorder,
+    'border-radius': mediaPreviewRadius,
+    padding: mediaPreviewPadding,
+    display: 'flex',
+    'align-items': 'center',
+    'justify-content': 'center'
+  })
+  const tileHintStyle = buildInlineStyle({
+    'margin-top': tileHintMarginTop,
+    padding: tileHintPadding,
+    background: tileHintBg,
+    border: tileHintBorder
+  })
+  const tileHintStyleText = `style="${tileHintStyle}"`
+  const issueErrorStyle = buildInlineStyle({ color: issueErrorColor })
+  const issueSuccessStyle = buildInlineStyle({ color: issueSuccessColor })
+  const mediaImageStyle = buildInlineStyle({
+    'max-width': mediaImageMaxWidth,
+    'max-height': mediaImageMaxHeight,
+    'object-fit': mediaImageObjectFit,
+    'image-rendering': mediaImageRendering
+  })
+  const mediaAudioStyle = buildInlineStyle({
+    width: mediaAudioWidth,
+    height: mediaPreviewAudioHeight,
+    outline: mediaAudioOutline
+  })
 
-  const typeButtons = types.map(t => {
+  const typeButtons = types.map((t) => {
+    if (!actionExecutor.isVisible(typeButtonRule, buildResourceBrowserRuleContext({ type: t }))) {
+      return ''
+    }
+    const disabled = actionExecutor.isDisabled(typeButtonRule, buildResourceBrowserRuleContext({ type: t }))
     const active = resourceBrowserState.typeKey === t.key ? 'primary' : 'secondary'
-    return `<button class="btn" style="${getButtonStyle(active)}" data-res-type="${t.key}">${t.name}</button>`
+    return `<button class="btn" style="${getButtonStyle(active)}" data-res-type="${t.key}" ${disabled ? 'disabled data-rule-disabled="1"' : ''}>${t.name}</button>`
   }).join('')
 
   const data = cachedResourceIndex || { items: [] }
@@ -1134,79 +880,91 @@ function renderResourceBrowserStage() {
   
   const selectedItem = items.find(i => i.id === resourceBrowserState.selectedId)
 
-  const itemListHtml = items.map(item => {
+  const itemListHtml = items.map((item) => {
+    if (!actionExecutor.isVisible(itemCellRule, buildResourceBrowserRuleContext({ item }))) {
+      return ''
+    }
+    const disabled = actionExecutor.isDisabled(itemCellRule, buildResourceBrowserRuleContext({ item }))
     const isSelected = item.id === resourceBrowserState.selectedId
     const hasError = item.issues && item.issues.length > 0
-    const bg = isSelected ? 'rgba(61, 168, 245, 0.2)' : (hasError ? 'rgba(245, 61, 61, 0.1)' : 'rgba(9, 12, 16, 0.6)')
-    const border = hasError ? '1px dashed #f53d3d' : '1px solid rgba(142, 163, 184, 0.3)'
+    const bg = isSelected ? selectedBg : (hasError ? errorBg : defaultBg)
+    const border = hasError ? errorBorder : defaultBorder
+    const opacity = disabled ? disabledOpacity : enabledOpacity
+    const cursor = disabled ? disabledCursor : enabledCursor
+    const itemCellStyle = buildInlineStyle({
+      background: bg,
+      border,
+      cursor,
+      opacity
+    })
     return `
-      <div class="dev-stage-cell" style="background: ${bg}; border: ${border}; cursor:pointer;" data-res-id="${item.id}">
+      <div class="dev-stage-cell" style="${itemCellStyle}" data-res-id="${item.id}" ${disabled ? 'data-rule-disabled="1"' : ''}>
         <div class="dev-stage-value">${item.id}</div>
         <div class="dev-stage-label">${item.sourcePath}</div>
       </div>
     `
-  }).join('') || '<div class="dev-stage-label" style="padding: 10px;">该分类下暂无资源</div>'
+  }).join('') || `<div class="dev-stage-label" style="${buildInlineStyle({ padding: emptyListPadding })}">该分类下暂无资源</div>`
 
-  let detailHtml = '<div class="dev-stage-label" style="padding: 10px;">点击左侧资源查看详情</div>'
+  let detailHtml = `<div class="dev-stage-label" style="padding: ${detailContainerPadding};">点击左侧资源查看详情</div>`
   if (selectedItem) {
     const refs = (selectedItem.references || []).map(r => `<div>${r}</div>`).join('') || '无引用'
     const fallbacks = (selectedItem.fallbackChain || []).map(f => `<div>[${f.level}] ${f.status === 'hit' ? '✅' : '❌'} ${f.path || ''}</div>`).join('')
-    const issues = (selectedItem.issues || []).map(i => `<div style="color:#f53d3d;">⚠️ ${i}</div>`).join('') || '<div style="color:#2ecc71;">✅ 校验通过</div>'
+    const issues = (selectedItem.issues || []).map(i => `<div style="${issueErrorStyle}">⚠️ ${i}</div>`).join('') || `<div style="${issueSuccessStyle}">✅ 校验通过</div>`
     
     // T15: 地块资源专项提示
     let tileHint = ''
     if (selectedItem.type === 'texture' && selectedItem.id && selectedItem.id.includes('_')) {
         const partsCheck = ['top', 'side-left', 'side-right', 'transition', 'variant']
         const hasParts = partsCheck.map(p => `[${selectedItem.id.includes(p) ? '✅' : ' '}] ${p}`).join(' ')
-        tileHint = `<div style="margin-top:10px; padding: 10px; background: rgba(0,0,0,0.3); border: 1px dashed var(--sky-500);"><strong>地块专项检测:</strong> <br/>${hasParts}</div>`
+      tileHint = `<div ${tileHintStyleText}><strong>地块专项检测:</strong> <br/>${hasParts}</div>`
     }
 
     let mediaPreview = ''
     if (selectedItem.type === 'texture') {
       mediaPreview = `
-        <div style="margin-top:10px; background: rgba(0,0,0,0.5); border: 1px solid var(--cloud-800); border-radius: 4px; padding: 10px; display: flex; align-items: center; justify-content: center; height: 180px; flex-shrink: 0;">
-          <img src="/${selectedItem.runtimePath || selectedItem.sourcePath}" style="max-width: 100%; max-height: 100%; object-fit: contain; image-rendering: pixelated;" />
+        <div style="${mediaPreviewContainerStyle}${buildInlineStyle({ height: mediaPreviewTextureHeight, 'flex-shrink': '0' })}">
+          <img src="/${selectedItem.runtimePath || selectedItem.sourcePath}" style="${mediaImageStyle}" />
         </div>
       `
     } else if (selectedItem.type === 'audio') {
       mediaPreview = `
-        <div style="margin-top:10px; background: rgba(0,0,0,0.5); border: 1px solid var(--cloud-800); border-radius: 4px; padding: 10px; display: flex; align-items: center; justify-content: center;">
-          <audio controls src="/${selectedItem.runtimePath || selectedItem.sourcePath}" style="width: 100%; height: 32px; outline: none;"></audio>
+        <div style="${mediaPreviewContainerStyle}">
+          <audio controls src="/${selectedItem.runtimePath || selectedItem.sourcePath}" style="${mediaAudioStyle}"></audio>
         </div>
       `
     }
 
     detailHtml = `
-      <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px; min-height: 0; overflow-y: auto; overflow-x: hidden;">
-        <h4 style="margin:0; color: var(--cloud-100); font-family: var(--font-title);">${selectedItem.id}</h4>
-        <div style="font-size: 12px; color: var(--cloud-500);">${selectedItem.sourcePath}</div>
+      <div style="${detailContainerStyle}">
+        <h4 style="${buildInlineStyle({ margin: '0', color: detailTitleColor, 'font-family': detailTitleFontFamily })}">${selectedItem.id}</h4>
+        <div style="${buildInlineStyle({ 'font-size': detailPathFontSize, color: detailPathColor })}">${selectedItem.sourcePath}</div>
         ${mediaPreview}
-        <hr style="border: 0; border-top: 1px solid rgba(142, 163, 184, 0.3); width: 100%;" />
+        <hr style="${detailDividerStyle}" />
         
         <div><strong>校验结果:</strong><br/>${issues}</div>
         ${tileHint}
         
         <div><strong>引用追踪:</strong><br/>
-          <div class="dev-stage-label" style="background: rgba(0,0,0,0.2); padding: 5px;">${refs}</div>
+          <div class="dev-stage-label" style="${detailInfoCardStyle}">${refs}</div>
         </div>
         
         <div><strong>回退链分析:</strong><br/>
-          <div class="dev-stage-label" style="background: rgba(0,0,0,0.2); padding: 5px;">${fallbacks}</div>
+          <div class="dev-stage-label" style="${detailInfoCardStyle}">${fallbacks}</div>
         </div>
       </div>
     `
   }
 
   return `
-    <div class="dev-stage" data-template-id="resource-browser" style="display: flex; flex-direction: column; flex: 1; min-height: 0; gap: 16px;">
-      <div style="flex-shrink: 0; display: flex; gap: 8px; border-bottom: 1px solid rgba(142, 163, 184, 0.3); padding-bottom: 10px; overflow-x: hidden;">
+    <div class="dev-stage" data-template-id="resource-browser" style="${buildInlineStyle({ display: 'flex', 'flex-direction': 'column', flex: '1', 'min-height': '0', gap: stageRootGap })}">
+      <div style="${buildInlineStyle({ 'flex-shrink': '0', display: 'flex', gap: typeBarGap, 'border-bottom': typeBarBorderBottom, 'padding-bottom': typeBarPaddingBottom, 'overflow-x': 'hidden' })}">
         ${typeButtons}
       </div>
-      <div style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; min-height: 0; overflow: hidden;">
-        <div style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
+      <div style="${buildInlineStyle({ flex: '1', display: 'grid', 'grid-template-columns': '1fr 1fr', gap: contentGridGap, 'min-height': '0', overflow: 'hidden' })}">
+        <div style="${buildInlineStyle({ display: 'flex', 'flex-direction': 'column', gap: itemListGap, 'overflow-y': 'auto', 'overflow-x': 'hidden', 'padding-right': itemListPaddingRight })}">
           ${itemListHtml}
         </div>
-        <div style="border-left: 1px dashed rgba(61, 168, 245, 0.62); padding-left: 16px; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; min-height: 0;">
+        <div style="${buildInlineStyle({ 'border-left': detailColumnBorderLeft, 'padding-left': detailColumnPaddingLeft, 'overflow-y': 'auto', 'overflow-x': 'hidden', display: 'flex', 'flex-direction': 'column', 'min-height': '0' })}">
           ${detailHtml}
         </div>
       </div>
@@ -1221,13 +979,18 @@ function renderWorkbench() {
   const isResourceBrowser = templateId === 'resource-browser'
   const sections = workbench?.layout?.sections || {}
   const heroSection = sections.hero || {}
+  const heroAction = heroSection.primaryAction || {}
   const categorySection = sections.category || {}
   const contentSection = sections.content || {}
   const categoryButtons = workbench.categories
     .map((item) => {
+      if (!actionExecutor.isVisible(item, { category: item })) {
+        return ''
+      }
+      const disabled = actionExecutor.isDisabled(item, { category: item })
       const buttonStyle = getButtonStyle(item.id === state.categoryId ? 'primary' : 'secondary')
       return `
-        <button class="dev-category-btn" style="${buttonStyle}" data-category-id="${item.id}">
+        <button class="dev-category-btn" style="${buttonStyle}" data-category-id="${item.id}" ${disabled ? 'disabled' : ''}>
           <span class="dev-category-name">${item.name}</span>
           <span class="dev-category-meta">${item.summary || '开发工具分类'}</span>
         </button>
@@ -1241,9 +1004,13 @@ function renderWorkbench() {
       if (!tool) {
         return ''
       }
+      if (!actionExecutor.isVisible(tool, { tool })) {
+        return ''
+      }
+      const disabled = actionExecutor.isDisabled(tool, { tool })
       const buttonStyle = getButtonStyle(tool.id === state.toolId ? 'primary' : 'ghost')
       return `
-        <button class="dev-tool-btn" style="${buttonStyle}" data-tool-id="${tool.id}">
+        <button class="dev-tool-btn" style="${buttonStyle}" data-tool-id="${tool.id}" ${disabled ? 'disabled' : ''}>
           <span class="dev-tool-name">${tool.name}</span>
           <span class="dev-tool-meta">${tool.summary}</span>
         </button>
@@ -1264,10 +1031,10 @@ function renderWorkbench() {
     .join('')
 
   const stageMarkup = isResourceBrowser
-    ? renderResourceBrowserStage()
+    ? renderResourceBrowserStage(currentTool)
     : `
       <div class="dev-stage" data-template-id="default">
-        <div style="display:flex; justify-content:center; align-items:center; height:100%; color:var(--cloud-700)">
+        <div style="${buildInlineStyle({ display: 'flex', 'justify-content': 'center', 'align-items': 'center', height: '100%', color: 'var(--cloud-700)' })}">
            该工具区域当前为空视图，准备用于画布挂载。
         </div>
       </div>
@@ -1286,7 +1053,7 @@ function renderWorkbench() {
           </div>
         </div>
         <div class="inline-actions">
-          <button class="btn btn-inline" data-menu-action="open-main-menu">${heroSection.primaryAction?.text || '返回首页'}</button>
+          ${actionExecutor.isVisible(heroAction) ? `<button class="btn btn-inline" data-menu-action="${heroAction.id || 'back-main'}" ${actionExecutor.isDisabled(heroAction) ? 'disabled' : ''}>${heroAction.text || '返回首页'}</button>` : ''}
         </div>
       </section>
 
@@ -1310,14 +1077,14 @@ function renderWorkbench() {
             <h2 class="dev-section-title">${isResourceBrowser ? '工作面板' : (contentSection.rightTitle || '当前工具')}</h2>
           </div>
         <section class="dev-focus">
-          <div class="dev-focus-head" style="display:flex; justify-content:space-between; align-items:center;">
-            <div class="dev-focus-head-left" style="display:flex; align-items:flex-end; gap:8px;">
-              <h3 class="dev-focus-title" style="margin:0; font-size:22px; color:var(--cloud-100);">${currentTool?.name || '未选择'}</h3>
-              <span class="dev-focus-kicker" style="font-size:12px; color:var(--cloud-700);">${category?.name || '未选'}</span>
+          <div class="dev-focus-head">
+            <div class="dev-focus-head-left">
+              <h3 class="dev-focus-title">${currentTool?.name || '未选择'}</h3>
+              <span class="dev-focus-kicker">${category?.name || '未选'}</span>
             </div>
-            <div class="dev-focus-head-right" style="display:flex; align-items:center; gap:12px;">
-              <span class="chip" style="color:var(--sky-300); border-color:var(--sky-500); padding:2px 8px; font-size:12px; border-radius:12px;">${currentTool?.status || '未开放'}</span>
-              <div class="dev-focus-summary" style="max-width:320px; font-size:12px; color:var(--cloud-500);">${currentTool?.summary || ''}</div>
+            <div class="dev-focus-head-right">
+              <span class="chip chip-status">${currentTool?.status || '未开放'}</span>
+              <div class="dev-focus-summary">${currentTool?.summary || ''}</div>
             </div>
           </div>
 
@@ -1331,49 +1098,18 @@ function renderWorkbench() {
   bindEvents()
 }
 
-function executeMenuAction(action, description) {
-  state.notice = description || ''
-  if (action === 'open-devtools') {
-    state.activePage = 'dev-tools-workbench'
-    renderApp()
-    return
-  }
-  if (action === 'open-main-menu') {
-    state.activePage = 'main-menu'
-    renderApp()
-    return
-  }
-  if (action === 'open-settings') {
-    state.activePage = 'settings'
-    state.notice = ''
-    refreshCurrentResolutionText().finally(() => {
-      renderApp()
-    })
-    return
-  }
-  if (action === 'quit-game') {
-    window.close()
-    return
-  }
-  if (action === 'start-game') {
-    state.activePage = 'game-hud'
-    state.notice = '已进入游戏内界面。'
-    renderApp()
-    return
-  }
-  renderApp()
+async function executeMenuAction(actionId) {
+  await executeAction(actionId)
 }
 
 async function applyResolution() {
   const option = getSelectedResolutionOption()
   if (!option) {
     state.notice = '未找到分辨率选项。'
-    renderApp()
     return
   }
   if (!window.electronAPI?.setWindowResolution) {
     state.notice = '当前环境不支持分辨率设置。'
-    renderApp()
     return
   }
   try {
@@ -1387,7 +1123,6 @@ async function applyResolution() {
   } catch (error) {
     state.notice = '应用失败，请检查窗口状态。'
   }
-  renderApp()
 }
 
 function bindSettingsEvents() {
@@ -1399,23 +1134,17 @@ function bindSettingsEvents() {
   }
 
   root.querySelectorAll('[data-settings-action]').forEach((button) => {
-    button.addEventListener('click', () => {
+    button.addEventListener('click', async () => {
       const action = button.dataset.settingsAction
-      if (action === 'back-main') {
-        executeMenuAction('open-main-menu', '返回首页')
-        return
-      }
-      if (action === 'apply-resolution') {
-        applyResolution()
-      }
+      await executeAction(action)
     })
   })
 }
 
 function bindMainMenuEvents() {
   root.querySelectorAll('[data-menu-action]').forEach((button) => {
-    button.addEventListener('click', () => {
-      executeMenuAction(button.dataset.menuAction, button.dataset.menuDescription)
+    button.addEventListener('click', async () => {
+      await executeMenuAction(button.dataset.menuAction)
     })
   })
 }
@@ -1575,12 +1304,11 @@ function mountPreview() {
 }
 
 function bindEvents() {
-  const backButton = root.querySelector('[data-menu-action="open-main-menu"]')
-  if (backButton) {
-    backButton.addEventListener('click', () => {
-      executeMenuAction('open-main-menu', '返回首页')
+  root.querySelectorAll('[data-menu-action]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      await executeMenuAction(button.dataset.menuAction)
     })
-  }
+  })
   root.querySelectorAll('[data-category-id]').forEach((button) => {
     button.addEventListener('click', async () => {
       state.categoryId = button.dataset.categoryId
@@ -1606,6 +1334,9 @@ function bindEvents() {
   // 资源管理器专属事件绑定
   root.querySelectorAll('[data-res-type]').forEach((button) => {
     button.addEventListener('click', () => {
+      if (button.dataset.ruleDisabled === '1' || button.disabled) {
+        return
+      }
       resourceBrowserState.typeKey = button.dataset.resType
       resourceBrowserState.selectedId = null
       renderWorkbench()
@@ -1614,6 +1345,9 @@ function bindEvents() {
 
   root.querySelectorAll('[data-res-id]').forEach((cell) => {
     cell.addEventListener('click', () => {
+      if (cell.dataset.ruleDisabled === '1') {
+        return
+      }
       resourceBrowserState.selectedId = cell.dataset.resId
       renderWorkbench()
     })
@@ -1643,7 +1377,9 @@ function boot() {
   if (!root) {
     return
   }
-  applyStyles()
+  const commonStyleContext = loadCommonStyleParams()
+  loadBaseThemeStyles()
+  loadPageUiStyles(commonStyleContext)
   renderApp()
 }
 

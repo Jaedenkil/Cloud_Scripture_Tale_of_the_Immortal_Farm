@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "resource-browser-visual-styles.schema.json",
+  "title": "Resource Browser Visual Styles",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "sizePx": {
+      "type": "string",
+      "pattern": "^(?:0|\\d+(?:\\.\\d+)?px)$"
+    },
+    "color": {
+      "type": "string",
+      "pattern": "^(?:#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})|rgba?\\(\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*,\\s*\\d{1,3}(?:\\s*,\\s*(?:0|1|0?\\.\\d+))?\\s*\\)|hsla?\\(\\s*\\d{1,3}(?:deg)?\\s*,\\s*\\d{1,3}%\\s*,\\s*\\d{1,3}%(?:\\s*,\\s*(?:0|1|0?\\.\\d+))?\\s*\\)|var\\(--[a-zA-Z0-9-]+\\))$"
+    },
+    "opacity": {
+      "oneOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "type": "string",
+          "pattern": "^(?:0(?:\\.\\d+)?|1(?:\\.0+)?)$"
+        }
+      ]
+    },
+    "border": {
+      "type": "string",
+      "pattern": "^(?:none|\\d+(?:\\.\\d+)?px\\s+(?:solid|dashed|double)\\s+(?:#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})|rgba?\\(\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*,\\s*\\d{1,3}(?:\\s*,\\s*(?:0|1|0?\\.\\d+))?\\s*\\)|hsla?\\(\\s*\\d{1,3}(?:deg)?\\s*,\\s*\\d{1,3}%\\s*,\\s*\\d{1,3}%(?:\\s*,\\s*(?:0|1|0?\\.\\d+))?\\s*\\)|var\\(--[a-zA-Z0-9-]+\\)))$"
+    },
+    "cursor": {
+      "type": "string",
+      "enum": ["pointer", "not-allowed", "default", "help", "text", "move"]
+    }
+  },
+  "required": [],
+  "properties": {
+    "selectedBg": { "$ref": "#/definitions/color" },
+    "errorBg": { "$ref": "#/definitions/color" },
+    "defaultBg": { "$ref": "#/definitions/color" },
+    "errorBorder": { "$ref": "#/definitions/border" },
+    "defaultBorder": { "$ref": "#/definitions/border" },
+    "disabledOpacity": { "$ref": "#/definitions/opacity" },
+    "enabledOpacity": { "$ref": "#/definitions/opacity" },
+    "disabledCursor": { "$ref": "#/definitions/cursor" },
+    "enabledCursor": { "$ref": "#/definitions/cursor" },
+    "stageRootGap": { "$ref": "#/definitions/sizePx" },
+    "typeBarGap": { "$ref": "#/definitions/sizePx" },
+    "typeBarBorderBottom": { "$ref": "#/definitions/border" },
+    "typeBarPaddingBottom": { "$ref": "#/definitions/sizePx" },
+    "contentGridGap": { "$ref": "#/definitions/sizePx" },
+    "itemListGap": { "$ref": "#/definitions/sizePx" },
+    "itemListPaddingRight": { "$ref": "#/definitions/sizePx" },
+    "detailColumnBorderLeft": { "$ref": "#/definitions/border" },
+    "detailColumnPaddingLeft": { "$ref": "#/definitions/sizePx" },
+    "emptyListPadding": { "$ref": "#/definitions/sizePx" },
+    "detailContainerGap": { "$ref": "#/definitions/sizePx" },
+    "detailContainerPadding": { "$ref": "#/definitions/sizePx" },
+    "detailTitleColor": { "$ref": "#/definitions/color" },
+    "detailTitleFontFamily": { "type": "string", "pattern": "^(?:var\\(--[a-zA-Z0-9-]+\\)|[\"'A-Za-z0-9,\\s-]+)$" },
+    "detailPathFontSize": { "$ref": "#/definitions/sizePx" },
+    "detailPathColor": { "$ref": "#/definitions/color" },
+    "detailDividerBorderTop": { "$ref": "#/definitions/border" },
+    "detailInfoCardBg": { "$ref": "#/definitions/color" },
+    "detailInfoCardPadding": { "$ref": "#/definitions/sizePx" },
+    "issueErrorColor": { "$ref": "#/definitions/color" },
+    "issueSuccessColor": { "$ref": "#/definitions/color" },
+    "tileHintMarginTop": { "$ref": "#/definitions/sizePx" },
+    "tileHintPadding": { "$ref": "#/definitions/sizePx" },
+    "tileHintBg": { "$ref": "#/definitions/color" },
+    "tileHintBorder": { "$ref": "#/definitions/border" },
+    "mediaPreviewMarginTop": { "$ref": "#/definitions/sizePx" },
+    "mediaPreviewBg": { "$ref": "#/definitions/color" },
+    "mediaPreviewBorder": { "$ref": "#/definitions/border" },
+    "mediaPreviewRadius": { "$ref": "#/definitions/sizePx" },
+    "mediaPreviewPadding": { "$ref": "#/definitions/sizePx" },
+    "mediaPreviewTextureHeight": { "$ref": "#/definitions/sizePx" },
+    "mediaPreviewAudioHeight": { "$ref": "#/definitions/sizePx" },
+    "mediaImageMaxWidth": { "type": "string", "pattern": "^(?:\\d+(?:\\.\\d+)?%|(?:0|\\d+(?:\\.\\d+)?)px)$" },
+    "mediaImageMaxHeight": { "type": "string", "pattern": "^(?:\\d+(?:\\.\\d+)?%|(?:0|\\d+(?:\\.\\d+)?)px)$" },
+    "mediaImageObjectFit": { "type": "string", "enum": ["contain", "cover", "fill", "none", "scale-down"] },
+    "mediaImageRendering": { "type": "string", "enum": ["auto", "pixelated", "crisp-edges"] },
+    "mediaAudioWidth": { "type": "string", "pattern": "^(?:\\d+(?:\\.\\d+)?%|(?:0|\\d+(?:\\.\\d+)?)px)$" },
+    "mediaAudioOutline": {
+      "type": "string",
+      "pattern": "^(?:none|\\d+(?:\\.\\d+)?px\\s+(?:solid|dashed)\\s+(?:#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})|rgba?\\(\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*,\\s*\\d{1,3}(?:\\s*,\\s*(?:0|1|0?\\.\\d+))?\\s*\\)|hsla?\\(\\s*\\d{1,3}(?:deg)?\\s*,\\s*\\d{1,3}%\\s*,\\s*\\d{1,3}%(?:\\s*,\\s*(?:0|1|0?\\.\\d+))?\\s*\\)|var\\(--[a-zA-Z0-9-]+\\)))$"
+    }
+  }
+}

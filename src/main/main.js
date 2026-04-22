@@ -79,9 +79,13 @@ function createMainWindow() {
   mainWindow.loadURL(devServerURL)
 
   mainWindow.webContents.once('did-finish-load', () => {
-    // Auto-open devtools on start for development debugging.
-    if (!app.isPackaged) {
-      mainWindow.webContents.openDevTools({ mode: 'detach' })
+    // In development, open DevTools by default; allow explicit opt-out.
+    if (!app.isPackaged && process.env.OPEN_DEVTOOLS !== '0') {
+      setTimeout(() => {
+        if (!mainWindow.isDestroyed()) {
+          mainWindow.webContents.openDevTools({ mode: 'detach' })
+        }
+      }, 500)
     }
   })
 

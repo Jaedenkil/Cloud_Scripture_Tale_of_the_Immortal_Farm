@@ -16,6 +16,196 @@ style:
     menuButtonFontSize: 18
     menuButtonListGap: 10
     mobileBreakpoint: 1220
+  baseTheme:
+    bodyBackground: "radial-gradient(circle at 20% 0%, var(--black-100) 0%, var(--black-900) 58%)"
+    bodyColor: "var(--cloud-300)"
+    panelBackground: "linear-gradient(180deg, rgba(16, 20, 25, 0.95) 0%, rgba(5, 7, 10, 0.95) 100%)"
+    panelBorder: "1px solid rgba(142, 163, 184, 0.35)"
+    h1Margin: "0"
+    h1FontSize: 32
+    h1Color: "var(--cloud-100)"
+    h2Margin: "0"
+    h2FontSize: 24
+    h2Color: "var(--sky-300)"
+    h3Margin: "0 0 8px"
+    h3FontSize: 20
+    h3Color: "var(--sky-300)"
+  pageLayout:
+    menuZoneTopGap: 8
+    menuTitleLetterSpacing: 3
+    menuButtonTransitionDuration: "0.12s"
+    menuButtonHoverTranslateY: "-1px"
+    menuButtonHoverShadow: "0 0 0 1px rgba(120, 200, 255, 0.5) inset"
+    menuDescMinHeight: 20
+    settingsCardBackground: "linear-gradient(180deg, rgba(16, 20, 25, 0.95) 0%, rgba(5, 7, 10, 0.95) 100%)"
+    settingsCardBorder: "1px solid rgba(142, 163, 184, 0.35)"
+    settingsDescMarginTop: 8
+    settingsDescFontSize: 15
+    settingsSectionBorder: "1px dashed rgba(61, 168, 245, 0.6)"
+    settingsSectionBackground: "rgba(9, 12, 16, 0.75)"
+    settingsSectionTitleSize: 22
+    settingsFieldMarginTop: 12
+    settingsLabelFontSize: 16
+    settingsLabelMarginBottom: 6
+    settingsHelpMarginTop: 6
+    settingsHelpFontSize: 13
+    settingsSelectBorder: "1px solid rgba(120, 200, 255, 0.45)"
+    settingsSelectRadius: 8
+    settingsSelectPadding: 10
+    settingsSelectFontSize: 15
+    settingsActionsMarginTop: 14
+    settingsActionsGap: 10
+    settingsStatusMarginTop: 12
+    settingsStatusFontSize: 14
+    settingsStatusMinHeight: 20
+    inlineActionsMarginTop: 8
+    btnInlineFontSize: 13
+    btnInlinePaddingY: 6
+    btnInlinePaddingX: 10
+    metaFontSize: 14
+    metaMarginTop: 6
+    cardListGap: 8
+    cardListMarginTop: 12
+    cardListPaddingRight: 4
+    devShellGap: 12
+    devHeroGap: 10
+    devHeroPaddingTop: 8
+    devHeroPaddingBottom: 6
+    devHeroBorderBottom: "1px solid rgba(120, 200, 255, 0.25)"
+    devHeroCopyGap: 6
+    devHeroCopyMaxWidth: 680
+    devKickerFontSize: 12
+    devKickerLetterSpacing: 2
+    devTitleFontSize: 26
+    devSubtitleMaxWidth: 620
+    devSubtitleFontSize: 13
+    devStatusLineGap: 8
+    devStatusLineFontSize: 12
+    devStatusChipBorder: "1px solid rgba(120, 200, 255, 0.5)"
+    devStatusChipPaddingY: 2
+    devStatusChipPaddingX: 6
+    devStatusChipBackground: "rgba(9, 12, 16, 0.8)"
+    devCategoryBtnPaddingY: 10
+    devCategoryBtnPaddingX: 12
+    devCategoryBtnTransitionDuration: "0.08s"
+    devCategoryBtnBackground: "var(--black-300)"
+    devCategoryBtnColor: "var(--cloud-300)"
+    devCategoryBtnBorder: "1px solid rgba(142, 163, 184, 0.45)"
+    devCategoryBtnHoverTranslate: -1
+    devCategoryBtnHoverShadow: "2px 2px 0 rgba(0, 0, 0, 0.95)"
+    devCategoryNameFontSize: 14
+    devCategoryMetaMarginTop: 4
+    devCategoryMetaFontSize: 11
+    devMainGap: 12
+    devColumnGap: 8
+    devToolGridGap: 8
+    devToolGridPaddingRight: 4
+    devSysInfoHeight: 100
+    devSysInfoPadding: 10
+    devSysInfoBackground: "rgba(9, 12, 16, 0.8)"
+    devSysInfoBorder: "1px solid rgba(142, 163, 184, 0.25)"
+    devSysInfoRadius: 4
+    devSysInfoGap: 6
+    devSysInfoFontSize: 11
+    devFocusGap: 10
+    devFocusBorder: "1px solid rgba(120, 200, 255, 0.4)"
+    devFocusBackground: "linear-gradient(180deg, rgba(16, 20, 25, 0.96) 0%, rgba(5, 7, 10, 0.92) 100%)"
+    devFocusHeadGap: 16
+    devFocusHeadLeftGap: 8
+    devFocusHeadRightGap: 12
+    devFocusTitleFontSize: 22
+    devFocusKickerFontSize: 12
+    devFocusSummaryMaxWidth: 320
+    devFocusSummaryFontSize: 12
+    devFocusStatusStrongBorderColor: "rgba(120, 200, 255, 0.45)"
+    chipRadius: 999
+    chipStatusRadius: 12
+    devStageGap: 12
+    devStagePadding: 14
+    devStageBorder: "1px dashed rgba(61, 168, 245, 0.62)"
+    devStageBackgroundPrimary: "linear-gradient(180deg, rgba(9, 12, 16, 0.82) 0%, rgba(9, 12, 16, 0.92) 100%)"
+    devStageBackgroundGrid: "rgba(120, 200, 255, 0.08)"
+    devStageBackgroundGridLineWidth: 1
+    devStageBackgroundGridSize: 28
+    devStageCopyGap: 10
+    devStageCopyMaxWidth: 420
+    devStageKickerFontSize: 12
+    devStageKickerLetterSpacing: 1
+    devStageTitleFontSize: 18
+    devStageDescFontSize: 13
+    devStageBandGap: 8
+    devStageCellGap: 4
+    devStageCellPaddingY: 8
+    devStageCellPaddingX: 10
+    devStageCellBackground: "rgba(0, 0, 0, 0.26)"
+    devStageCellBorder: "1px solid rgba(142, 163, 184, 0.28)"
+    devStageLabelFontSize: 11
+    devStageValueFontSize: 13
+    devFocusStatusGap: 8
+    devFocusStatusItemPaddingY: 5
+    devFocusStatusItemPaddingX: 8
+    devFocusStatusItemFontSize: 12
+    devFocusStatusItemBorder: "1px solid rgba(142, 163, 184, 0.24)"
+    devFocusStatusItemBackground: "rgba(9, 12, 16, 0.45)"
+    devScopeListGap: 8
+    devScopeItemGap: 4
+    devScopeItemPaddingY: 8
+    devScopeItemPaddingX: 10
+    devScopeItemBorderLeft: "2px solid var(--sky-500)"
+    devScopeItemBackground: "rgba(9, 12, 16, 0.58)"
+    devScopeTitleFontSize: 14
+    devScopeMetaFontSize: 11
+    hudPanelBorder: "1px solid rgba(142, 163, 184, 0.35)"
+    hudPanelBackground: "linear-gradient(180deg, rgba(16, 20, 25, 0.95) 0%, rgba(5, 7, 10, 0.95) 100%)"
+    hudStripGap: 10
+    hudItemBorder: "1px dashed rgba(61, 168, 245, 0.6)"
+    hudItemRadius: 8
+    hudItemPaddingY: 8
+    hudItemPaddingX: 10
+    hudItemLabelFontSize: 12
+    hudItemValueMarginTop: 4
+    hudItemValueFontSize: 16
+    hudSubtitleMarginTop: 8
+    hudStagePadding: 16
+    hudDescMarginTop: 10
+    hudDescMaxWidth: 760
+    hudActionsGap: 10
+    btnPaddingY: 10
+    btnPaddingX: 12
+    btnFontSize: 14
+    btnBorder: "1px solid rgba(142, 163, 184, 0.35)"
+    btnBackground: "var(--black-300)"
+    btnColor: "var(--cloud-300)"
+    btnTransitionDuration: "0.08s"
+    btnHoverTranslate: "-1px"
+    btnHoverShadow: "2px 2px 0 rgba(0, 0, 0, 0.95)"
+    btnActiveColor: "#000"
+    btnActiveBackground: "var(--sky-500)"
+    btnActiveBorderColor: "var(--sky-300)"
+    previewShellMarginTop: 12
+    previewShellBorder: "2px solid var(--sky-300)"
+    previewShellRadius: 10
+    previewShellBackground: "#000"
+    previewShellMinHeight: 460
+    previewSurfaceMinHeight: 460
+    cardItemBorder: "1px dashed rgba(61, 168, 245, 0.7)"
+    cardItemRadius: 10
+    cardItemPadding: 10
+    cardItemBackground: "rgba(9, 12, 16, 0.9)"
+    cardItemTitleFontSize: 16
+    cardItemTitleMarginBottom: 8
+    chipWrapGap: 6
+    chipBorder: "1px solid rgba(198, 216, 234, 0.45)"
+    chipPaddingY: 2
+    chipPaddingX: 8
+    chipFontSize: 12
+    specPreviewMarginTop: 14
+    specPreviewBorderTop: "1px solid rgba(142, 163, 184, 0.3)"
+    specPreviewPaddingTop: 12
+    specPreviewGap: 10
+    textSampleBorder: "1px solid rgba(142, 163, 184, 0.35)"
+    textSampleRadius: 8
+    textSamplePadding: 8
   pages:
     mainMenu:
       rowsDesktop: "0.28fr 0.38fr 0.18fr 0.16fr"
@@ -46,6 +236,54 @@ style:
       detailMinHeight: 0
       stageMinHeight: 420
       statusPanelPadding: 12
+      resourceBrowser:
+        selectedBg: "rgba(61, 168, 245, 0.2)"
+        errorBg: "rgba(245, 61, 61, 0.1)"
+        defaultBg: "rgba(9, 12, 16, 0.6)"
+        errorBorder: "1px dashed #f53d3d"
+        defaultBorder: "1px solid rgba(142, 163, 184, 0.3)"
+        disabledOpacity: 0.5
+        enabledOpacity: 1
+        disabledCursor: "not-allowed"
+        enabledCursor: "pointer"
+        stageRootGap: "16px"
+        typeBarGap: "8px"
+        typeBarBorderBottom: "1px solid rgba(142, 163, 184, 0.3)"
+        typeBarPaddingBottom: "10px"
+        contentGridGap: "16px"
+        itemListGap: "8px"
+        itemListPaddingRight: "5px"
+        detailColumnBorderLeft: "1px dashed rgba(61, 168, 245, 0.62)"
+        detailColumnPaddingLeft: "16px"
+        emptyListPadding: "10px"
+        detailContainerGap: "10px"
+        detailContainerPadding: "10px"
+        detailTitleColor: "var(--cloud-100)"
+        detailTitleFontFamily: "var(--font-title)"
+        detailPathFontSize: "12px"
+        detailPathColor: "var(--cloud-500)"
+        detailDividerBorderTop: "1px solid rgba(142, 163, 184, 0.3)"
+        detailInfoCardBg: "rgba(0,0,0,0.2)"
+        detailInfoCardPadding: "5px"
+        issueErrorColor: "#f53d3d"
+        issueSuccessColor: "#2ecc71"
+        tileHintMarginTop: "10px"
+        tileHintPadding: "10px"
+        tileHintBg: "rgba(0,0,0,0.3)"
+        tileHintBorder: "1px dashed var(--sky-500)"
+        mediaPreviewMarginTop: "10px"
+        mediaPreviewBg: "rgba(0,0,0,0.5)"
+        mediaPreviewBorder: "1px solid var(--cloud-800)"
+        mediaPreviewRadius: "4px"
+        mediaPreviewPadding: "10px"
+        mediaPreviewTextureHeight: "180px"
+        mediaPreviewAudioHeight: "32px"
+        mediaImageMaxWidth: "100%"
+        mediaImageMaxHeight: "100%"
+        mediaImageObjectFit: "contain"
+        mediaImageRendering: "pixelated"
+        mediaAudioWidth: "100%"
+        mediaAudioOutline: "none"
     gameHud:
       rows: "0.2fr 0.58fr 0.22fr"
       sectionGap: 12

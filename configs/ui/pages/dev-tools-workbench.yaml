@@ -47,6 +47,8 @@ layout:
         id: back-home
         text: 返回首页
         type: secondary
+        visible: true
+        disabled: false
     category:
       title: 分类切换
       description: 先选工具域，再进入对应工作面。
@@ -57,6 +59,8 @@ categories:
   - id: world
     name: 世界与地图
     summary: 地块、地貌与天气相关工具入口。
+    visible: true
+    disabled: false
     tools:
       - tile-editor
       - biome-editor
@@ -64,6 +68,8 @@ categories:
   - id: resource
     name: 资源与素材
     summary: 资源、材质与粒子相关工具入口。
+    visible: true
+    disabled: false
     tools:
       - resource-browser
       - material-editor
@@ -71,6 +77,8 @@ categories:
   - id: actor
     name: 角色与动作
     summary: 角色骨架、动作与属性相关工具入口。
+    visible: true
+    disabled: false
     tools:
       - species-skeleton
       - character-motion
@@ -81,6 +89,12 @@ tools:
     previewEngine: phaser
     summary: 地块属性、建造规则与邻接效果预览
     status: 规划中
+    visible: true
+    disabled:
+      ne:
+        -
+          var: tool.status
+        - 可用
     note: 当前阶段只开放入口切换，后续接入地块预览与规则编辑。
     cards:
       - id: tile-base
@@ -94,6 +108,12 @@ tools:
     previewEngine: phaser
     summary: 生物群系刷区与视觉过渡预览
     status: 规划中
+    visible: true
+    disabled:
+      ne:
+        -
+          var: tool.status
+        - 可用
     note: 当前阶段只开放入口切换，后续接入刷区预览与参数编辑。
     cards:
       - id: biome-weights
@@ -104,6 +124,12 @@ tools:
     previewEngine: phaser
     summary: 天气状态覆盖与场景表现预览
     status: 规划中
+    visible: true
+    disabled:
+      ne:
+        -
+          var: tool.status
+        - 可用
     note: 当前阶段只开放入口切换，后续接入天气预览与配置面板。
     cards:
       - id: weather-state
@@ -114,11 +140,82 @@ tools:
     previewEngine: phaser
     summary: 静态索引扫描、分类呈现与验证报告
     status: 可用
+    visible: true
+    disabled:
+      ne:
+        -
+          var: tool.status
+        - 可用
     note: 通过扫描本地文件建立引用，展示图集、音乐、UI皮肤分类及中英文双语索引，提供宽敞的列表与预览区域。
     layoutOverrides:
       # 遵循非主体功能紧凑、主体宽松的原则
       leftPanelWidth: "220px"  # 左侧分类树紧凑
       gap: "16px"
+    resourceBrowserControls:
+      visualStyles:
+        selectedBg: "$style.pages.workbench.resourceBrowser.selectedBg"
+        errorBg: "$style.pages.workbench.resourceBrowser.errorBg"
+        defaultBg: "$style.pages.workbench.resourceBrowser.defaultBg"
+        errorBorder: "$style.pages.workbench.resourceBrowser.errorBorder"
+        defaultBorder: "$style.pages.workbench.resourceBrowser.defaultBorder"
+        disabledOpacity: "$style.pages.workbench.resourceBrowser.disabledOpacity"
+        enabledOpacity: "$style.pages.workbench.resourceBrowser.enabledOpacity"
+        disabledCursor: "$style.pages.workbench.resourceBrowser.disabledCursor"
+        enabledCursor: "$style.pages.workbench.resourceBrowser.enabledCursor"
+        stageRootGap: "$style.pages.workbench.resourceBrowser.stageRootGap"
+        typeBarGap: "$style.pages.workbench.resourceBrowser.typeBarGap"
+        typeBarBorderBottom: "$style.pages.workbench.resourceBrowser.typeBarBorderBottom"
+        typeBarPaddingBottom: "$style.pages.workbench.resourceBrowser.typeBarPaddingBottom"
+        contentGridGap: "$style.pages.workbench.resourceBrowser.contentGridGap"
+        itemListGap: "$style.pages.workbench.resourceBrowser.itemListGap"
+        itemListPaddingRight: "$style.pages.workbench.resourceBrowser.itemListPaddingRight"
+        detailColumnBorderLeft: "$style.pages.workbench.resourceBrowser.detailColumnBorderLeft"
+        detailColumnPaddingLeft: "$style.pages.workbench.resourceBrowser.detailColumnPaddingLeft"
+        emptyListPadding: "$style.pages.workbench.resourceBrowser.emptyListPadding"
+        detailContainerGap: "$style.pages.workbench.resourceBrowser.detailContainerGap"
+        detailContainerPadding: "$style.pages.workbench.resourceBrowser.detailContainerPadding"
+        detailTitleColor: "$style.pages.workbench.resourceBrowser.detailTitleColor"
+        detailTitleFontFamily: "$style.pages.workbench.resourceBrowser.detailTitleFontFamily"
+        detailPathFontSize: "$style.pages.workbench.resourceBrowser.detailPathFontSize"
+        detailPathColor: "$style.pages.workbench.resourceBrowser.detailPathColor"
+        detailDividerBorderTop: "$style.pages.workbench.resourceBrowser.detailDividerBorderTop"
+        detailInfoCardBg: "$style.pages.workbench.resourceBrowser.detailInfoCardBg"
+        detailInfoCardPadding: "$style.pages.workbench.resourceBrowser.detailInfoCardPadding"
+        issueErrorColor: "$style.pages.workbench.resourceBrowser.issueErrorColor"
+        issueSuccessColor: "$style.pages.workbench.resourceBrowser.issueSuccessColor"
+        tileHintMarginTop: "$style.pages.workbench.resourceBrowser.tileHintMarginTop"
+        tileHintPadding: "$style.pages.workbench.resourceBrowser.tileHintPadding"
+        tileHintBg: "$style.pages.workbench.resourceBrowser.tileHintBg"
+        tileHintBorder: "$style.pages.workbench.resourceBrowser.tileHintBorder"
+        mediaPreviewMarginTop: "$style.pages.workbench.resourceBrowser.mediaPreviewMarginTop"
+        mediaPreviewBg: "$style.pages.workbench.resourceBrowser.mediaPreviewBg"
+        mediaPreviewBorder: "$style.pages.workbench.resourceBrowser.mediaPreviewBorder"
+        mediaPreviewRadius: "$style.pages.workbench.resourceBrowser.mediaPreviewRadius"
+        mediaPreviewPadding: "$style.pages.workbench.resourceBrowser.mediaPreviewPadding"
+        mediaPreviewTextureHeight: "$style.pages.workbench.resourceBrowser.mediaPreviewTextureHeight"
+        mediaPreviewAudioHeight: "$style.pages.workbench.resourceBrowser.mediaPreviewAudioHeight"
+        mediaImageMaxWidth: "$style.pages.workbench.resourceBrowser.mediaImageMaxWidth"
+        mediaImageMaxHeight: "$style.pages.workbench.resourceBrowser.mediaImageMaxHeight"
+        mediaImageObjectFit: "$style.pages.workbench.resourceBrowser.mediaImageObjectFit"
+        mediaImageRendering: "$style.pages.workbench.resourceBrowser.mediaImageRendering"
+        mediaAudioWidth: "$style.pages.workbench.resourceBrowser.mediaAudioWidth"
+        mediaAudioOutline: "$style.pages.workbench.resourceBrowser.mediaAudioOutline"
+      typeButton:
+        visible: true
+        disabled:
+          eq:
+            -
+              var: state.resourceBrowser.typeKey
+            -
+              var: type.key
+      itemCell:
+        visible: true
+        disabled:
+          eq:
+            -
+              var: state.resourceBrowser.selectedId
+            -
+              var: item.id
     cards:
       - id: res-category-tree
         title: 资源分类 (Category)
@@ -143,6 +240,12 @@ tools:
     previewEngine: phaser
     summary: 材质参数与视觉响应预览
     status: 规划中
+    visible: true
+    disabled:
+      ne:
+        -
+          var: tool.status
+        - 可用
     note: 当前阶段只开放入口切换，后续接入材质预览与参数编辑。
     cards:
       - id: mat-light
@@ -153,6 +256,12 @@ tools:
     previewEngine: phaser
     summary: 粒子参数实时调节预览
     status: 规划中
+    visible: true
+    disabled:
+      ne:
+        -
+          var: tool.status
+        - 可用
     note: 当前阶段只开放入口切换，后续接入粒子预览与参数调节。
     cards:
       - id: particle-core
@@ -163,6 +272,12 @@ tools:
     previewEngine: skeleton
     summary: 骨架节点、骨骼连线与基础体型叠加预览
     status: 规划中
+    visible: true
+    disabled:
+      ne:
+        -
+          var: tool.status
+        - 可用
     note: 当前阶段只开放入口切换，后续接入骨架预览与节点编辑。
     cards:
       - id: skeleton-nodes
@@ -176,6 +291,12 @@ tools:
     previewEngine: skeleton
     summary: 基础动作映射与动作切换预览
     status: 规划中
+    visible: true
+    disabled:
+      ne:
+        -
+          var: tool.status
+        - 可用
     note: 当前阶段只开放入口切换，后续接入动作映射与状态预览。
     cards:
       - id: motion-map
@@ -186,6 +307,12 @@ tools:
     previewEngine: phaser
     summary: 种族模板与职业模板属性叠加预览
     status: 规划中
+    visible: true
+    disabled:
+      ne:
+        -
+          var: tool.status
+        - 可用
     note: 当前阶段只开放入口切换，后续接入属性编辑与结果视图。
     cards:
       - id: attr-primary

@@ -3,6 +3,8 @@ ui:
   defaultTheme: sky-cloud-black
   defaultPage: main-menu
   styleParams: ./styles/style-params.yaml
+  actions:
+    path: ./actions/action-definitions.yaml
   themes:
     - id: sky-cloud-black
       path: ./themes/theme.sky-cloud-black.yaml

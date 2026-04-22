@@ -1,0 +1,72 @@
+actions:
+  start-game:
+    effects:
+      - type: setState
+        key: activePage
+        value: game-hud
+      - type: setState
+        key: notice
+        value: 已进入游戏内界面。
+
+  open-settings:
+    effects:
+      - type: setState
+        key: activePage
+        value: settings
+      - type: setState
+        key: notice
+        value: ""
+      - type: callHandler
+        name: refreshCurrentResolutionText
+
+  open-devtools:
+    effects:
+      - type: setState
+        key: activePage
+        value: dev-tools-workbench
+      - type: setState
+        key: notice
+        value: 进入开发工具总控台
+
+  open-main-menu:
+    effects:
+      - type: setState
+        key: activePage
+        value: main-menu
+      - type: setState
+        key: notice
+        value: 返回首页
+
+  back-main:
+    effects:
+      - type: setState
+        key: activePage
+        value: main-menu
+      - type: setState
+        key: notice
+        value: 返回首页
+
+  back-home:
+    effects:
+      - type: setState
+        key: activePage
+        value: main-menu
+      - type: setState
+        key: notice
+        value: 返回首页
+
+  apply-resolution:
+    precondition:
+      and:
+        - exists: state.selectedResolutionId
+        - var: capabilities.canSetResolution
+    blockedNotice: 当前环境不支持分辨率设置。
+    effects:
+      - type: callHandler
+        name: applyResolution
+      - type: callHandler
+        name: refreshCurrentResolutionText
+
+  quit-game:
+    effects:
+      - type: closeWindow

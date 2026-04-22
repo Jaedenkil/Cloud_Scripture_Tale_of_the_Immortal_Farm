@@ -39,6 +39,9 @@ page:
     - id: apply-resolution
       text: 应用分辨率
       type: primary
+      disabled:
+        not:
+          exists: state.selectedResolutionId
     - id: back-main
       text: 返回首页
       type: secondary

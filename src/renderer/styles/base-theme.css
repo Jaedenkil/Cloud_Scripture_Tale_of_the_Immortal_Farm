@@ -1,0 +1,36 @@
+body {
+  margin: 0;
+  background: var(--base-body-background);
+  color: var(--base-body-color);
+  font-family: var(--font-body);
+}
+
+.panel {
+  background: var(--base-panel-background);
+  border: var(--base-panel-border);
+  border-radius: var(--panel-radius);
+  padding: var(--panel-padding);
+  box-sizing: border-box;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.panel h1 {
+  margin: var(--base-h1-margin);
+  font-family: var(--font-display);
+  font-size: var(--base-h1-font-size);
+  color: var(--base-h1-color);
+}
+
+.panel h2 {
+  margin: var(--base-h2-margin);
+  font-family: var(--font-title);
+  font-size: var(--base-h2-font-size);
+  color: var(--base-h2-color);
+}
+
+.panel h3 {
+  margin: var(--base-h3-margin);
+  font-size: var(--base-h3-font-size);
+  color: var(--base-h3-color);
+}
