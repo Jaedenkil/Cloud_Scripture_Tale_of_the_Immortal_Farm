@@ -1,0 +1,9 @@
+{
+  "name": "prp-ralph-loop",
+  "source": "prps-agentic",
+  "description": "Autonomous iteration execution guide for PRP Ralph loops.",
+  "description_ja": "",
+  "whenToUse": "This skill provides the knowledge needed to correctly execute Ralph loop iterations. Ralph is an autonomous loop system that executes PRP plans iteratively until all tasks are complete and all vali...",
+  "categories": [],
+  "installedAt": "2026-04-21T02:07:47.362Z"
+}

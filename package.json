@@ -1,0 +1,38 @@
+{
+  "name": "cloud-scripture-tale-of-the-immortal-farm",
+  "version": "0.1.0",
+  "description": "云笈仙田录 - 修仙田园体素游戏",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "concurrently -k \"npm run dev:vite\" \"npm run dev:electron\"",
+    "dev:vite": "vite",
+    "dev:electron": "wait-on http://localhost:5173 && electron .",
+    "dev:resource-index": "node scripts/dev/build-resource-index.mjs",
+    "build": "vite build && electron-builder",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@esotericsoftware/spine-canvas": "^4.2.110",
+    "alea": "^1.0.1",
+    "electron-store": "^8.1.0",
+    "fast-glob": "^3.3.3",
+    "howler": "^2.2.4",
+    "js-yaml": "^4.1.1",
+    "json-logic-js": "^2.0.5",
+    "phaser": "^3.80.1",
+    "simplex-noise": "^4.0.1",
+    "xstate": "^5.30.0"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "chokidar": "^3.6.0",
+    "concurrently": "^9.2.1",
+    "electron": "^28.1.0",
+    "electron-builder": "^24.9.1",
+    "vite": "^5.0.10",
+    "vite-plugin-electron": "^0.28.0",
+    "vite-plugin-electron-renderer": "^0.14.5",
+    "vitest": "^1.6.1",
+    "wait-on": "^7.2.0"
+  }
+}

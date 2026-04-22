@@ -1,0 +1,8 @@
+{
+  "name": "skill-creator",
+  "source": "anthropics-skills",
+  "description": "Create new skills, modify and improve existing skills, and measure skill performance.",
+  "whenToUse": "A skill for creating new skills and iteratively improving them.",
+  "categories": [],
+  "installedAt": "2026-04-21T02:07:45.851Z"
+}
