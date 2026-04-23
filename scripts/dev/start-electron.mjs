@@ -23,6 +23,7 @@ const electronProcess = spawn(electron, ["."], {
   stdio: "inherit",
   env: {
     ...process.env,
+    NODE_ENV: "development",
     VITE_DEV_SERVER_URL: devServerUrl
   }
 });

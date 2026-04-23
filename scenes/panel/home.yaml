@@ -1,0 +1,88 @@
+page:
+  id: home-page
+  name: Home Page
+  type: fullscreen
+  domain: panel
+  depthBase: 2000
+
+layers:
+  - id: panel.bg
+    depth: 2000
+  - id: panel.content
+    depth: 2010
+
+components:
+  - id: home-bg
+    type: rectangle
+    layer: panel.bg
+    style:
+      background: "$panelBg"
+      width: "100%"
+      height: "100%"
+
+  - id: home-title
+    type: title
+    layer: panel.content
+    text: "云笈仙田录"
+    style:
+      color: "$textPrimary"
+      fontSize: 56
+      width: "100%"
+      textAlign: "center"
+      marginTop: 120
+
+  - id: btn-start
+    type: button
+    layer: panel.content
+    text: "开始"
+    actionId: "startGame"
+    style:
+      background: "$primary"
+      borderColor: "$buttonBorder"
+      color: "$textPrimary"
+      height: "$buttonHeight"
+      width: 280
+      marginTop: 80
+      alignSelf: "center"
+
+  - id: btn-settings
+    type: button
+    layer: panel.content
+    text: "设置"
+    actionId: "settings"
+    style:
+      background: "$primary"
+      borderColor: "$buttonBorder"
+      color: "$textPrimary"
+      height: "$buttonHeight"
+      width: 280
+      marginTop: 124
+      alignSelf: "center"
+
+  - id: btn-dev
+    type: button
+    layer: panel.content
+    text: "开发"
+    actionId: "dev"
+    style:
+      background: "$primary"
+      borderColor: "$buttonBorder"
+      color: "$textPrimary"
+      height: "$buttonHeight"
+      width: 280
+      marginTop: 168
+      alignSelf: "center"
+
+  - id: btn-quit
+    type: button
+    layer: panel.content
+    text: "退出"
+    actionId: "quit"
+    style:
+      background: "$primary"
+      borderColor: "$buttonBorder"
+      color: "$textPrimary"
+      height: "$buttonHeight"
+      width: 280
+      marginTop: 212
+      alignSelf: "center"

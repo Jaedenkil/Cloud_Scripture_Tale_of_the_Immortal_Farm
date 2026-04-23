@@ -1,0 +1,8 @@
+tokens:
+  primary: "#183242"
+  accent: "#c8a96b"
+  textPrimary: "#f3efe4"
+  panelBg: "#0f202b"
+  buttonBorder: "#d8be87"
+  buttonHeight: 44
+  titleSize: 32

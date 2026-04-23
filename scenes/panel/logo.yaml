@@ -1,0 +1,33 @@
+page:
+  id: logo-page
+  name: Logo Page
+  type: fullscreen
+  domain: panel
+  depthBase: 2000
+
+layers:
+  - id: panel.bg
+    depth: 2000
+  - id: panel.content
+    depth: 2010
+
+components:
+  - id: logo-bg
+    type: rectangle
+    layer: panel.bg
+    style:
+      background: "$panelBg"
+      width: "100%"
+      height: "100%"
+
+  - id: game-title
+    type: title
+    layer: panel.content
+    text: "云笈仙田录"
+    style:
+      color: "$textPrimary"
+      fontSize: 72
+      width: "100%"
+      height: "100%"
+      textAlign: "center"
+      verticalAlign: "center"

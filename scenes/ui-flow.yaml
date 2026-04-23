@@ -1,0 +1,94 @@
+flow:
+  id: main-ui-flow
+  version: 1
+  entry: logo
+  defaults:
+    backActionId: back
+    transition:
+      type: fade
+      durationMs: 200
+      delayMs: 0
+      easing: linear
+      blockInput: true
+      skippable: false
+
+nodes:
+  - id: logo
+    pageId: logo-page
+    domain: panel
+    meta:
+      title: Logo Page
+      tags:
+        - startup
+    transitions:
+      - id: logo-to-home
+        trigger: timer
+        afterMs: 1800
+        to: home
+        transition: fadeLogo
+    fallback: home
+
+  - id: home
+    pageId: start-page
+    domain: panel
+    meta:
+      title: Home Page
+      tags:
+        - menu
+    transitions:
+      - id: home-start
+        trigger: uiAction
+        fromActionId: startGame
+        to: home
+      - id: home-settings
+        trigger: uiAction
+        fromActionId: settings
+        to: settings
+        transition: fadeFast
+      - id: home-dev
+        trigger: uiAction
+        fromActionId: dev
+        to: home
+      - id: home-quit
+        trigger: uiAction
+        fromActionId: quit
+        to: home
+    fallback: home
+
+  - id: settings
+    pageId: settings-page
+    domain: panel
+    meta:
+      title: Settings Page
+      tags:
+        - settings
+    transitions:
+      - id: settings-apply
+        trigger: uiAction
+        fromActionId: apply
+        to: settings
+      - id: settings-back
+        trigger: uiAction
+        fromActionId: back
+        to: home
+        transition: fadeFast
+    fallback: home
+
+guards: {}
+
+transitionPresets:
+  fadeLogo:
+    type: fade
+    durationMs: 420
+    delayMs: 0
+    easing: linear
+    blockInput: true
+    skippable: false
+
+  fadeFast:
+    type: fade
+    durationMs: 120
+    delayMs: 0
+    easing: linear
+    blockInput: true
+    skippable: false

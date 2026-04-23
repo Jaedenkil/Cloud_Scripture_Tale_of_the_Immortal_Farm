@@ -1,0 +1,51 @@
+page:
+  id: settings-page
+  name: Settings Page
+  type: fullscreen
+  domain: panel
+  depthBase: 2000
+
+layers:
+  - id: panel.bg
+    depth: 2000
+  - id: panel.content
+    depth: 2010
+
+components:
+  - id: settings-bg
+    type: rectangle
+    layer: panel.bg
+    style:
+      background: "$panelBg"
+      width: "100%"
+      height: "100%"
+
+  - id: btn-apply
+    type: button
+    layer: panel.content
+    text: "应用"
+    actionId: "apply"
+    style:
+      background: "$primary"
+      borderColor: "$buttonBorder"
+      color: "$textPrimary"
+      height: "$buttonHeight"
+      width: 220
+      position: "absolute"
+      bottom: 60
+      left: "calc(50% - 240px)"
+
+  - id: btn-back
+    type: button
+    layer: panel.content
+    text: "返回"
+    actionId: "back"
+    style:
+      background: "$primary"
+      borderColor: "$buttonBorder"
+      color: "$textPrimary"
+      height: "$buttonHeight"
+      width: 220
+      position: "absolute"
+      bottom: 60
+      left: "calc(50% + 20px)"

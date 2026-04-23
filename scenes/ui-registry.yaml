@@ -1,0 +1,37 @@
+registryVersion: 1
+id: ui-registry
+description: UI page registry for flow runtime
+
+defaults:
+  enabled: true
+  preload: false
+
+pages:
+  - id: logo-page
+    domain: panel
+    scenePath: scenes/panel/logo.yaml
+    enabled: true
+    preload: true
+    tags:
+      - splash
+      - startup
+
+  - id: home-page
+    domain: panel
+    scenePath: scenes/panel/home.yaml
+    enabled: true
+    preload: true
+    tags:
+      - home
+      - menu
+
+  - id: settings-page
+    domain: panel
+    scenePath: scenes/panel/settings.yaml
+    enabled: true
+    preload: false
+    tags:
+      - settings
+
+aliases:
+  start-page: home-page
