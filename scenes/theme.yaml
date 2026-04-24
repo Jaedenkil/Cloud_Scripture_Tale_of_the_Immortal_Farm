@@ -1,8 +1,91 @@
+registryVersion: 1
+id: global-theme
+description: "云笈仙田录 - 像素修仙种田详细主题配置"
+
 tokens:
-  primary: "#183242"
-  accent: "#c8a96b"
-  textPrimary: "#f3efe4"
-  panelBg: "#0f202b"
-  buttonBorder: "#d8be87"
-  buttonHeight: 44
-  titleSize: 32
+  # ==========================================
+  # 1. 颜色系统 (COLORS)
+  # ==========================================
+  colors:
+    # 1.1 面板底色
+    panelBgMain: "#1a2125"       # 玄青，用于主面板、大背景层
+    panelBgSecondary: "#2c363a"  # 偏灰的次级区域
+    panelBorder: "#b99a6c"       # 鎏金/木色描边
+    panelOverlay: "rgba(10, 15, 20, 0.85)" # 沉浸式模态弹窗遮罩
+
+    # 1.2 按钮色彩矩阵
+    btnPrimaryBg: "#e5c271"      # 强调操作（麦黄/金色）
+    btnPrimaryText: "#1a2125"
+    btnSecondaryBg: "#2c363a"    # 常规操作（灰青）
+    btnSecondaryText: "#f3efe4" 
+    btnDangerBg: "#8b2a2a"       # 危险操作（暗红）
+    btnDangerText: "#f3efe4"
+    btnHoverTint: "rgba(255, 255, 255, 0.1)" # Hover 提亮遮罩
+
+    # 1.3 字体颜色
+    textPrimary: "#f3efe4"       # 正文、默认文本（纸白）
+    textSecondary: "#a7b2b5"     # 弱化描述、底纹提示语
+    textHighlight: "#e5c271"     # 强调、境界、稀有材料名
+    textDanger: "#d3545f"        # 警告文案
+
+    # 1.4 回报与消耗指示槽 (条状UI色)
+    barHealth: "#d3545f"         # 气血/生命
+    barSpiritual: "#48c0a3"      # 灵力/真气
+    barStamina: "#e5c271"        # 体力 (由于种田机制，极为关键)
+    barExp: "#9b74bd"            # 境界修为经验
+
+  # ==========================================
+  # 2. 字体与排版系统 (TYPOGRAPHY)
+  # ==========================================
+  typography:
+    fontFamily: "'WenQuanYi Micro Hei', 'PixelFont', sans-serif"
+    
+    # 字号基准
+    h1: 32       # 顶级页面名称、界域名称
+    h2: 24       # 面板二级标题、主功能按钮文字
+    body: 16     # 常规文本、对话、介绍
+    small: 12    # 叠加数字（如 x99）、小角标、辅助信息
+    
+    # 常用行高
+    lineHeightNormal: 1.5
+    lineHeightDense: 1.2
+
+  # ==========================================
+  # 3. 尺寸与间距系统 (SPACING)
+  # ==========================================
+  spacing:
+    # 基础网格
+    gridBase: 4
+    
+    # 相对间距规范
+    xs: 4      # 微小间距（进度条与文字间）
+    sm: 8      # 小间距（同类元素分组，格子间隙）
+    md: 16     # 中等间距（面板内边距，组内分隔）
+    lg: 24     # 大块间距（标题与主内容的空隙）
+    xl: 32     # 超大间距（主区块之间）
+
+    # 面板规格
+    panelPadding: 16
+    modalWidthSmall: 320
+    modalWidthMedium: 480
+    modalWidthLarge: 640
+
+  # ==========================================
+  # 4. 九宫格、像素槽位定义 (COMPONENTS & SLOTS)
+  # ==========================================
+  components:
+    # 边框与切角
+    borderNormal: "2px"
+    borderThick: "4px"
+    cutCornerSmall: "2px"
+    cutCornerLarge: "4px"
+
+    # 按钮尺寸
+    btnHeightNormal: 32
+    btnHeightLarge: 40
+
+    # 物品插槽矩阵 (核心农田/修仙格子)
+    slotSmall: 36     # 用于 HUD 快捷轮盘
+    slotBase: 48      # 用于种田产出、背包默认大网格
+    slotLarge: 64     # 境界突破核心插槽、阵法阵眼
+    slotGap: 8        # 多个格子排列时的固定间距
