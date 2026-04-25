@@ -23,6 +23,7 @@ export class FlowRuntime {
    * @param {import('./scene-service.mjs').SceneService} options.sceneService
    * @param {import('./ui-renderer.mjs').UIRenderer} options.renderer
    * @param {import('./action-bus.mjs').ActionBus} options.actionBus
+   * @param {{execute:(actionId:string, context?:any)=>Promise<{handled:boolean,nextNodeId:string|null}>}} [options.actionExecutor]
    * @param {string} [options.actionChannel="ui.action"]
    */
   constructor(options = {}) {
@@ -30,6 +31,7 @@ export class FlowRuntime {
     this.sceneService = options.sceneService || null;
     this.renderer = options.renderer || null;
     this.actionBus = options.actionBus || null;
+    this.actionExecutor = options.actionExecutor || null;
     this.actionChannel = options.actionChannel || "ui.action";
 
     this.initialized = false;
@@ -62,7 +64,7 @@ export class FlowRuntime {
         return;
       }
 
-      void this.handleAction(actionId);
+      void this.handleAction(actionId, payload);
     });
 
     this.initialized = true;
@@ -127,9 +129,10 @@ export class FlowRuntime {
    * Handle one ui action and apply transition or fallback.
    *
    * @param {string} actionId
+   * @param {any} [payload]
    * @returns {Promise<{matched:boolean,toNodeId:string|null,transitionId:string|null}>}
    */
-  async handleAction(actionId) {
+  async handleAction(actionId, payload = null) {
     this.#assertStarted();
 
     assert(typeof actionId === "string" && actionId.trim() !== "", RuntimeCode.INVALID_ACTION, "actionId is required", {
@@ -138,6 +141,29 @@ export class FlowRuntime {
 
     const currentNodeId = this.currentNodeId;
     if (!currentNodeId) {
+      return {
+        matched: false,
+        toNodeId: null,
+        transitionId: null
+      };
+    }
+
+    const executeResult = await this.#executeAction(actionId, payload);
+    if (executeResult.handled) {
+      if (executeResult.nextNodeId) {
+        await this.enterNode(executeResult.nextNodeId, {
+          trigger: "actionHandler",
+          transitionId: null,
+          actionId
+        });
+
+        return {
+          matched: true,
+          toNodeId: executeResult.nextNodeId,
+          transitionId: null
+        };
+      }
+
       return {
         matched: false,
         toNodeId: null,
@@ -269,5 +295,19 @@ export class FlowRuntime {
 
   #assertStarted() {
     assert(this.started, RuntimeCode.NOT_STARTED, "FlowRuntime has not started");
+  }
+
+  async #executeAction(actionId, payload) {
+    if (!this.actionExecutor || typeof this.actionExecutor.execute !== "function") {
+      return {
+        handled: false,
+        nextNodeId: null
+      };
+    }
+
+    return this.actionExecutor.execute(actionId, {
+      payload,
+      runtime: this
+    });
   }
 }

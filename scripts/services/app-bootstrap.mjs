@@ -1,6 +1,8 @@
 import { BootstrapCode } from "../utils/app-codes.mjs";
 import { CommonError, assert } from "../utils/flow-common.mjs";
 import { ActionBus } from "./action-bus.mjs";
+import { ButtonActionExecutor } from "./button-action-executor.mjs";
+import { buttonActionHandlers } from "./button-action-handlers.mjs";
 import { FlowRuntime } from "./flow-runtime.mjs";
 import { FlowService } from "./flow-service.mjs";
 import { FlowValidator } from "./flow-validator.mjs";
@@ -18,6 +20,7 @@ import { UIRenderer } from "./ui-renderer.mjs";
  * @property {ReturnType<FlowRuntime['getSnapshot']>} runtime
  * @property {ReturnType<UIRenderer['getRenderSnapshot']>} renderer
  * @property {ReturnType<ActionBus['getSnapshot']>} actionBus
+ * @property {ReturnType<ButtonActionExecutor['getSnapshot']>} actionExecutor
  */
 
 /**
@@ -36,6 +39,7 @@ export class AppBootstrap {
    * @param {SceneService} [options.sceneService]
    * @param {UIRenderer} [options.renderer]
    * @param {ActionBus} [options.actionBus]
+  * @param {ButtonActionExecutor} [options.actionExecutor]
    */
   constructor(options = {}) {
     this.registryPath = options.registryPath || null;
@@ -47,6 +51,9 @@ export class AppBootstrap {
     this.registryService = options.registryService || new RegistryService({ registryPath: this.registryPath });
     this.flowService = options.flowService || new FlowService({ flowPath: this.flowPath });
     this.actionBus = options.actionBus || new ActionBus();
+    this.actionExecutor = options.actionExecutor || new ButtonActionExecutor({
+      handlers: buttonActionHandlers
+    });
     this.renderer = options.renderer || new UIRenderer();
     this.sceneService = options.sceneService || new SceneService({
       registryService: this.registryService,
@@ -62,6 +69,7 @@ export class AppBootstrap {
       sceneService: this.sceneService,
       renderer: this.renderer,
       actionBus: this.actionBus,
+      actionExecutor: this.actionExecutor,
       actionChannel: this.actionChannel
     });
 
@@ -127,7 +135,8 @@ export class AppBootstrap {
       scene: this.sceneService.getSnapshot(),
       runtime: this.flowRuntime.getSnapshot(),
       renderer: this.renderer.getRenderSnapshot(),
-      actionBus: this.actionBus.getSnapshot()
+      actionBus: this.actionBus.getSnapshot(),
+      actionExecutor: this.actionExecutor.getSnapshot()
     };
   }
 

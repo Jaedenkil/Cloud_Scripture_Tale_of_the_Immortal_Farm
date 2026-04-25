@@ -35,24 +35,7 @@ nodes:
       title: Home Page
       tags:
         - menu
-    transitions:
-      - id: home-start
-        trigger: uiAction
-        fromActionId: startGame
-        to: home
-      - id: home-settings
-        trigger: uiAction
-        fromActionId: settings
-        to: settings
-        transition: fadeFast
-      - id: home-dev
-        trigger: uiAction
-        fromActionId: dev
-        to: home
-      - id: home-quit
-        trigger: uiAction
-        fromActionId: quit
-        to: home
+    transitions: []
     fallback: home
 
   - id: settings
@@ -62,16 +45,7 @@ nodes:
       title: Settings Page
       tags:
         - settings
-    transitions:
-      - id: settings-apply
-        trigger: uiAction
-        fromActionId: apply
-        to: settings
-      - id: settings-back
-        trigger: uiAction
-        fromActionId: back
-        to: home
-        transition: fadeFast
+    transitions: []
     fallback: home
 
 guards: {}
