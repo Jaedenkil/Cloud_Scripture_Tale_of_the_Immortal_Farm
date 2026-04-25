@@ -75,7 +75,21 @@ function validate(message) {
   }
 }
 
-const commitMessageFile = process.argv[2];
-const message = readCommitMessage(commitMessageFile);
+function readMessageFromArgs() {
+  const args = process.argv.slice(2);
+
+  if (args[0] === "--message") {
+    const rawMessage = args.slice(1).join(" ").trim();
+    if (!rawMessage) {
+      fail("--message 参数为空。");
+    }
+    return rawMessage;
+  }
+
+  const commitMessageFile = args[0];
+  return readCommitMessage(commitMessageFile);
+}
+
+const message = readMessageFromArgs();
 validate(message);
 console.log("✅ commit message 校验通过");

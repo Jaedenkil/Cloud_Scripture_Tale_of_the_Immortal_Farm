@@ -1,0 +1,52 @@
+name: Commit Message Gate
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+
+jobs:
+  validate-commit-messages:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate commit messages
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            RANGE="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          else
+            if [[ "${{ github.event.before }}" == "0000000000000000000000000000000000000000" ]]; then
+              RANGE="${{ github.sha }}"
+            else
+              RANGE="${{ github.event.before }}..${{ github.sha }}"
+            fi
+          fi
+
+          echo "校验提交范围: ${RANGE}"
+          MESSAGES=$(git log --format=%s ${RANGE})
+
+          if [[ -z "${MESSAGES}" ]]; then
+            MESSAGES=$(git log -1 --format=%s)
+          fi
+
+          while IFS= read -r message; do
+            if [[ -z "${message}" ]]; then
+              continue
+            fi
+            echo "检查: ${message}"
+            node scripts/dev/validate-commit-msg.mjs --message "${message}"
+          done <<< "${MESSAGES}"
