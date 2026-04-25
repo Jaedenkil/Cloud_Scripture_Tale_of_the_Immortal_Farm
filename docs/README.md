@@ -14,6 +14,7 @@
 
 - [等距伪3D地块系统设计总结.md](architecture/等距伪3D地块系统设计总结.md)
 - [分辨率对照表.md](architecture/分辨率对照表.md)
+- [游戏内设置功能设计方案.md](architecture/游戏内设置功能设计方案.md)
 - [UI多层Scene分层架构方案.md](architecture/UI多层Scene分层架构方案.md)
 - [UI流程配置器与过渡系统设计.md](architecture/UI流程配置器与过渡系统设计.md)
 - [开发工具规划与角色规格.md](tool-guides/开发工具规划与角色规格.md)
