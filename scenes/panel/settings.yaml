@@ -21,32 +21,565 @@ components:
       width: "100%"
       height: "100%"
 
-  - id: btn-apply
-    type: button
+  - id: settings-panel
+    type: settingsPanel
     layer: panel.content
-    text: "应用"
-    actionId: "apply"
+    title: "游戏设置"
+    subtitle: "前端交互预览版（不会写入真实游戏配置）"
+    backActionId: "back"
     style:
-      background: "$colors.btnSecondaryBg"
-      borderColor: "$colors.panelBorder"
-      color: "$colors.btnSecondaryText"
-      height: "$components.btnHeightNormal"
-      width: 220
-      position: "absolute"
-      bottom: 60
-      left: "calc(50% - 240px)"
+      top: 24
+      left: 24
+      right: 24
+      bottom: 24
+    categories:
+      - id: display
+        label: "显示与性能"
+        items:
+          - id: display-mode
+            label: "显示模式"
+            description: "切换全屏、无边框或窗口化显示。"
+            control: dropdown
+            binding: "settings.display.mode"
+            effect: restart
+            defaultValue: "borderless"
+            options:
+              - label: "全屏"
+                value: "fullscreen"
+              - label: "无边框"
+                value: "borderless"
+              - label: "窗口"
+                value: "windowed"
 
-  - id: btn-back
-    type: button
-    layer: panel.content
-    text: "返回"
-    actionId: "back"
-    style:
-      background: "$colors.btnSecondaryBg"
-      borderColor: "$colors.panelBorder"
-      color: "$colors.btnSecondaryText"
-      height: "$components.btnHeightNormal"
-      width: 220
-      position: "absolute"
-      bottom: 60
-      left: "calc(50% + 20px)"
+          - id: display-resolution-scale
+            label: "渲染比例"
+            description: "降低比例可提升帧率，提高比例可获得更清晰画面。"
+            control: slider
+            binding: "settings.display.renderScale"
+            effect: restart
+            min: 70
+            max: 150
+            step: 5
+            unit: "%"
+            defaultValue: 100
+
+          - id: display-fps-limit
+            label: "帧率上限"
+            description: "限制帧率以平衡流畅度与设备功耗。"
+            control: dropdown
+            binding: "settings.display.fpsLimit"
+            effect: instant
+            defaultValue: "60"
+            options:
+              - label: "30"
+                value: "30"
+              - label: "60"
+                value: "60"
+              - label: "90"
+                value: "90"
+              - label: "120"
+                value: "120"
+              - label: "无限制"
+                value: "unlimited"
+
+          - id: display-vsync
+            label: "垂直同步"
+            description: "减少画面撕裂，部分设备可能增加输入延迟。"
+            control: toggle
+            binding: "settings.display.vsync"
+            effect: restart
+            defaultValue: true
+
+          - id: display-shake-intensity
+            label: "屏幕震动强度"
+            description: "调节受击与技能冲击的视觉震动反馈。"
+            control: slider
+            binding: "settings.display.shake"
+            effect: instant
+            min: 0
+            max: 100
+            step: 5
+            unit: "%"
+            defaultValue: 70
+
+      - id: audio
+        label: "音频"
+        items:
+          - id: audio-master
+            label: "主音量"
+            description: "控制所有音频输出总音量。"
+            control: slider
+            binding: "settings.audio.master"
+            effect: instant
+            min: 0
+            max: 100
+            step: 1
+            defaultValue: 80
+
+          - id: audio-bgm
+            label: "背景音乐"
+            description: "控制 BGM 音量。"
+            control: slider
+            binding: "settings.audio.bgm"
+            effect: instant
+            min: 0
+            max: 100
+            step: 1
+            defaultValue: 70
+
+          - id: audio-sfx
+            label: "音效音量"
+            description: "控制战斗、采集与界面反馈音效。"
+            control: slider
+            binding: "settings.audio.sfx"
+            effect: instant
+            min: 0
+            max: 100
+            step: 1
+            defaultValue: 80
+
+          - id: audio-voice
+            label: "语音音量"
+            description: "控制角色配音与剧情语音。"
+            control: slider
+            binding: "settings.audio.voice"
+            effect: instant
+            min: 0
+            max: 100
+            step: 1
+            defaultValue: 80
+
+          - id: audio-dynamic-range
+            label: "动态范围"
+            description: "根据使用场景匹配更合适的听感范围。"
+            control: dropdown
+            binding: "settings.audio.dynamicRange"
+            effect: confirm
+            defaultValue: "standard"
+            options:
+              - label: "夜间"
+                value: "night"
+              - label: "标准"
+                value: "standard"
+              - label: "影院"
+                value: "cinema"
+
+          - id: audio-mute-in-background
+            label: "后台静音"
+            description: "切到后台时自动静音。"
+            control: toggle
+            binding: "settings.audio.muteInBackground"
+            effect: instant
+            defaultValue: true
+
+      - id: input
+        label: "控制与输入"
+        items:
+          - id: input-device-priority
+            label: "输入设备优先"
+            description: "切换 UI 提示图标和输入焦点策略。"
+            control: dropdown
+            binding: "settings.input.devicePriority"
+            effect: instant
+            defaultValue: "auto"
+            options:
+              - label: "自动"
+                value: "auto"
+              - label: "键鼠"
+                value: "keyboardMouse"
+              - label: "手柄"
+                value: "gamepad"
+
+          - id: input-mouse-sensitivity
+            label: "鼠标灵敏度"
+            description: "调节视角移动速度。"
+            control: slider
+            binding: "settings.input.mouseSensitivity"
+            effect: instant
+            min: 1
+            max: 20
+            step: 1
+            defaultValue: 10
+
+          - id: input-gamepad-vibration
+            label: "手柄震动"
+            description: "开启后可获得更强的触感反馈。"
+            control: toggle
+            binding: "settings.input.vibrationEnabled"
+            effect: instant
+            defaultValue: true
+
+          - id: input-gamepad-vibration-strength
+            label: "手柄震动强度"
+            description: "调节手柄震动反馈强弱。"
+            control: slider
+            binding: "settings.input.vibrationStrength"
+            effect: instant
+            min: 0
+            max: 100
+            step: 5
+            unit: "%"
+            defaultValue: 60
+
+          - id: input-stick-deadzone
+            label: "摇杆死区"
+            description: "缓解漂移问题并提升微调稳定性。"
+            control: slider
+            binding: "settings.input.deadzone"
+            effect: instant
+            min: 0
+            max: 30
+            step: 1
+            unit: "%"
+            defaultValue: 10
+
+      - id: keybind
+        label: "按键设置"
+        items:
+          - id: keybind-move-up
+            label: "向上移动"
+            description: "角色向上移动按键（仅UI预览）。"
+            control: keybind
+            binding: "settings.keybind.moveUp"
+            effect: confirm
+            defaultValue: "W"
+
+          - id: keybind-move-left
+            label: "向左移动"
+            description: "角色向左移动按键（仅UI预览）。"
+            control: keybind
+            binding: "settings.keybind.moveLeft"
+            effect: confirm
+            defaultValue: "A"
+
+          - id: keybind-move-down
+            label: "向下移动"
+            description: "角色向下移动按键（仅UI预览）。"
+            control: keybind
+            binding: "settings.keybind.moveDown"
+            effect: confirm
+            defaultValue: "S"
+
+          - id: keybind-move-right
+            label: "向右移动"
+            description: "角色向右移动按键（仅UI预览）。"
+            control: keybind
+            binding: "settings.keybind.moveRight"
+            effect: confirm
+            defaultValue: "D"
+
+          - id: keybind-back-pause
+            label: "后退/暂停"
+            description: "后退或暂停操作按键（仅UI预览）。"
+            control: keybind
+            binding: "settings.keybind.backPause"
+            effect: confirm
+            defaultValue: "ESC"
+
+          - id: keybind-interact
+            label: "交互"
+            description: "交互操作按键（仅UI预览）。"
+            control: keybind
+            binding: "settings.keybind.interact"
+            effect: confirm
+            defaultValue: "F"
+
+      - id: gameplay
+        label: "玩法"
+        items:
+          - id: gameplay-difficulty
+            label: "难度模式"
+            description: "影响敌人强度、资源产出与失败惩罚。"
+            control: dropdown
+            binding: "settings.gameplay.difficulty"
+            effect: confirm
+            defaultValue: "normal"
+            options:
+              - label: "休闲"
+                value: "casual"
+              - label: "标准"
+                value: "normal"
+              - label: "硬核"
+                value: "hardcore"
+
+          - id: gameplay-auto-save
+            label: "自动存档频率"
+            description: "降低异常退出导致的进度损失。"
+            control: dropdown
+            binding: "settings.gameplay.autoSaveMinutes"
+            effect: confirm
+            defaultValue: "10"
+            options:
+              - label: "5 分钟"
+                value: "5"
+              - label: "10 分钟"
+                value: "10"
+              - label: "15 分钟"
+                value: "15"
+              - label: "30 分钟"
+                value: "30"
+
+          - id: gameplay-guide
+            label: "新手引导"
+            description: "控制教程密度与系统提示频率。"
+            control: dropdown
+            binding: "settings.gameplay.tutorial"
+            effect: confirm
+            defaultValue: "full"
+            options:
+              - label: "完整"
+                value: "full"
+              - label: "精简"
+                value: "light"
+              - label: "关闭"
+                value: "off"
+
+          - id: gameplay-battle-assist
+            label: "战斗辅助"
+            description: "自动锁定、受击慢放、技能提示等辅助。"
+            control: toggle
+            binding: "settings.gameplay.battleAssist"
+            effect: instant
+            defaultValue: true
+
+          - id: gameplay-farm-assist
+            label: "农务辅助"
+            description: "播种提示、浇水提醒、收获高亮。"
+            control: toggle
+            binding: "settings.gameplay.farmAssist"
+            effect: instant
+            defaultValue: true
+
+          - id: gameplay-offline-reward
+            label: "离线收益"
+            description: "离线期间累计作物成长与基础产出。"
+            control: toggle
+            binding: "settings.gameplay.offlineReward"
+            effect: confirm
+            defaultValue: true
+
+      - id: ui
+        label: "界面与信息显示"
+        items:
+          - id: ui-scale
+            label: "UI 缩放"
+            description: "适配不同分辨率与观看距离。"
+            control: slider
+            binding: "settings.ui.scale"
+            effect: instant
+            min: 80
+            max: 130
+            step: 5
+            unit: "%"
+            defaultValue: 100
+
+          - id: ui-font-size
+            label: "字体大小"
+            description: "调整界面字体可读性。"
+            control: dropdown
+            binding: "settings.ui.fontSize"
+            effect: instant
+            defaultValue: "medium"
+            options:
+              - label: "小"
+                value: "small"
+              - label: "中"
+                value: "medium"
+              - label: "大"
+                value: "large"
+              - label: "特大"
+                value: "xlarge"
+
+          - id: ui-hud-mode
+            label: "HUD 显示模式"
+            description: "控制常驻信息密度。"
+            control: dropdown
+            binding: "settings.ui.hudMode"
+            effect: instant
+            defaultValue: "full"
+            options:
+              - label: "全开"
+                value: "full"
+              - label: "简洁"
+                value: "compact"
+              - label: "自定义"
+                value: "custom"
+
+          - id: ui-floating-text
+            label: "浮动信息"
+            description: "显示伤害数字与掉落提示。"
+            control: toggle
+            binding: "settings.ui.floatingInfo"
+            effect: instant
+            defaultValue: true
+
+          - id: ui-dialog-speed
+            label: "对话播放速度"
+            description: "调整剧情阅读节奏。"
+            control: slider
+            binding: "settings.ui.dialogSpeed"
+            effect: instant
+            min: 50
+            max: 200
+            step: 10
+            unit: "%"
+            defaultValue: 100
+
+      - id: accessibility
+        label: "无障碍"
+        items:
+          - id: accessibility-colorblind
+            label: "色盲模式"
+            description: "优化稀有度和状态色识别。"
+            control: dropdown
+            binding: "settings.accessibility.colorblindMode"
+            effect: instant
+            defaultValue: "off"
+            options:
+              - label: "关闭"
+                value: "off"
+              - label: "红弱"
+                value: "protanopia"
+              - label: "绿弱"
+                value: "deuteranopia"
+              - label: "蓝弱"
+                value: "tritanopia"
+
+          - id: accessibility-high-contrast
+            label: "高对比 UI"
+            description: "提升控件边界与文本可见性。"
+            control: toggle
+            binding: "settings.accessibility.highContrast"
+            effect: instant
+            defaultValue: false
+
+          - id: accessibility-subtitle
+            label: "字幕"
+            description: "将语音内容同步显示为文本。"
+            control: toggle
+            binding: "settings.accessibility.subtitle"
+            effect: instant
+            defaultValue: true
+
+          - id: accessibility-subtitle-bg
+            label: "字幕背景透明度"
+            description: "调节字幕背景可见度。"
+            control: slider
+            binding: "settings.accessibility.subtitleBgOpacity"
+            effect: instant
+            min: 0
+            max: 100
+            step: 5
+            unit: "%"
+            defaultValue: 65
+
+          - id: accessibility-reduce-flicker
+            label: "减少闪烁特效"
+            description: "降低高频闪烁对视觉敏感玩家的影响。"
+            control: toggle
+            binding: "settings.accessibility.reduceFlicker"
+            effect: instant
+            defaultValue: false
+
+      - id: social
+        label: "联机与社交"
+        items:
+          - id: social-region
+            label: "匹配区域"
+            description: "平衡网络延迟与匹配成功率。"
+            control: dropdown
+            binding: "settings.social.region"
+            effect: confirm
+            defaultValue: "auto"
+            options:
+              - label: "自动"
+                value: "auto"
+              - label: "华东"
+                value: "cn-east"
+              - label: "华南"
+                value: "cn-south"
+              - label: "亚太"
+                value: "apac"
+
+          - id: social-voice
+            label: "语音聊天"
+            description: "开启后可使用队伍语音。"
+            control: toggle
+            binding: "settings.social.voice"
+            effect: confirm
+            defaultValue: false
+
+          - id: social-chat-filter
+            label: "文字过滤"
+            description: "过滤不当文本内容。"
+            control: dropdown
+            binding: "settings.social.chatFilter"
+            effect: confirm
+            defaultValue: "standard"
+            options:
+              - label: "严格"
+                value: "strict"
+              - label: "标准"
+                value: "standard"
+              - label: "关闭"
+                value: "off"
+
+          - id: social-invite-scope
+            label: "邀请权限"
+            description: "控制谁可以向你发起邀请。"
+            control: dropdown
+            binding: "settings.social.inviteScope"
+            effect: confirm
+            defaultValue: "friend"
+            options:
+              - label: "好友"
+                value: "friend"
+              - label: "公会"
+                value: "guild"
+              - label: "所有人"
+                value: "all"
+              - label: "关闭"
+                value: "off"
+
+      - id: save
+        label: "存档与数据"
+        items:
+          - id: save-cloud-sync
+            label: "云存档同步"
+            description: "保证多设备进度一致性。"
+            control: toggle
+            binding: "settings.save.cloudSync"
+            effect: confirm
+            defaultValue: true
+
+          - id: save-backup-policy
+            label: "存档备份策略"
+            description: "在关键节点保留可回滚版本。"
+            control: dropdown
+            binding: "settings.save.backupPolicy"
+            effect: confirm
+            defaultValue: "auto"
+            options:
+              - label: "自动"
+                value: "auto"
+              - label: "手动"
+                value: "manual"
+
+          - id: save-retain-count
+            label: "旧备份保留数量"
+            description: "平衡磁盘占用与回滚深度。"
+            control: stepper
+            binding: "settings.save.retainCount"
+            effect: confirm
+            min: 1
+            max: 10
+            step: 1
+            defaultValue: 5
+
+          - id: save-import-export
+            label: "本地导入导出"
+            description: "用于迁移设备与问题排查。"
+            control: toggle
+            binding: "settings.save.importExport"
+            effect: confirm
+            defaultValue: true
