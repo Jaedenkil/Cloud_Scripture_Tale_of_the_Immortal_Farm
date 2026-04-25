@@ -8,9 +8,11 @@
     "dev:vite": "vite",
     "dev:electron": "electron .",
     "dev:resource-index": "node scripts/dev/build-resource-index.mjs",
+    "setup:hooks": "node scripts/dev/setup-git-hooks.mjs",
     "test": "vitest run",
     "build": "vite build && electron-builder",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "node scripts/dev/setup-git-hooks.mjs"
   },
   "dependencies": {
     "@esotericsoftware/spine-canvas": "^4.2.110",
