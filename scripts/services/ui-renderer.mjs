@@ -1,11 +1,24 @@
 import { RendererCode } from "../utils/app-codes.mjs";
 import { assert, ensureObject, safeGet } from "../utils/flow-common.mjs";
 
+const DOMAIN_ORDER = Object.freeze(["world", "hud", "panel", "system"]);
+const DOMAIN_BASE_DEPTH = Object.freeze({
+  world: 0,
+  hud: 1000,
+  panel: 2000,
+  system: 3000
+});
+
+const LAYER_CAPTURE_INPUT_POLICIES = new Set(["capture", "block"]);
+
 /**
  * @typedef {object} UIRenderSnapshot
  * @property {boolean} mounted
  * @property {string|null} currentPageId
  * @property {number} renderedComponentCount
+ * @property {boolean} inputBlocked
+ * @property {Record<string, string|null>} activePageByDomain
+ * @property {string[]} overlayPageIds
  */
 
 /**
@@ -23,6 +36,12 @@ export class UIRenderer {
 
     this.currentPageId = null;
     this.renderedComponentCount = 0;
+    this.inputBlocked = false;
+
+    this.domainRootMap = new Map();
+    this.domainDefaultPointerEvents = new Map();
+    this.activeSceneByDomain = new Map();
+    this.overlaySceneByPageId = new Map();
   }
 
   /**
@@ -38,6 +57,7 @@ export class UIRenderer {
     });
 
     this.rootElement = rootElement;
+    this.#ensureDomainRoots();
   }
 
   /**
@@ -64,16 +84,172 @@ export class UIRenderer {
 
     const snapshot = ensureObject(sceneSnapshot, "sceneSnapshot");
     const scene = ensureObject(safeGet(snapshot, "scene", null), "sceneSnapshot.scene");
-
     const page = ensureObject(safeGet(scene, "page", null), "scene.page");
+    const sceneDomain = safeGet(page, "domain", null);
+
+    assert(typeof sceneDomain === "string" && DOMAIN_ORDER.includes(sceneDomain), RendererCode.INVALID_SCENE, "scene.page.domain is invalid", {
+      sceneDomain,
+      pageId: safeGet(page, "id", null)
+    });
+
+    this.activeSceneByDomain.set(sceneDomain, snapshot);
+    this.currentPageId = safeGet(page, "id", null);
+    this.#renderAllScenes();
+  }
+
+  /**
+   * Show an overlay/popup scene without clearing base domain scenes.
+   *
+   * @param {import('./scene-service.mjs').SceneRenderSnapshot} sceneSnapshot
+   */
+  showOverlay(sceneSnapshot) {
+    this.#assertDomAvailable();
+    this.#assertMounted();
+
+    const snapshot = ensureObject(sceneSnapshot, "sceneSnapshot");
+    const scene = ensureObject(safeGet(snapshot, "scene", null), "sceneSnapshot.scene");
+    const page = ensureObject(safeGet(scene, "page", null), "scene.page");
+    const pageId = safeGet(page, "id", null);
+
+    assert(typeof pageId === "string" && pageId.trim() !== "", RendererCode.INVALID_SCENE, "overlay scene page.id is required");
+
+    this.overlaySceneByPageId.set(pageId, snapshot);
+    this.#renderAllScenes();
+  }
+
+  /**
+   * Hide one overlay scene by page id.
+   *
+   * @param {string} pageId
+   * @returns {boolean}
+   */
+  hideOverlay(pageId) {
+    assert(typeof pageId === "string" && pageId.trim() !== "", RendererCode.INVALID_SCENE, "overlay pageId is required", {
+      pageId
+    });
+
+    const removed = this.overlaySceneByPageId.delete(pageId);
+    if (removed) {
+      this.#renderAllScenes();
+    }
+
+    return removed;
+  }
+
+  /**
+   * Remove active scene from a domain.
+   *
+   * @param {string} domain
+   * @returns {boolean}
+   */
+  removeDomainScene(domain) {
+    assert(typeof domain === "string" && DOMAIN_ORDER.includes(domain), RendererCode.INVALID_SCENE, "invalid domain", {
+      domain
+    });
+
+    const removed = this.activeSceneByDomain.delete(domain);
+    if (removed) {
+      this.#renderAllScenes();
+    }
+
+    return removed;
+  }
+
+  /**
+   * Enable or disable input for world/hud/panel domains.
+   *
+   * @param {boolean} enabled
+   */
+  setInputBlocker(enabled) {
+    this.inputBlocked = Boolean(enabled);
+    this.#applyDomainInputState();
+  }
+
+  /**
+   * Hit-test domain priority from highest to lowest.
+   *
+   * @returns {string[]}
+   */
+  hitTestWithPriority() {
+    return ["system", "panel", "hud", "world"];
+  }
+
+  /**
+   * Return active page id for each domain.
+   *
+   * @returns {Record<string, string|null>}
+   */
+  getActivePageByDomain() {
+    const result = {
+      world: null,
+      hud: null,
+      panel: null,
+      system: null
+    };
+
+    for (const domain of DOMAIN_ORDER) {
+      const snapshot = this.activeSceneByDomain.get(domain);
+      if (snapshot) {
+        result[domain] = safeGet(snapshot, "pageId", null);
+      }
+    }
+
+    return result;
+  }
+
+  #renderAllScenes() {
+    this.#ensureDomainRoots();
+
+    this.renderedComponentCount = 0;
+
+    for (const domain of DOMAIN_ORDER) {
+      const domainRoot = this.domainRootMap.get(domain);
+      if (domainRoot) {
+        domainRoot.replaceChildren();
+        domainRoot.style.pointerEvents = "none";
+        this.domainDefaultPointerEvents.set(domain, "none");
+      }
+    }
+
+    for (const domain of DOMAIN_ORDER) {
+      const sceneSnapshot = this.activeSceneByDomain.get(domain);
+      if (sceneSnapshot) {
+        this.#renderSnapshotIntoDomain(sceneSnapshot, domain);
+      }
+    }
+
+    const overlays = [...this.overlaySceneByPageId.values()].sort((left, right) => {
+      const leftDomain = safeGet(left, "scene.page.domain", "system");
+      const rightDomain = safeGet(right, "scene.page.domain", "system");
+      const leftDepth = DOMAIN_BASE_DEPTH[leftDomain] ?? DOMAIN_BASE_DEPTH.system;
+      const rightDepth = DOMAIN_BASE_DEPTH[rightDomain] ?? DOMAIN_BASE_DEPTH.system;
+      return leftDepth - rightDepth;
+    });
+
+    for (const overlaySnapshot of overlays) {
+      const overlayDomain = safeGet(overlaySnapshot, "scene.page.domain", "system");
+      this.#renderSnapshotIntoDomain(overlaySnapshot, overlayDomain);
+    }
+
+    this.#applyDomainInputState();
+  }
+
+  #renderSnapshotIntoDomain(sceneSnapshot, domain) {
+    const snapshot = ensureObject(sceneSnapshot, "sceneSnapshot");
+    const scene = ensureObject(safeGet(snapshot, "scene", null), "sceneSnapshot.scene");
+
     const layers = safeGet(scene, "layers", []);
     const components = safeGet(scene, "components", []);
     const themeTokens = ensureObject(safeGet(snapshot, "themeTokens", {}), "sceneSnapshot.themeTokens");
+    const pageId = safeGet(snapshot, "pageId", null);
 
     assert(Array.isArray(layers), RendererCode.INVALID_SCENE, "scene.layers must be an array");
     assert(Array.isArray(components), RendererCode.INVALID_SCENE, "scene.components must be an array");
 
-    this.clear();
+    const domainRoot = this.domainRootMap.get(domain);
+    assert(domainRoot, RendererCode.ROOT_NOT_MOUNTED, "domain root not mounted", { domain });
+    domainRoot.style.pointerEvents = "auto";
+    this.domainDefaultPointerEvents.set(domain, "auto");
 
     const layerMap = new Map();
     const sortedLayers = [...layers].sort((a, b) => (a.depth || 0) - (b.depth || 0));
@@ -85,14 +261,16 @@ export class UIRenderer {
         layer
       });
 
+      const inputPolicy = safeGet(layer, "inputPolicy", "passthrough");
+
       const layerElement = document.createElement("div");
       layerElement.dataset.layerId = layerId;
       layerElement.style.position = "absolute";
       layerElement.style.inset = "0";
       layerElement.style.zIndex = String(safeGet(layer, "depth", 0));
-      layerElement.style.pointerEvents = "none";
+      layerElement.style.pointerEvents = this.#resolveLayerPointerEvents(inputPolicy);
 
-      this.rootElement.appendChild(layerElement);
+      domainRoot.appendChild(layerElement);
       layerMap.set(layerId, layerElement);
     }
 
@@ -105,13 +283,11 @@ export class UIRenderer {
         layerId
       });
 
-      const componentElement = this.renderComponent(component, themeTokens);
+      const componentElement = this.renderComponent(component, themeTokens, pageId);
       const targetLayerElement = layerMap.get(layerId);
       targetLayerElement.appendChild(componentElement);
       this.renderedComponentCount += 1;
     }
-
-    this.currentPageId = safeGet(page, "id", null);
   }
 
   /**
@@ -119,9 +295,10 @@ export class UIRenderer {
    *
    * @param {Record<string, any>} component
    * @param {Record<string, any>} themeTokens
+   * @param {string|null} pageId
    * @returns {HTMLElement}
    */
-  renderComponent(component, themeTokens) {
+  renderComponent(component, themeTokens, pageId = this.currentPageId) {
     const type = safeGet(component, "type", null);
 
     if (type === "rectangle") {
@@ -133,7 +310,7 @@ export class UIRenderer {
     }
 
     if (type === "button") {
-      return this.renderButton(component, themeTokens);
+      return this.renderButton(component, themeTokens, pageId);
     }
 
     assert(false, RendererCode.UNSUPPORTED_COMPONENT_TYPE, "unsupported component type", {
@@ -179,9 +356,10 @@ export class UIRenderer {
    *
    * @param {Record<string, any>} component
    * @param {Record<string, any>} themeTokens
+   * @param {string|null} pageId
    * @returns {HTMLElement}
    */
-  renderButton(component, themeTokens) {
+  renderButton(component, themeTokens, pageId = this.currentPageId) {
     const actionId = safeGet(component, "actionId", null);
     assert(typeof actionId === "string" && actionId.trim() !== "", RendererCode.INVALID_COMPONENT, "button.actionId is required", {
       componentId: component.id
@@ -207,7 +385,7 @@ export class UIRenderer {
       this.actionDispatcher(actionId, {
         actionId,
         componentId: safeGet(component, "id", null),
-        pageId: this.currentPageId,
+        pageId,
         timestamp: Date.now()
       });
     });
@@ -221,9 +399,9 @@ export class UIRenderer {
   clear() {
     this.#assertMounted();
 
-    while (this.rootElement.firstChild) {
-      this.rootElement.removeChild(this.rootElement.firstChild);
-    }
+    this.activeSceneByDomain.clear();
+    this.overlaySceneByPageId.clear();
+    this.#renderAllScenes();
 
     this.currentPageId = null;
     this.renderedComponentCount = 0;
@@ -238,7 +416,10 @@ export class UIRenderer {
     return {
       mounted: Boolean(this.rootElement),
       currentPageId: this.currentPageId,
-      renderedComponentCount: this.renderedComponentCount
+      renderedComponentCount: this.renderedComponentCount,
+      inputBlocked: this.inputBlocked,
+      activePageByDomain: this.getActivePageByDomain(),
+      overlayPageIds: [...this.overlaySceneByPageId.keys()]
     };
   }
 
@@ -248,6 +429,64 @@ export class UIRenderer {
 
   #assertDomAvailable() {
     assert(typeof document !== "undefined", RendererCode.DOM_UNAVAILABLE, "document is unavailable in current runtime");
+  }
+
+  #ensureDomainRoots() {
+    this.#assertMounted();
+
+    if (this.domainRootMap.size === DOMAIN_ORDER.length) {
+      return;
+    }
+
+    this.domainRootMap.clear();
+    this.rootElement.replaceChildren();
+
+    for (const domain of DOMAIN_ORDER) {
+      const domainRoot = document.createElement("div");
+      domainRoot.dataset.domainId = domain;
+      domainRoot.style.position = "absolute";
+      domainRoot.style.inset = "0";
+      domainRoot.style.zIndex = String(DOMAIN_BASE_DEPTH[domain]);
+      domainRoot.style.pointerEvents = "none";
+
+      this.rootElement.appendChild(domainRoot);
+      this.domainRootMap.set(domain, domainRoot);
+      this.domainDefaultPointerEvents.set(domain, "none");
+    }
+  }
+
+  #applyDomainInputState() {
+    if (this.domainRootMap.size === 0) {
+      return;
+    }
+
+    for (const domain of DOMAIN_ORDER) {
+      const domainRoot = this.domainRootMap.get(domain);
+      if (!domainRoot) {
+        continue;
+      }
+
+      if (!this.inputBlocked) {
+        domainRoot.style.pointerEvents = this.domainDefaultPointerEvents.get(domain) || "none";
+        continue;
+      }
+
+      if (domain === "system") {
+        domainRoot.style.pointerEvents = "auto";
+      } else {
+        domainRoot.style.pointerEvents = "none";
+      }
+    }
+  }
+
+  #resolveLayerPointerEvents(inputPolicy) {
+    const normalizedPolicy = typeof inputPolicy === "string"
+      ? inputPolicy
+      : "passthrough";
+
+    return LAYER_CAPTURE_INPUT_POLICIES.has(normalizedPolicy)
+      ? "auto"
+      : "none";
   }
 
   #applyBaseStyle(element, component, themeTokens) {
@@ -265,6 +504,7 @@ export class UIRenderer {
     };
 
     const styleMap = {
+      position: "position",
       width: "width",
       height: "height",
       background: "background",

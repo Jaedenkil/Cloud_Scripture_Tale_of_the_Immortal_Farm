@@ -90,7 +90,7 @@ export class AppBootstrap {
       await this.registryService.loadRegistry(this.registryPath);
       await this.flowService.loadFlow(this.flowPath);
       await this.sceneService.loadTheme(this.themePath);
-      this.flowValidator.assertValid();
+      await this.flowValidator.assertValid();
 
       const mountPoint = this.rootElement || this.#getDefaultRootElement();
       this.renderer.mount(mountPoint);

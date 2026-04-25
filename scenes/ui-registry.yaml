@@ -33,5 +33,42 @@ pages:
     tags:
       - settings
 
+  - id: world-base-page
+    domain: world
+    scenePath: scenes/world/base.yaml
+    enabled: true
+    preload: true
+    tags:
+      - world
+      - base
+
+  - id: hud-status-page
+    domain: hud
+    scenePath: scenes/hud/status.yaml
+    enabled: true
+    preload: true
+    tags:
+      - hud
+      - status
+
+  - id: system-blocker-page
+    domain: system
+    scenePath: scenes/system/blocker.yaml
+    enabled: true
+    preload: true
+    tags:
+      - system
+      - blocker
+
+  - id: exit-confirm-page
+    domain: system
+    scenePath: scenes/system/exit-confirm.yaml
+    enabled: true
+    preload: true
+    tags:
+      - system
+      - confirm
+      - modal
+
 aliases:
   start-page: home-page

@@ -6,6 +6,8 @@ import { assert, normalizePageId, safeGet } from "../utils/flow-common.mjs";
  * @property {boolean} initialized
  * @property {boolean} started
  * @property {string} actionChannel
+ * @property {string} systemBlockChannel
+ * @property {string} systemUnblockChannel
  * @property {string|null} currentNodeId
  * @property {string|null} currentPageId
  * @property {string[]} history
@@ -25,6 +27,8 @@ export class FlowRuntime {
    * @param {import('./action-bus.mjs').ActionBus} options.actionBus
    * @param {{execute:(actionId:string, context?:any)=>Promise<{handled:boolean,nextNodeId:string|null}>}} [options.actionExecutor]
    * @param {string} [options.actionChannel="ui.action"]
+  * @param {string} [options.systemBlockChannel="system.blockInput"]
+  * @param {string} [options.systemUnblockChannel="system.unblockInput"]
    */
   constructor(options = {}) {
     this.flowService = options.flowService || null;
@@ -33,6 +37,8 @@ export class FlowRuntime {
     this.actionBus = options.actionBus || null;
     this.actionExecutor = options.actionExecutor || null;
     this.actionChannel = options.actionChannel || "ui.action";
+    this.systemBlockChannel = options.systemBlockChannel || "system.blockInput";
+    this.systemUnblockChannel = options.systemUnblockChannel || "system.unblockInput";
 
     this.initialized = false;
     this.started = false;
@@ -41,6 +47,8 @@ export class FlowRuntime {
     this.history = [];
     this.timerIds = new Set();
     this.offAction = null;
+    this.offSystemBlock = null;
+    this.offSystemUnblock = null;
     this.lastTransition = null;
   }
 
@@ -67,7 +75,45 @@ export class FlowRuntime {
       void this.handleAction(actionId, payload);
     });
 
+    this.offSystemBlock = this.actionBus.on(this.systemBlockChannel, () => {
+      if (typeof this.renderer.setInputBlocker === "function") {
+        this.renderer.setInputBlocker(true);
+      }
+    });
+
+    this.offSystemUnblock = this.actionBus.on(this.systemUnblockChannel, () => {
+      if (typeof this.renderer.setInputBlocker === "function") {
+        this.renderer.setInputBlocker(false);
+      }
+    });
+
     this.initialized = true;
+  }
+
+  /**
+   * Emit global block-input event.
+   *
+   * @param {Record<string, any>} [payload]
+   */
+  blockInput(payload = {}) {
+    this.actionBus.emit(this.systemBlockChannel, {
+      source: "flow-runtime",
+      timestamp: Date.now(),
+      ...payload
+    });
+  }
+
+  /**
+   * Emit global unblock-input event.
+   *
+   * @param {Record<string, any>} [payload]
+   */
+  unblockInput(payload = {}) {
+    this.actionBus.emit(this.systemUnblockChannel, {
+      source: "flow-runtime",
+      timestamp: Date.now(),
+      ...payload
+    });
   }
 
   /**
@@ -102,6 +148,10 @@ export class FlowRuntime {
     });
 
     const previousNodeId = this.currentNodeId;
+    const previousNodeDomain = previousNodeId
+      ? safeGet(this.flowService.getNode(previousNodeId), "domain", null)
+      : null;
+
     if (previousNodeId && previousNodeId !== normalizedNodeId) {
       this.history.push(previousNodeId);
     }
@@ -109,7 +159,26 @@ export class FlowRuntime {
     this.clearTimers();
 
     const sceneSnapshot = await this.sceneService.loadSceneByNodeId(normalizedNodeId);
+    const targetDomain = safeGet(sceneSnapshot, "scene.page.domain", null);
+
+    if (previousNodeDomain === "system" && targetDomain !== "system" && typeof this.renderer.removeDomainScene === "function") {
+      this.renderer.removeDomainScene("system");
+      this.unblockInput({
+        reason: "leave-system-domain",
+        fromNodeId: previousNodeId,
+        toNodeId: normalizedNodeId
+      });
+    }
+
     this.renderer.renderScene(sceneSnapshot);
+
+    if (targetDomain === "system") {
+      this.blockInput({
+        reason: "enter-system-domain",
+        fromNodeId: previousNodeId,
+        toNodeId: normalizedNodeId
+      });
+    }
 
     this.currentNodeId = normalizedNodeId;
     this.currentPageId = sceneSnapshot.pageId;
@@ -123,6 +192,52 @@ export class FlowRuntime {
     };
 
     this.scheduleNodeTimers(normalizedNodeId);
+  }
+
+  /**
+   * Open system modal page without changing current node.
+   *
+   * @param {string} pageIdOrAlias
+   */
+  async openSystemModal(pageIdOrAlias) {
+    this.#assertStarted();
+
+    const sceneSnapshot = await this.sceneService.loadSceneByPageId(pageIdOrAlias);
+    const domain = safeGet(sceneSnapshot, "scene.page.domain", null);
+
+    assert(domain === "system", RuntimeCode.INVALID_ACTION, "openSystemModal only supports system domain scene", {
+      pageIdOrAlias,
+      domain
+    });
+
+    if (typeof this.renderer.showOverlay === "function") {
+      this.renderer.showOverlay(sceneSnapshot);
+    } else {
+      this.renderer.renderScene(sceneSnapshot);
+    }
+
+    this.blockInput({
+      reason: "open-system-modal",
+      pageId: sceneSnapshot.pageId
+    });
+  }
+
+  /**
+   * Close one system modal page.
+   *
+   * @param {string} pageId
+   */
+  closeSystemModal(pageId) {
+    this.#assertStarted();
+
+    if (typeof this.renderer.hideOverlay === "function") {
+      this.renderer.hideOverlay(pageId);
+    }
+
+    this.unblockInput({
+      reason: "close-system-modal",
+      pageId
+    });
   }
 
   /**
@@ -255,6 +370,16 @@ export class FlowRuntime {
       this.offAction = null;
     }
 
+    if (this.offSystemBlock) {
+      this.offSystemBlock();
+      this.offSystemBlock = null;
+    }
+
+    if (this.offSystemUnblock) {
+      this.offSystemUnblock();
+      this.offSystemUnblock = null;
+    }
+
     this.initialized = false;
     this.started = false;
     this.currentNodeId = null;
@@ -273,6 +398,8 @@ export class FlowRuntime {
       initialized: this.initialized,
       started: this.started,
       actionChannel: this.actionChannel,
+      systemBlockChannel: this.systemBlockChannel,
+      systemUnblockChannel: this.systemUnblockChannel,
       currentNodeId: this.currentNodeId,
       currentPageId: this.currentPageId,
       history: [...this.history],

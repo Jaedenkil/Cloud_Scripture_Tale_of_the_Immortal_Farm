@@ -11,7 +11,7 @@ async function boot () {
     });
 
     await app.init();
-    window.__appBootstrap = app;
+    globalThis.__appBootstrap = app;
   } catch (error) {
     console.error("[boot] failed:", error);
     document.body.innerHTML =

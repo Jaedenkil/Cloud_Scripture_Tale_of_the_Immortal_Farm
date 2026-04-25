@@ -208,6 +208,13 @@ function registerIpcHandlers() {
       };
     }
   });
+
+  ipcMain.handle("app:request-quit", async () => {
+    app.quit();
+    return {
+      ok: true
+    };
+  });
 }
 
 function createWindow() {

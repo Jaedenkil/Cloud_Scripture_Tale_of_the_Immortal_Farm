@@ -10,6 +10,7 @@ layers:
     depth: 2000
   - id: panel.content
     depth: 2010
+    inputPolicy: capture
 
 components:
   - id: home-bg
@@ -28,8 +29,10 @@ components:
       color: "$colors.textPrimary"
       fontSize: 56
       width: "100%"
+      left: 0
+      right: 0
+      top: 92
       textAlign: "center"
-      marginTop: 120
 
   - id: btn-start
     type: button
@@ -37,13 +40,16 @@ components:
     text: "开始"
     actionId: "startGame"
     style:
-      background: "$colors.btnSecondaryBg"
+      background: "$colors.btnPrimaryBg"
       borderColor: "$colors.panelBorder"
-      color: "$colors.btnSecondaryText"
+      color: "$colors.btnPrimaryText"
       height: "$components.btnHeightNormal"
       width: 280
-      marginTop: 80
-      alignSelf: "center"
+      top: 232
+      left: 0
+      right: 0
+      marginLeft: "auto"
+      marginRight: "auto"
 
   - id: btn-settings
     type: button
@@ -56,8 +62,11 @@ components:
       color: "$colors.btnSecondaryText"
       height: "$components.btnHeightNormal"
       width: 280
-      marginTop: 124
-      alignSelf: "center"
+      top: 284
+      left: 0
+      right: 0
+      marginLeft: "auto"
+      marginRight: "auto"
 
   - id: btn-dev
     type: button
@@ -70,19 +79,25 @@ components:
       color: "$colors.btnSecondaryText"
       height: "$components.btnHeightNormal"
       width: 280
-      marginTop: 168
-      alignSelf: "center"
+      top: 336
+      left: 0
+      right: 0
+      marginLeft: "auto"
+      marginRight: "auto"
 
   - id: btn-quit
     type: button
     layer: panel.content
     text: "退出"
-    actionId: "quit"
+    actionId: "ui.exit.request"
     style:
       background: "$colors.btnSecondaryBg"
       borderColor: "$colors.panelBorder"
       color: "$colors.btnSecondaryText"
       height: "$components.btnHeightNormal"
       width: 280
-      marginTop: 212
-      alignSelf: "center"
+      top: 388
+      left: 0
+      right: 0
+      marginLeft: "auto"
+      marginRight: "auto"

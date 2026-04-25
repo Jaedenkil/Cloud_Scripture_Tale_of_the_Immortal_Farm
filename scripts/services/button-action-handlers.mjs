@@ -15,14 +15,19 @@ const actionToNodeMap = Object.freeze({
   back: "home"
 });
 
-function createNavigationHandler(expectedNodeId) {
-  return function navigationHandler({ actionId, payload }) {
-    console.info("[buttonActionHandlers] executed", {
-      actionId,
-      payload,
-      nextNodeId: expectedNodeId
-    });
+async function requestHostQuit() {
+  if (typeof globalThis !== "undefined" && globalThis.appApi && typeof globalThis.appApi.requestQuit === "function") {
+    await globalThis.appApi.requestQuit();
+    return;
+  }
 
+  if (typeof globalThis !== "undefined" && globalThis.window && typeof globalThis.window.close === "function") {
+    globalThis.window.close();
+  }
+}
+
+function createNavigationHandler(expectedNodeId) {
+  return function navigationHandler() {
     return {
       handled: true,
       nextNodeId: expectedNodeId
@@ -34,24 +39,29 @@ export const buttonActionHandlers = Object.freeze({
   startgame: createNavigationHandler(actionToNodeMap.startgame),
   settings: createNavigationHandler(actionToNodeMap.settings),
   dev: createNavigationHandler(actionToNodeMap.dev),
-  quit: ({ actionId, payload }) => {
-    const canConfirm = typeof window !== "undefined" && typeof window.confirm === "function";
-    const shouldQuit = canConfirm
-      ? window.confirm("确定要退出游戏吗？")
-      : false;
-
-    console.info("[buttonActionHandlers] executed", {
-      actionId,
-      payload,
-      shouldQuit
-    });
-
-    if (shouldQuit && typeof window !== "undefined" && typeof window.close === "function") {
-      window.close();
-    }
+  quit: () => {
+    return {
+      handled: false,
+      nextNodeId: null
+    };
+  },
+  "ui.exit.request": () => {
+    return {
+      handled: false,
+      nextNodeId: null
+    };
+  },
+  "ui.exit.cancel": () => {
+    return {
+      handled: false,
+      nextNodeId: null
+    };
+  },
+  "ui.exit.confirm": async () => {
+    await requestHostQuit();
 
     return {
-      handled: true,
+      handled: false,
       nextNodeId: null
     };
   },

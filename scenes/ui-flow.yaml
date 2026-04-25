@@ -35,7 +35,12 @@ nodes:
       title: Home Page
       tags:
         - menu
-    transitions: []
+    transitions:
+      - id: home-to-exit-confirm
+        trigger: uiAction
+        fromActionId: ui.exit.request
+        to: exit-confirm
+        transition: fadeFast
     fallback: home
 
   - id: settings
@@ -46,6 +51,27 @@ nodes:
       tags:
         - settings
     transitions: []
+    fallback: home
+
+  - id: exit-confirm
+    pageId: exit-confirm-page
+    domain: system
+    meta:
+      title: Exit Confirm
+      tags:
+        - modal
+        - exit
+    transitions:
+      - id: exit-confirm-cancel
+        trigger: uiAction
+        fromActionId: ui.exit.cancel
+        to: home
+        transition: fadeFast
+      - id: exit-confirm-confirm
+        trigger: uiAction
+        fromActionId: ui.exit.confirm
+        to: home
+        transition: fadeFast
     fallback: home
 
 guards: {}

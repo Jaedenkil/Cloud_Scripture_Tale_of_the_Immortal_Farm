@@ -1,0 +1,89 @@
+page:
+  id: exit-confirm-page
+  name: Exit Confirm
+  type: popup
+  domain: system
+  depthBase: 3000
+
+layers:
+  - id: system.blocker
+    depth: 3000
+    inputPolicy: block
+  - id: system.alert
+    depth: 3010
+    inputPolicy: capture
+
+components:
+  - id: exit-blocker
+    type: rectangle
+    layer: system.blocker
+    style:
+      width: "100%"
+      height: "100%"
+      background: "$colors.panelOverlay"
+
+  - id: exit-modal
+    type: rectangle
+    layer: system.alert
+    style:
+      width: "$spacing.modalWidthMedium"
+      height: 260
+      background: "$colors.panelBgSecondary"
+      borderColor: "$colors.panelBorder"
+      borderWidth: "$components.borderNormal"
+      left: "calc(50% - 240px)"
+      top: "calc(50% - 130px)"
+
+  - id: exit-title
+    type: title
+    layer: system.alert
+    text: "确认退出"
+    style:
+      width: "$spacing.modalWidthMedium"
+      left: "calc(50% - 240px)"
+      top: "calc(50% - 90px)"
+      textAlign: "center"
+      color: "$colors.textPrimary"
+      fontSize: "$typography.h2"
+
+  - id: exit-desc
+    type: title
+    layer: system.alert
+    text: "退出后将返回桌面，是否继续？"
+    style:
+      width: "$spacing.modalWidthMedium"
+      left: "calc(50% - 240px)"
+      top: "calc(50% - 30px)"
+      textAlign: "center"
+      color: "$colors.textSecondary"
+      fontSize: "$typography.body"
+
+  - id: exit-confirm-btn
+    type: button
+    layer: system.alert
+    text: "确认"
+    actionId: "ui.exit.confirm"
+    style:
+      background: "$colors.btnDangerBg"
+      borderColor: "$colors.panelBorder"
+      color: "$colors.btnDangerText"
+      borderWidth: "$components.borderNormal"
+      width: 180
+      height: "$components.btnHeightNormal"
+      left: "calc(50% - 194px)"
+      top: "calc(50% + 50px)"
+
+  - id: exit-cancel-btn
+    type: button
+    layer: system.alert
+    text: "取消"
+    actionId: "ui.exit.cancel"
+    style:
+      background: "$colors.btnSecondaryBg"
+      borderColor: "$colors.panelBorder"
+      color: "$colors.btnSecondaryText"
+      borderWidth: "$components.borderNormal"
+      width: 180
+      height: "$components.btnHeightNormal"
+      left: "calc(50% + 14px)"
+      top: "calc(50% + 50px)"

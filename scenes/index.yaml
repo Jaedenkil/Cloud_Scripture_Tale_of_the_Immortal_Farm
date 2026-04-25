@@ -1,0 +1,23 @@
+registryVersion: 1
+id: scene-index
+description: 四域场景索引与加载顺序
+
+domains:
+  - id: world
+    order: 0
+    path: scenes/world
+  - id: hud
+    order: 1
+    path: scenes/hud
+  - id: panel
+    order: 2
+    path: scenes/panel
+  - id: system
+    order: 3
+    path: scenes/system
+
+loadOrder:
+  - world
+  - hud
+  - panel
+  - system

@@ -1,0 +1,21 @@
+page:
+  id: hud-status-page
+  name: Hud Status
+  type: overlay
+  domain: hud
+  depthBase: 1000
+
+layers:
+  - id: hud.content
+    depth: 1010
+
+components:
+  - id: hud-status-title
+    type: title
+    layer: hud.content
+    text: "HUD"
+    style:
+      color: "$colors.textHighlight"
+      fontSize: "$typography.small"
+      left: 12
+      top: 40

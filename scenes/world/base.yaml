@@ -1,0 +1,31 @@
+page:
+  id: world-base-page
+  name: World Base
+  type: fullscreen
+  domain: world
+  depthBase: 0
+
+layers:
+  - id: world.bg
+    depth: 0
+  - id: world.content
+    depth: 10
+
+components:
+  - id: world-bg
+    type: rectangle
+    layer: world.bg
+    style:
+      width: "100%"
+      height: "100%"
+      background: "$colors.panelBgMain"
+
+  - id: world-title
+    type: title
+    layer: world.content
+    text: "世界层"
+    style:
+      color: "$colors.textSecondary"
+      fontSize: "$typography.small"
+      left: 12
+      top: 10

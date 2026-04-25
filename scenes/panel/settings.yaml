@@ -10,6 +10,7 @@ layers:
     depth: 2000
   - id: panel.content
     depth: 2010
+    inputPolicy: capture
 
 components:
   - id: settings-bg
