@@ -13,6 +13,8 @@ $ARGUMENTS
 - Refer to `openspec/AGENTS.md` (located inside the `openspec/` directory—run `ls openspec` or `openspec update` if you don't see it) if you need additional OpenSpec conventions or clarifications.
 - Identify any vague or ambiguous details and ask the necessary follow-up questions before editing files.
 - Do not write any code during the proposal stage. Only create design documents (proposal.md, tasks.md, design.md, and spec deltas). Implementation happens in the apply stage after approval.
+- `tasks.md` MUST strictly follow `docs/代码约束规范.md` 第 `8.4 功能实现与 BUG 修复五步流程（M）`：必须包含 Step 1 到 Step 5，且每个 Step 都要写可执行子步骤（目标/动作/验证要点），不得省略或合并。
+- If any information is unclear, stop and ask clarifying questions before drafting `tasks.md`; do not fabricate missing details.
 
 **Steps**
 
@@ -21,8 +23,13 @@ $ARGUMENTS
 3. Map the change into concrete capabilities or requirements, breaking multi-scope efforts into distinct spec deltas with clear relationships and sequencing.
 4. Capture architectural reasoning in `design.md` when the solution spans multiple systems, introduces new patterns, or demands trade-off discussion before committing to specs.
 5. Draft spec deltas in `changes/<id>/specs/<capability>/spec.md` (one folder per capability) using `## ADDED|MODIFIED|REMOVED Requirements` with at least one `#### Scenario:` per requirement and cross-reference related capabilities when relevant.
-6. Draft `tasks.md` as an ordered list of small, verifiable work items that deliver user-visible progress, include validation (tests, tooling), and highlight dependencies or parallelizable work.
-7. Validate with `openspec validate <id> --strict` and resolve every issue before sharing the proposal.
+6. Draft `tasks.md` strictly with this five-step skeleton and fill each step with concrete checklist items:
+	- `#### Step 1：三因分析与疑点确认`
+	- `#### Step 2：零改码验证（不修改现有代码）`
+	- `#### Step 3：工程化逐步修改流程与评分`
+	- `#### Step 4：结果汇总与人工确认`
+	- `#### Step 5：按审定流程严格执行与报告`
+7. Validate with `openspec validate <id> --strict` **and** `npm run validate:openspec:tasks -- <id>`; resolve every issue before sharing the proposal.
 
 **Reference**
 

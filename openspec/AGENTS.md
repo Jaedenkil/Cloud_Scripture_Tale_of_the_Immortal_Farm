@@ -50,7 +50,8 @@ Skip proposal for:
 1. Review `openspec/project.md`, `openspec list`, and `openspec list --specs` to understand current context.
 2. Choose a unique verb-led `change-id` and scaffold `proposal.md`, `tasks.md`, optional `design.md`, and spec deltas under `openspec/changes/<id>/`.
 3. Draft spec deltas using `## ADDED|MODIFIED|REMOVED Requirements` with at least one `#### Scenario:` per requirement.
-4. Run `openspec validate <id> --strict` and resolve any issues before sharing the proposal.
+4. Draft `tasks.md` strictly following `docs/代码约束规范.md` 第 8.4 五步流程（Step 1~Step 5），每个 Step 必须包含可执行、可验证的子步骤清单。
+5. Run `openspec validate <id> --strict` and `npm run validate:openspec:tasks -- <id>`, then resolve any issues before sharing the proposal.
 
 ### Stage 2: Implementing Changes
 
@@ -224,12 +225,32 @@ If multiple capabilities are affected, create multiple delta files under `change
 1. **Create tasks.md:**
 
 ```markdown
-## 1. Implementation
+## 任务清单（严格对齐 8.4 五步流程）
 
-- [ ] 1.1 Create database schema
-- [ ] 1.2 Implement API endpoint
-- [ ] 1.3 Add frontend component
-- [ ] 1.4 Write tests
+#### Step 1：三因分析与疑点确认
+
+- [ ] 输出 3 个最可能原因（触发条件/可观察现象/架构关联点）
+- [ ] 列出不明确项并向需求方逐项确认
+
+#### Step 2：零改码验证（不修改现有代码）
+
+- [ ] 使用非侵入式手段验证原因（复现、日志、测试、调用链）
+- [ ] 记录验证证据与结论，判定是否进入 Step 3
+
+#### Step 3：工程化逐步修改流程与评分
+
+- [ ] 输出可执行修改流程（目标/涉及文件/风险与回滚/步骤级验证）
+- [ ] 按 5 个维度评分，总分不足 90 需整改重评
+
+#### Step 4：结果汇总与人工确认
+
+- [ ] 一次性汇总 Step 1~3 结果并等待确认
+- [ ] 未确认通过不得进入 Step 5
+
+#### Step 5：按审定流程严格执行与报告
+
+- [ ] 严格按审定流程执行，不得擅自偏离
+- [ ] 输出执行报告（背景/根因/变更/验证/风险建议）
 ```
 
 1. **Create design.md when needed:**

@@ -9,6 +9,7 @@
     "dev:electron": "electron .",
     "dev:resource-index": "node scripts/dev/build-resource-index.mjs",
     "setup:hooks": "node scripts/dev/setup-git-hooks.mjs",
+    "validate:openspec:tasks": "node scripts/dev/validate-openspec-tasks.mjs",
     "test": "vitest run",
     "build": "vite build && electron-builder",
     "preview": "vite preview",
