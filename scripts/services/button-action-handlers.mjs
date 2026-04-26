@@ -10,7 +10,20 @@
 const actionToNodeMap = Object.freeze({
   startgame: "home",
   settings: "settings",
-  dev: "home",
+  dev: "dev-tools-hub",
+  "dev.tools.home": "home",
+  "dev.tools.back": "dev-tools-hub",
+  "dev.tools.open.schema-validator": "dev-schema-validator",
+  "dev.tools.open.config-compiler": "dev-config-compiler",
+  "dev.tools.open.hot-reload-service": "dev-hot-reload-service",
+  "dev.tools.open.debug-console": "dev-debug-console",
+  "dev.tools.open.block-editor": "dev-block-editor",
+  "dev.tools.open.asset-manager": "dev-asset-manager",
+  "dev.tools.open.quest-dialog-editor": "dev-quest-dialog-editor",
+  "dev.tools.open.skill-editor-lite": "dev-skill-editor-lite",
+  "dev.tools.open.spine-animation-manager": "dev-spine-animation-manager",
+  "dev.tools.open.save-migration-tool": "dev-save-migration-tool",
+  "dev.tools.open.auto-acceptance-tool": "dev-auto-acceptance-tool",
   apply: "settings",
   back: "home"
 });
@@ -35,10 +48,33 @@ function createNavigationHandler(expectedNodeId) {
   };
 }
 
+function createStayHandler() {
+  return function stayHandler() {
+    return {
+      handled: true,
+      nextNodeId: null
+    };
+  };
+}
+
 export const buttonActionHandlers = Object.freeze({
   startgame: createNavigationHandler(actionToNodeMap.startgame),
   settings: createNavigationHandler(actionToNodeMap.settings),
   dev: createNavigationHandler(actionToNodeMap.dev),
+  "dev.tools.home": createNavigationHandler(actionToNodeMap["dev.tools.home"]),
+  "dev.tools.back": createNavigationHandler(actionToNodeMap["dev.tools.back"]),
+  "dev.tools.open.schema-validator": createNavigationHandler(actionToNodeMap["dev.tools.open.schema-validator"]),
+  "dev.tools.open.config-compiler": createNavigationHandler(actionToNodeMap["dev.tools.open.config-compiler"]),
+  "dev.tools.open.hot-reload-service": createNavigationHandler(actionToNodeMap["dev.tools.open.hot-reload-service"]),
+  "dev.tools.open.debug-console": createNavigationHandler(actionToNodeMap["dev.tools.open.debug-console"]),
+  "dev.tools.open.block-editor": createNavigationHandler(actionToNodeMap["dev.tools.open.block-editor"]),
+  "dev.tools.open.asset-manager": createNavigationHandler(actionToNodeMap["dev.tools.open.asset-manager"]),
+  "dev.tools.open.quest-dialog-editor": createNavigationHandler(actionToNodeMap["dev.tools.open.quest-dialog-editor"]),
+  "dev.tools.open.skill-editor-lite": createNavigationHandler(actionToNodeMap["dev.tools.open.skill-editor-lite"]),
+  "dev.tools.open.spine-animation-manager": createNavigationHandler(actionToNodeMap["dev.tools.open.spine-animation-manager"]),
+  "dev.tools.open.save-migration-tool": createNavigationHandler(actionToNodeMap["dev.tools.open.save-migration-tool"]),
+  "dev.tools.open.auto-acceptance-tool": createNavigationHandler(actionToNodeMap["dev.tools.open.auto-acceptance-tool"]),
+  "dev.tools.save": createStayHandler(),
   quit: () => {
     return {
       handled: false,

@@ -53,6 +53,127 @@ nodes:
     transitions: []
     fallback: home
 
+  - id: dev-tools-hub
+    pageId: dev-tools-hub-page
+    domain: panel
+    meta:
+      title: Dev Tools Hub
+      tags:
+        - dev-tools
+        - hub
+    transitions: []
+    fallback: home
+
+  - id: dev-schema-validator
+    pageId: dev-tool-schema-validator-page
+    domain: panel
+    meta:
+      title: Schema Validator
+      tags:
+        - dev-tools
+    transitions: []
+    fallback: dev-tools-hub
+
+  - id: dev-config-compiler
+    pageId: dev-tool-config-compiler-page
+    domain: panel
+    meta:
+      title: Config Compiler
+      tags:
+        - dev-tools
+    transitions: []
+    fallback: dev-tools-hub
+
+  - id: dev-hot-reload-service
+    pageId: dev-tool-hot-reload-service-page
+    domain: panel
+    meta:
+      title: Hot Reload Service
+      tags:
+        - dev-tools
+    transitions: []
+    fallback: dev-tools-hub
+
+  - id: dev-debug-console
+    pageId: dev-tool-debug-console-page
+    domain: panel
+    meta:
+      title: Debug Console
+      tags:
+        - dev-tools
+    transitions: []
+    fallback: dev-tools-hub
+
+  - id: dev-block-editor
+    pageId: dev-tool-block-editor-page
+    domain: panel
+    meta:
+      title: Block Editor
+      tags:
+        - dev-tools
+    transitions: []
+    fallback: dev-tools-hub
+
+  - id: dev-asset-manager
+    pageId: dev-tool-asset-manager-page
+    domain: panel
+    meta:
+      title: Asset Manager
+      tags:
+        - dev-tools
+    transitions: []
+    fallback: dev-tools-hub
+
+  - id: dev-quest-dialog-editor
+    pageId: dev-tool-quest-dialog-editor-page
+    domain: panel
+    meta:
+      title: Quest And Dialogue Editor
+      tags:
+        - dev-tools
+    transitions: []
+    fallback: dev-tools-hub
+
+  - id: dev-skill-editor-lite
+    pageId: dev-tool-skill-editor-lite-page
+    domain: panel
+    meta:
+      title: Skill Editor Lite
+      tags:
+        - dev-tools
+    transitions: []
+    fallback: dev-tools-hub
+
+  - id: dev-spine-animation-manager
+    pageId: dev-tool-spine-animation-manager-page
+    domain: panel
+    meta:
+      title: Spine Animation Manager
+      tags:
+        - dev-tools
+    transitions: []
+    fallback: dev-tools-hub
+
+  - id: dev-save-migration-tool
+    pageId: dev-tool-save-migration-tool-page
+    domain: panel
+    meta:
+      title: Save Migration Tool
+      tags:
+        - dev-tools
+    transitions: []
+    fallback: dev-tools-hub
+
+  - id: dev-auto-acceptance-tool
+    pageId: dev-tool-auto-acceptance-tool-page
+    domain: panel
+    meta:
+      title: Auto Acceptance Tool
+      tags:
+        - dev-tools
+    transitions: []
+    fallback: dev-tools-hub
+
   - id: exit-confirm
     pageId: exit-confirm-page
     domain: system

@@ -71,7 +71,7 @@ components:
   - id: btn-dev
     type: button
     layer: panel.content
-    text: "开发"
+    text: "开发工具"
     actionId: "dev"
     style:
       background: "$colors.btnSecondaryBg"

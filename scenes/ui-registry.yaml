@@ -33,6 +33,103 @@ pages:
     tags:
       - settings
 
+  - id: dev-tools-hub-page
+    domain: panel
+    scenePath: scenes/panel/dev-tools-hub.yaml
+    enabled: true
+    preload: false
+    tags:
+      - dev-tools
+      - hub
+
+  - id: dev-tool-schema-validator-page
+    domain: panel
+    scenePath: scenes/panel/dev-tool-schema-validator.yaml
+    enabled: true
+    preload: false
+    tags:
+      - dev-tools
+
+  - id: dev-tool-config-compiler-page
+    domain: panel
+    scenePath: scenes/panel/dev-tool-config-compiler.yaml
+    enabled: true
+    preload: false
+    tags:
+      - dev-tools
+
+  - id: dev-tool-hot-reload-service-page
+    domain: panel
+    scenePath: scenes/panel/dev-tool-hot-reload-service.yaml
+    enabled: true
+    preload: false
+    tags:
+      - dev-tools
+
+  - id: dev-tool-debug-console-page
+    domain: panel
+    scenePath: scenes/panel/dev-tool-debug-console.yaml
+    enabled: true
+    preload: false
+    tags:
+      - dev-tools
+
+  - id: dev-tool-block-editor-page
+    domain: panel
+    scenePath: scenes/panel/dev-tool-block-editor.yaml
+    enabled: true
+    preload: false
+    tags:
+      - dev-tools
+
+  - id: dev-tool-asset-manager-page
+    domain: panel
+    scenePath: scenes/panel/dev-tool-asset-manager.yaml
+    enabled: true
+    preload: false
+    tags:
+      - dev-tools
+
+  - id: dev-tool-quest-dialog-editor-page
+    domain: panel
+    scenePath: scenes/panel/dev-tool-quest-dialog-editor.yaml
+    enabled: true
+    preload: false
+    tags:
+      - dev-tools
+
+  - id: dev-tool-skill-editor-lite-page
+    domain: panel
+    scenePath: scenes/panel/dev-tool-skill-editor-lite.yaml
+    enabled: true
+    preload: false
+    tags:
+      - dev-tools
+
+  - id: dev-tool-spine-animation-manager-page
+    domain: panel
+    scenePath: scenes/panel/dev-tool-spine-animation-manager.yaml
+    enabled: true
+    preload: false
+    tags:
+      - dev-tools
+
+  - id: dev-tool-save-migration-tool-page
+    domain: panel
+    scenePath: scenes/panel/dev-tool-save-migration-tool.yaml
+    enabled: true
+    preload: false
+    tags:
+      - dev-tools
+
+  - id: dev-tool-auto-acceptance-tool-page
+    domain: panel
+    scenePath: scenes/panel/dev-tool-auto-acceptance-tool.yaml
+    enabled: true
+    preload: false
+    tags:
+      - dev-tools
+
   - id: world-base-page
     domain: world
     scenePath: scenes/world/base.yaml

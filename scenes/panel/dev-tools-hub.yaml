@@ -1,0 +1,252 @@
+page:
+  id: dev-tools-hub-page
+  name: Dev Tools Hub
+  type: fullscreen
+  domain: panel
+  depthBase: 2000
+
+layers:
+  - id: panel.bg
+    depth: 2000
+  - id: panel.content
+    depth: 2010
+    inputPolicy: capture
+
+components:
+  - id: dev-hub-bg
+    type: rectangle
+    layer: panel.bg
+    style:
+      background: "$colors.panelBgMain"
+      width: "100%"
+      height: "100%"
+
+  - id: dev-hub-top-box
+    type: rectangle
+    layer: panel.content
+    style:
+      left: 24
+      right: 24
+      top: 24
+      height: 120
+      background: "$colors.panelBgSecondary"
+      borderColor: "$colors.panelBorder"
+      borderWidth: "$components.borderNormal"
+
+  - id: dev-hub-middle-box
+    type: rectangle
+    layer: panel.content
+    style:
+      left: 24
+      right: 24
+      top: 164
+      bottom: 140
+      background: "$colors.panelBgMain"
+      borderColor: "$colors.panelBorder"
+      borderWidth: "$components.borderNormal"
+
+  - id: dev-hub-bottom-box
+    type: rectangle
+    layer: panel.content
+    style:
+      left: 24
+      right: 24
+      bottom: 24
+      height: 96
+      background: "$colors.panelBgSecondary"
+      borderColor: "$colors.panelBorder"
+      borderWidth: "$components.borderNormal"
+
+  - id: dev-hub-title
+    type: title
+    layer: panel.content
+    text: "开发工具中心"
+    style:
+      color: "$colors.textPrimary"
+      fontSize: "$typography.h1"
+      width: "100%"
+      left: 0
+      right: 0
+      top: 44
+      textAlign: "center"
+
+  - id: dev-hub-subtitle
+    type: title
+    layer: panel.content
+    text: "选择一个开发工具入口（当前为占位页面）"
+    style:
+      color: "$colors.textSecondary"
+      fontSize: "$typography.body"
+      width: "100%"
+      left: 0
+      right: 0
+      top: 86
+      textAlign: "center"
+
+  - id: btn-dev-schema-validator
+    type: button
+    layer: panel.content
+    text: "配置 Schema 校验器"
+    actionId: "dev.tools.open.schema-validator"
+    style:
+      background: "$colors.btnSecondaryBg"
+      borderColor: "$colors.panelBorder"
+      color: "$colors.btnSecondaryText"
+      width: 300
+      height: "$components.btnHeightLarge"
+      left: "calc(50% - 310px)"
+      top: 170
+
+  - id: btn-dev-config-compiler
+    type: button
+    layer: panel.content
+    text: "配置编译器"
+    actionId: "dev.tools.open.config-compiler"
+    style:
+      background: "$colors.btnSecondaryBg"
+      borderColor: "$colors.panelBorder"
+      color: "$colors.btnSecondaryText"
+      width: 300
+      height: "$components.btnHeightLarge"
+      left: "calc(50% + 10px)"
+      top: 170
+
+  - id: btn-dev-hot-reload
+    type: button
+    layer: panel.content
+    text: "本地热重载服务"
+    actionId: "dev.tools.open.hot-reload-service"
+    style:
+      background: "$colors.btnSecondaryBg"
+      borderColor: "$colors.panelBorder"
+      color: "$colors.btnSecondaryText"
+      width: 300
+      height: "$components.btnHeightLarge"
+      left: "calc(50% - 310px)"
+      top: 222
+
+  - id: btn-dev-debug-console
+    type: button
+    layer: panel.content
+    text: "游戏内调试控制台"
+    actionId: "dev.tools.open.debug-console"
+    style:
+      background: "$colors.btnSecondaryBg"
+      borderColor: "$colors.panelBorder"
+      color: "$colors.btnSecondaryText"
+      width: 300
+      height: "$components.btnHeightLarge"
+      left: "calc(50% + 10px)"
+      top: 222
+
+  - id: btn-dev-block-editor
+    type: button
+    layer: panel.content
+    text: "物块编辑器"
+    actionId: "dev.tools.open.block-editor"
+    style:
+      background: "$colors.btnSecondaryBg"
+      borderColor: "$colors.panelBorder"
+      color: "$colors.btnSecondaryText"
+      width: 300
+      height: "$components.btnHeightLarge"
+      left: "calc(50% - 310px)"
+      top: 274
+
+  - id: btn-dev-asset-manager
+    type: button
+    layer: panel.content
+    text: "本地资源管理器"
+    actionId: "dev.tools.open.asset-manager"
+    style:
+      background: "$colors.btnSecondaryBg"
+      borderColor: "$colors.panelBorder"
+      color: "$colors.btnSecondaryText"
+      width: 300
+      height: "$components.btnHeightLarge"
+      left: "calc(50% + 10px)"
+      top: 274
+
+  - id: btn-dev-quest-dialog
+    type: button
+    layer: panel.content
+    text: "任务与对话编辑器"
+    actionId: "dev.tools.open.quest-dialog-editor"
+    style:
+      background: "$colors.btnSecondaryBg"
+      borderColor: "$colors.panelBorder"
+      color: "$colors.btnSecondaryText"
+      width: 300
+      height: "$components.btnHeightLarge"
+      left: "calc(50% - 310px)"
+      top: 326
+
+  - id: btn-dev-skill-lite
+    type: button
+    layer: panel.content
+    text: "技能编辑器（简版）"
+    actionId: "dev.tools.open.skill-editor-lite"
+    style:
+      background: "$colors.btnSecondaryBg"
+      borderColor: "$colors.panelBorder"
+      color: "$colors.btnSecondaryText"
+      width: 300
+      height: "$components.btnHeightLarge"
+      left: "calc(50% + 10px)"
+      top: 326
+
+  - id: btn-dev-spine-manager
+    type: button
+    layer: panel.content
+    text: "人物动画管理器（Spine 最小版）"
+    actionId: "dev.tools.open.spine-animation-manager"
+    style:
+      background: "$colors.btnSecondaryBg"
+      borderColor: "$colors.panelBorder"
+      color: "$colors.btnSecondaryText"
+      width: 300
+      height: "$components.btnHeightLarge"
+      left: "calc(50% - 310px)"
+      top: 378
+
+  - id: btn-dev-save-migration
+    type: button
+    layer: panel.content
+    text: "存档迁移工具"
+    actionId: "dev.tools.open.save-migration-tool"
+    style:
+      background: "$colors.btnSecondaryBg"
+      borderColor: "$colors.panelBorder"
+      color: "$colors.btnSecondaryText"
+      width: 300
+      height: "$components.btnHeightLarge"
+      left: "calc(50% + 10px)"
+      top: 378
+
+  - id: btn-dev-auto-acceptance
+    type: button
+    layer: panel.content
+    text: "自动化验收工具"
+    actionId: "dev.tools.open.auto-acceptance-tool"
+    style:
+      background: "$colors.btnSecondaryBg"
+      borderColor: "$colors.panelBorder"
+      color: "$colors.btnSecondaryText"
+      width: 300
+      height: "$components.btnHeightLarge"
+      left: "calc(50% - 310px)"
+      top: 430
+
+  - id: btn-dev-back-home
+    type: button
+    layer: panel.content
+    text: "返回首页"
+    actionId: "dev.tools.home"
+    style:
+      background: "$colors.btnPrimaryBg"
+      borderColor: "$colors.panelBorder"
+      color: "$colors.btnPrimaryText"
+      width: 300
+      height: "$components.btnHeightLarge"
+      left: "calc(50% - 150px)"
+      bottom: 52

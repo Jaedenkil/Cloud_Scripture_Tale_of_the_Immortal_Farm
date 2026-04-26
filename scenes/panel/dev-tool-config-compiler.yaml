@@ -1,0 +1,123 @@
+page:
+  id: dev-tool-config-compiler-page
+  name: Dev Tool - Config Compiler
+  type: fullscreen
+  domain: panel
+  depthBase: 2000
+
+layers:
+  - id: panel.bg
+    depth: 2000
+  - id: panel.content
+    depth: 2010
+    inputPolicy: capture
+
+components:
+  - id: config-compiler-bg
+    type: rectangle
+    layer: panel.bg
+    style:
+      background: "$colors.panelBgMain"
+      width: "100%"
+      height: "100%"
+
+  - id: config-compiler-top-box
+    type: rectangle
+    layer: panel.content
+    style:
+      left: 24
+      right: 24
+      top: 24
+      height: 128
+      background: "$colors.panelBgSecondary"
+      borderColor: "$colors.panelBorder"
+      borderWidth: "$components.borderNormal"
+
+  - id: config-compiler-title
+    type: title
+    layer: panel.content
+    text: "配置编译器"
+    style:
+      width: "calc(100% - 96px)"
+      left: 48
+      top: 42
+      textAlign: "center"
+      color: "$colors.textPrimary"
+      fontSize: "$typography.h2"
+
+  - id: config-compiler-desc
+    type: title
+    layer: panel.content
+    text: "用于合并多份配置并生成运行时快照，支持继承覆盖、默认值注入、变量替换与资源别名解析。"
+    style:
+      width: "calc(100% - 96px)"
+      left: 48
+      top: 82
+      textAlign: "center"
+      color: "$colors.textSecondary"
+      fontSize: "$typography.body"
+
+  - id: config-compiler-middle-box
+    type: rectangle
+    layer: panel.content
+    style:
+      left: 24
+      right: 24
+      top: 168
+      bottom: 140
+      background: "$colors.panelBgMain"
+      borderColor: "$colors.panelBorder"
+      borderWidth: "$components.borderNormal"
+
+  - id: config-compiler-middle-title
+    type: title
+    layer: panel.content
+    text: "功能占位区域（后续开发）"
+    style:
+      width: "100%"
+      left: 0
+      right: 0
+      top: "calc(50% - 12px)"
+      textAlign: "center"
+      color: "$colors.textSecondary"
+      fontSize: "$typography.body"
+
+  - id: config-compiler-bottom-box
+    type: rectangle
+    layer: panel.content
+    style:
+      left: 24
+      right: 24
+      bottom: 24
+      height: 96
+      background: "$colors.panelBgSecondary"
+      borderColor: "$colors.panelBorder"
+      borderWidth: "$components.borderNormal"
+
+  - id: config-compiler-save-btn
+    type: button
+    layer: panel.content
+    text: "保存"
+    actionId: "dev.tools.save"
+    style:
+      background: "$colors.btnPrimaryBg"
+      borderColor: "$colors.panelBorder"
+      color: "$colors.btnPrimaryText"
+      width: 180
+      height: "$components.btnHeightNormal"
+      left: "calc(50% - 194px)"
+      bottom: 56
+
+  - id: config-compiler-back-btn
+    type: button
+    layer: panel.content
+    text: "后退"
+    actionId: "dev.tools.back"
+    style:
+      background: "$colors.btnSecondaryBg"
+      borderColor: "$colors.panelBorder"
+      color: "$colors.btnSecondaryText"
+      width: 180
+      height: "$components.btnHeightNormal"
+      left: "calc(50% + 14px)"
+      bottom: 56
