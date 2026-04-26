@@ -85,13 +85,13 @@ Independent game portals offer natural promotion from high-traffic sites and pot
 
 Tools for distributing HTML5 games to closed ecosystems:
 
-| Tool | Platforms |
-|------|-----------|
-| Ejecta | iOS (ImpactJS-specific) |
-| NW.js | Windows, Mac, Linux |
-| Electron | Windows, Mac, Linux |
-| Intel XDK | Multiple platforms |
-| Manifold.js | iOS, Android, Windows |
+| Tool        | Platforms               |
+| ----------- | ----------------------- |
+| Ejecta      | iOS (ImpactJS-specific) |
+| NW.js       | Windows, Mac, Linux     |
+| Electron    | Windows, Mac, Linux     |
+| Intel XDK   | Multiple platforms      |
+| Manifold.js | iOS, Android, Windows   |
 
 ### Platform Strategy
 
@@ -187,13 +187,13 @@ Game promotion requires a sustained, multi-channel strategy. Most promotional me
 
 ### Key Promotion Principles
 
-| Factor | Importance |
-|--------|-----------|
-| Consistency | Regular content and engagement across all channels |
-| Authenticity | Genuine community interaction, not transactional |
-| Patience | Building relationships and reputation takes time |
-| Value-first | Provide content worth consuming before asking for anything |
-| Multiple channels | Never rely on a single promotional strategy |
+| Factor            | Importance                                                 |
+| ----------------- | ---------------------------------------------------------- |
+| Consistency       | Regular content and engagement across all channels         |
+| Authenticity      | Genuine community interaction, not transactional           |
+| Patience          | Building relationships and reputation takes time           |
+| Value-first       | Provide content worth consuming before asking for anything |
+| Multiple channels | Never rely on a single promotional strategy                |
 
 ## Game Monetization
 
@@ -340,13 +340,13 @@ Monetization strategy should align with your game type, target audience, and dis
 
 ### Monetization Summary
 
-| Model | Revenue Type | Best For | Risk Level |
-|-------|-------------|----------|------------|
-| Paid Games | One-time | High-quality games with strong marketing | High |
-| In-App Purchases | Per transaction | Popular games with high download volume | Medium |
-| Advertisements | Passive/CPM | Casual, addictive games | Low-Medium |
-| Non-Exclusive Licensing | One-time (~$500) | All game types | Low |
-| Exclusive Licensing | One-time ($2K-$5K) | Proven, quality games | Medium |
-| Subscriptions | Monthly passive | Games with established track records | Medium |
-| Merchandise | Per sale | Popular franchises with visual identity | High |
-| Articles/Tutorials | Per publication | Developers with niche expertise | Low |
+| Model                   | Revenue Type       | Best For                                 | Risk Level |
+| ----------------------- | ------------------ | ---------------------------------------- | ---------- |
+| Paid Games              | One-time           | High-quality games with strong marketing | High       |
+| In-App Purchases        | Per transaction    | Popular games with high download volume  | Medium     |
+| Advertisements          | Passive/CPM        | Casual, addictive games                  | Low-Medium |
+| Non-Exclusive Licensing | One-time (~$500)   | All game types                           | Low        |
+| Exclusive Licensing     | One-time ($2K-$5K) | Proven, quality games                    | Medium     |
+| Subscriptions           | Monthly passive    | Games with established track records     | Medium     |
+| Merchandise             | Per sale           | Popular franchises with visual identity  | High       |
+| Articles/Tutorials      | Per publication    | Developers with niche expertise          | Low        |

@@ -10,11 +10,11 @@ Mobile touch controls are essential for web-based games targeting mobile devices
 
 The core touch events available in the browser are:
 
-| Event | Description |
-|-------|-------------|
-| `touchstart` | Fired when the user places a finger on the screen |
-| `touchmove` | Fired when the user moves a finger while touching the screen |
-| `touchend` | Fired when the user lifts a finger from the screen |
+| Event         | Description                                                                    |
+| ------------- | ------------------------------------------------------------------------------ |
+| `touchstart`  | Fired when the user places a finger on the screen                              |
+| `touchmove`   | Fired when the user moves a finger while touching the screen                   |
+| `touchend`    | Fired when the user lifts a finger from the screen                             |
 | `touchcancel` | Fired when a touch is cancelled or interrupted (e.g., finger moves off-screen) |
 
 **Registering touch event listeners:**
@@ -56,9 +56,9 @@ Phaser manages touch input through "pointers" representing individual fingers:
 
 ```javascript
 // Access pointers
-this.game.input.activePointer;       // Most recently active pointer
-this.game.input.pointer1;            // First pointer
-this.game.input.pointer2;            // Second pointer
+this.game.input.activePointer; // Most recently active pointer
+this.game.input.pointer1; // First pointer
+this.game.input.pointer2; // Second pointer
 
 // Add more pointers (up to 10 total)
 this.game.input.addPointer();
@@ -88,10 +88,11 @@ function onDragStart(sprite, pointer) {
 
 ```javascript
 this.buttonShoot = this.add.button(
-  this.world.width * 0.5, 0,
-  "button-alpha",    // transparent image
+  this.world.width * 0.5,
+  0,
+  "button-alpha", // transparent image
   null,
-  this
+  this,
 );
 this.buttonShoot.onInputDown.add(this.goShootPressed, this);
 this.buttonShoot.onInputUp.add(this.goShootReleased, this);
@@ -135,8 +136,8 @@ document.addEventListener("keyup", keyUpHandler);
 **Phaser keyboard API:**
 
 ```javascript
-this.cursors = this.input.keyboard.createCursorKeys();  // Arrow key objects
-this.keyLeft = this.input.keyboard.addKey(Phaser.KeyCode.A);  // Custom key binding
+this.cursors = this.input.keyboard.createCursorKeys(); // Arrow key objects
+this.keyLeft = this.input.keyboard.addKey(Phaser.KeyCode.A); // Custom key binding
 // Check key state with .isDown property
 // Listen for press events with .onDown.add()
 ```
@@ -144,13 +145,13 @@ this.keyLeft = this.input.keyboard.addKey(Phaser.KeyCode.A);  // Custom key bind
 **Phaser mouse API:**
 
 ```javascript
-this.game.input.mousePointer;                    // Mouse position and state
-this.game.input.mousePointer.isDown;             // Is any mouse button pressed
-this.game.input.mousePointer.x;                  // Mouse X coordinate
-this.game.input.mousePointer.y;                  // Mouse Y coordinate
-this.game.input.mousePointer.leftButton.isDown;  // Left mouse button
+this.game.input.mousePointer; // Mouse position and state
+this.game.input.mousePointer.isDown; // Is any mouse button pressed
+this.game.input.mousePointer.x; // Mouse X coordinate
+this.game.input.mousePointer.y; // Mouse Y coordinate
+this.game.input.mousePointer.leftButton.isDown; // Left mouse button
 this.game.input.mousePointer.rightButton.isDown; // Right mouse button
-this.game.input.activePointer;                   // Platform-independent (mouse + touch)
+this.game.input.activePointer; // Platform-independent (mouse + touch)
 ```
 
 ### Code Examples
@@ -269,20 +270,20 @@ window.addEventListener("gamepaddisconnected", gamepadHandler);
 
 **Standard button/axes mapping (Xbox 360 layout):**
 
-| Input | Index | Type |
-|-------|-------|------|
-| A Button | 0 | Button |
-| B Button | 1 | Button |
-| X Button | 2 | Button |
-| Y Button | 3 | Button |
-| D-Pad Up | 12 | Button |
-| D-Pad Down | 13 | Button |
-| D-Pad Left | 14 | Button |
-| D-Pad Right | 15 | Button |
-| Left Stick X | axes[0] | Axis |
-| Left Stick Y | axes[1] | Axis |
-| Right Stick X | axes[2] | Axis |
-| Right Stick Y | axes[3] | Axis |
+| Input         | Index   | Type   |
+| ------------- | ------- | ------ |
+| A Button      | 0       | Button |
+| B Button      | 1       | Button |
+| X Button      | 2       | Button |
+| Y Button      | 3       | Button |
+| D-Pad Up      | 12      | Button |
+| D-Pad Down    | 13      | Button |
+| D-Pad Left    | 14      | Button |
+| D-Pad Right   | 15      | Button |
+| Left Stick X  | axes[0] | Axis   |
+| Left Stick Y  | axes[1] | Axis   |
+| Right Stick X | axes[2] | Axis   |
+| Right Stick Y | axes[3] | Axis   |
 
 ### Code Examples
 
@@ -326,11 +327,13 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   gamepadUpdateHandler();
 
-  if (gamepadButtonPressedHandler(12)) playerY -= 5;  // D-Pad Up
-  else if (gamepadButtonPressedHandler(13)) playerY += 5;  // D-Pad Down
-  if (gamepadButtonPressedHandler(14)) playerX -= 5;  // D-Pad Left
-  else if (gamepadButtonPressedHandler(15)) playerX += 5;  // D-Pad Right
-  if (gamepadButtonPressedHandler(0)) alert("BOOM!");  // A Button
+  if (gamepadButtonPressedHandler(12))
+    playerY -= 5; // D-Pad Up
+  else if (gamepadButtonPressedHandler(13)) playerY += 5; // D-Pad Down
+  if (gamepadButtonPressedHandler(14))
+    playerX -= 5; // D-Pad Left
+  else if (gamepadButtonPressedHandler(15)) playerX += 5; // D-Pad Right
+  if (gamepadButtonPressedHandler(0)) alert("BOOM!"); // A Button
 
   ctx.drawImage(img, playerX, playerY);
   requestAnimationFrame(draw);
@@ -382,9 +385,24 @@ const GamepadAPI = {
   },
 
   buttons: {
-    layout: ["A", "B", "X", "Y", "LB", "RB", "LT", "RT",
-             "Back", "Start", "LS", "RS",
-             "DPad-Up", "DPad-Down", "DPad-Left", "DPad-Right"],
+    layout: [
+      "A",
+      "B",
+      "X",
+      "Y",
+      "LB",
+      "RB",
+      "LT",
+      "RT",
+      "Back",
+      "Start",
+      "LS",
+      "RS",
+      "DPad-Up",
+      "DPad-Down",
+      "DPad-Left",
+      "DPad-Right",
+    ],
     cache: [],
     status: [],
     pressed(button, hold) {
@@ -396,12 +414,12 @@ const GamepadAPI = {
         newPress = false;
       }
       return newPress;
-    }
+    },
   },
 
   axes: {
-    status: []
-  }
+    status: [],
+  },
 };
 
 window.addEventListener("gamepadconnected", GamepadAPI.connect);
@@ -412,9 +430,11 @@ window.addEventListener("gamepaddisconnected", GamepadAPI.disconnect);
 
 ```javascript
 if (GamepadAPI.axes.status) {
-  if (GamepadAPI.axes.status[0] > 0.5) playerX += 5;       // Right
+  if (GamepadAPI.axes.status[0] > 0.5)
+    playerX += 5; // Right
   else if (GamepadAPI.axes.status[0] < -0.5) playerX -= 5; // Left
-  if (GamepadAPI.axes.status[1] > 0.5) playerY += 5;       // Down
+  if (GamepadAPI.axes.status[1] > 0.5)
+    playerY += 5; // Down
   else if (GamepadAPI.axes.status[1] < -0.5) playerY -= 5; // Up
 }
 ```
@@ -476,7 +496,7 @@ window.addEventListener("keydown", (event) => {
 // Handle custom remote buttons (codes vary by manufacturer)
 window.addEventListener("keydown", (event) => {
   switch (event.keyCode) {
-    case 8:   // Pause (Panasonic example)
+    case 8: // Pause (Panasonic example)
       break;
     case 588: // Custom action
       break;

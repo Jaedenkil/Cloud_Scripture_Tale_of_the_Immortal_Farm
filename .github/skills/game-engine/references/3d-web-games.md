@@ -50,7 +50,7 @@ Converts 3D primitives into 2D fragments aligned to the pixel grid.
 
 Determines the final color of each fragment using textures and lighting:
 
-- **Textures**: 2D images mapped onto 3D surfaces. Individual texture elements are called *texels*. Texture wrapping repeats images around geometry; texture filtering handles minification and magnification when displayed resolution differs from texture resolution.
+- **Textures**: 2D images mapped onto 3D surfaces. Individual texture elements are called _texels_. Texture wrapping repeats images around geometry; texture filtering handles minification and magnification when displayed resolution differs from texture resolution.
 - **Lighting (Phong model)**: Four types of light interaction -- **diffuse** (distant directional light like the sun), **specular** (point source highlights like a flashlight), **ambient** (constant global illumination), and **emissive** (light emitted by the object itself).
 
 **4. Output Merging**
@@ -88,7 +88,9 @@ Three.js is one of the most popular 3D engines for the web. It provides a high-l
     <meta charset="utf-8" />
     <title>Three.js Demo</title>
     <style>
-      html, body, canvas {
+      html,
+      body,
+      canvas {
         margin: 0;
         padding: 0;
         width: 100%;
@@ -152,8 +154,8 @@ const torusGeometry = new THREE.TorusGeometry(7, 1, 16, 32);
 const dodecahedronGeometry = new THREE.DodecahedronGeometry(7);
 
 // Material defines the surface appearance
-const basicMaterial = new THREE.MeshBasicMaterial({ color: 0x0095dd });   // No lighting
-const phongMaterial = new THREE.MeshPhongMaterial({ color: 0xff9500 });   // Glossy
+const basicMaterial = new THREE.MeshBasicMaterial({ color: 0x0095dd }); // No lighting
+const phongMaterial = new THREE.MeshPhongMaterial({ color: 0xff9500 }); // Glossy
 const lambertMaterial = new THREE.MeshLambertMaterial({ color: 0xeaeff2 }); // Matte
 
 // Mesh combines geometry + material
@@ -183,9 +185,9 @@ function render() {
   t += 0.01;
   requestAnimationFrame(render);
 
-  cube.rotation.y += 0.01;                          // continuous rotation
-  torus.scale.y = Math.abs(Math.sin(t));             // pulsing scale
-  dodecahedron.position.y = -7 * Math.sin(t * 2);   // bobbing position
+  cube.rotation.y += 0.01; // continuous rotation
+  torus.scale.y = Math.abs(Math.sin(t)); // pulsing scale
+  dodecahedron.position.y = -7 * Math.sin(t * 2); // bobbing position
 
   renderer.render(scene, camera);
 }
@@ -229,14 +231,22 @@ engine.runRenderLoop(renderLoop);
 #### Camera and Lighting
 
 ```javascript
-const camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 0, -10), scene);
-const light = new BABYLON.PointLight("light", new BABYLON.Vector3(10, 10, 0), scene);
+const camera = new BABYLON.FreeCamera(
+  "camera",
+  new BABYLON.Vector3(0, 0, -10),
+  scene,
+);
+const light = new BABYLON.PointLight(
+  "light",
+  new BABYLON.Vector3(10, 10, 0),
+  scene,
+);
 ```
 
 #### Creating Meshes
 
 ```javascript
-const box = BABYLON.Mesh.CreateBox("box", 2, scene);       // name, size, scene
+const box = BABYLON.Mesh.CreateBox("box", 2, scene); // name, size, scene
 const torus = BABYLON.Mesh.CreateTorus("torus", 2, 0.5, 15, scene); // name, diameter, thickness, tessellation, scene
 const cylinder = BABYLON.Mesh.CreateCylinder("cylinder", 2, 2, 2, 12, 1, scene);
 // name, height, topDiameter, bottomDiameter, tessellation, heightSubdivisions, scene
@@ -292,7 +302,13 @@ A-Frame is Mozilla's declarative, HTML-based framework for building VR/AR experi
     <title>A-Frame Demo</title>
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <style>
-      body { margin: 0; padding: 0; width: 100%; height: 100%; font-size: 0; }
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        font-size: 0;
+      }
     </style>
   </head>
   <body>
@@ -317,7 +333,8 @@ The `<a-scene>` element is the root container. A-Frame auto-includes a default c
   geometry="primitive: torus; radius: 1; radiusTubular: 0.1; segmentsTubular: 12;"
   material="color: #EAEFF2; roughness: 0.1; metalness: 0.5;"
   rotation="10 0 0"
-  position="-3 1 0">
+  position="-3 1 0"
+>
 </a-entity>
 ```
 
@@ -336,10 +353,20 @@ scene.appendChild(cylinder);
 #### Camera and Lighting
 
 ```html
-<a-camera position="0 1 4" cursor-visible="true" cursor-color="#0095DD" cursor-opacity="0.5">
+<a-camera
+  position="0 1 4"
+  cursor-visible="true"
+  cursor-color="#0095DD"
+  cursor-opacity="0.5"
+>
 </a-camera>
 
-<a-light type="directional" color="white" intensity="0.5" position="-1 1 2"></a-light>
+<a-light
+  type="directional"
+  color="white"
+  intensity="0.5"
+  position="-1 1 2"
+></a-light>
 <a-light type="ambient" color="white"></a-light>
 ```
 
@@ -355,7 +382,8 @@ Declarative animation via HTML attributes:
   rotation="20 40 0"
   position="0 1 0"
   animation="property: rotation; from: 20 0 0; to: 20 360 0;
-    dir: alternate; loop: true; dur: 4000; easing: easeInOutQuad;">
+    dir: alternate; loop: true; dur: 4000; easing: easeInOutQuad;"
+>
 </a-box>
 ```
 
@@ -557,8 +585,8 @@ Check whether the distance from the point to the sphere center is less than the 
 function isPointInsideSphere(point, sphere) {
   const distance = Math.sqrt(
     (point.x - sphere.x) ** 2 +
-    (point.y - sphere.y) ** 2 +
-    (point.z - sphere.z) ** 2
+      (point.y - sphere.y) ** 2 +
+      (point.z - sphere.z) ** 2,
   );
   return distance < sphere.radius;
 }
@@ -582,8 +610,8 @@ Check whether the distance between centers is less than the sum of radii:
 function intersect(sphere, other) {
   const distance = Math.sqrt(
     (sphere.x - other.x) ** 2 +
-    (sphere.y - other.y) ** 2 +
-    (sphere.z - other.z) ** 2
+      (sphere.y - other.y) ** 2 +
+      (sphere.z - other.z) ** 2,
   );
   return distance < sphere.radius + other.radius;
 }
@@ -600,9 +628,7 @@ function intersect(sphere, box) {
   const z = Math.max(box.minZ, Math.min(sphere.z, box.maxZ));
 
   const distance = Math.sqrt(
-    (x - sphere.x) ** 2 +
-    (y - sphere.y) ** 2 +
-    (z - sphere.z) ** 2
+    (x - sphere.x) ** 2 + (y - sphere.y) ** 2 + (z - sphere.z) ** 2,
   );
 
   return distance < sphere.radius;
@@ -623,7 +649,7 @@ knotBBox.setFromObject(knot);
 // Sphere from geometry
 const knotBSphere = new THREE.Sphere(
   knot.position,
-  knot.geometry.boundingSphere.radius
+  knot.geometry.boundingSphere.radius,
 );
 ```
 
@@ -687,7 +713,7 @@ For more sophisticated collision detection and response, use a physics engine:
 - **Cannon.js** -- open-source 3D physics engine for JavaScript.
 - **ammo.js** -- JavaScript port of the Bullet physics library (used by PlayCanvas).
 
-Physics engines create a *physical body* attached to the visual mesh, with properties like velocity, position, rotation, and torque. A *physical shape* (box, sphere, convex hull) is used for collision calculations.
+Physics engines create a _physical body_ attached to the visual mesh, with properties like velocity, position, rotation, and torque. A _physical shape_ (box, sphere, convex hull) is used for collision calculations.
 
 ### Practical Tips
 
@@ -741,7 +767,7 @@ All major 3D web frameworks support WebXR:
 ### Design Principles
 
 - Prioritize **immersion** over raw graphics quality or gameplay complexity.
-- Users must feel like they are *part of the experience*.
+- Users must feel like they are _part of the experience_.
 - Basic shapes rendered at high, stable frame rates can be more compelling in VR than detailed graphics at unstable frame rates.
 - Experimentation is essential; test frequently on actual hardware.
 

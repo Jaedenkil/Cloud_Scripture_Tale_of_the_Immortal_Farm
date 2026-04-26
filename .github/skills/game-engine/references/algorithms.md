@@ -25,6 +25,7 @@ from the current minor-axis position. When the error exceeds a threshold, the mi
 coordinate is incremented.
 
 Key properties:
+
 - **Integer-only arithmetic**: No floating-point division or multiplication required.
 - **Incremental error accumulation**: The fractional slope is tracked via an integer error
   term, avoiding drift.
@@ -104,7 +105,7 @@ public function hasLineOfSight(x0:Int, y0:Int, x1:Int, y1:Int):Bool {
   cell along the path is a wall or obstacle, line of sight is blocked.
 - **Raycasting on grids**: Cast rays from a source in multiple directions to compute
   visibility maps or field-of-view cones.
-- **Grid-based pathfinding validation**: After computing a path (e.g., via A*), verify
+- **Grid-based pathfinding validation**: After computing a path (e.g., via A\*), verify
   that straight-line shortcuts between waypoints are unobstructed using Bresenham checks.
 - **Projectile tracing**: Determine which tiles a bullet or projectile passes through in
   a tile-based game.
@@ -218,12 +219,12 @@ function computePenetration(a, b):
 
 ### Spatial Partitioning Strategies
 
-| Strategy | Best For | Description |
-|---|---|---|
-| **Uniform Grid** | Evenly distributed objects | Divide world into fixed cells; objects register in their cell(s). |
-| **Quadtree** | Non-uniform distribution | Recursively subdivide space into 4 quadrants. Efficient for sparse scenes. |
-| **Spatial Hash** | Dynamic scenes | Hash object positions to buckets. O(1) lookup for neighbors. |
-| **Sweep and Prune** | Many moving objects | Sort by axis; only test overlapping intervals. |
+| Strategy            | Best For                   | Description                                                                |
+| ------------------- | -------------------------- | -------------------------------------------------------------------------- |
+| **Uniform Grid**    | Evenly distributed objects | Divide world into fixed cells; objects register in their cell(s).          |
+| **Quadtree**        | Non-uniform distribution   | Recursively subdivide space into 4 quadrants. Efficient for sparse scenes. |
+| **Spatial Hash**    | Dynamic scenes             | Hash object positions to buckets. O(1) lookup for neighbors.               |
+| **Sweep and Prune** | Many moving objects        | Sort by axis; only test overlapping intervals.                             |
 
 ### Practical Game Development Applications
 
@@ -255,11 +256,13 @@ and AI steering behaviors.
 
 - **Speed**: A scalar quantity representing how fast an object moves, regardless of
   direction.
+
   ```
   speed = |velocity| = sqrt(vx^2 + vy^2)
   ```
 
 - **Velocity**: A vector quantity representing both speed and direction.
+
   ```
   velocity = (vx, vy)
   ```
@@ -408,18 +411,18 @@ be directly manipulated while preserving momentum.
 
 Each rigid body has:
 
-| Property | Description |
-|---|---|
-| `position` | Center of mass in world space |
-| `velocity` | Linear velocity vector |
-| `acceleration` | Sum of all forces / mass |
-| `mass` | Resistance to linear acceleration |
-| `inverseMass` | `1 / mass` (0 for static objects) |
-| `angle` | Rotation angle |
-| `angularVelocity` | Rate of rotation |
-| `inertia` | Resistance to angular acceleration |
-| `restitution` | Bounciness (0 = no bounce, 1 = perfectly elastic) |
-| `friction` | Surface friction coefficient |
+| Property          | Description                                       |
+| ----------------- | ------------------------------------------------- |
+| `position`        | Center of mass in world space                     |
+| `velocity`        | Linear velocity vector                            |
+| `acceleration`    | Sum of all forces / mass                          |
+| `mass`            | Resistance to linear acceleration                 |
+| `inverseMass`     | `1 / mass` (0 for static objects)                 |
+| `angle`           | Rotation angle                                    |
+| `angularVelocity` | Rate of rotation                                  |
+| `inertia`         | Resistance to angular acceleration                |
+| `restitution`     | Bounciness (0 = no bounce, 1 = perfectly elastic) |
+| `friction`        | Surface friction coefficient                      |
 
 #### Force Accumulation
 
@@ -481,6 +484,7 @@ function resolveCollision(a, b, normal, penetration):
 ```
 
 Key constants:
+
 - `slop`: A small tolerance (e.g., 0.01) to prevent jitter from micro-penetrations.
 - `percent`: Typically 0.2 to 0.8; controls how aggressively positional correction is
   applied.
@@ -497,6 +501,7 @@ angle += angularVelocity * dt
 ```
 
 The moment of inertia depends on the shape:
+
 - **Circle**: `I = 0.5 * m * r^2`
 - **Rectangle**: `I = (1/12) * m * (w^2 + h^2)`
 
@@ -562,11 +567,13 @@ AI -- relies on vector operations.
 #### Vector Representation
 
 A 2D vector:
+
 ```
 v = (x, y)
 ```
 
 A 3D vector:
+
 ```
 v = (x, y, z)
 ```
@@ -583,6 +590,7 @@ a + b = (a.x + b.x, a.y + b.y)
 ```
 
 **Example**: Moving a character by its velocity:
+
 ```
 position = position + velocity * deltaTime
 ```
@@ -597,6 +605,7 @@ a - b = (a.x - b.x, a.y - b.y)
 ```
 
 **Example**: Direction from enemy to player:
+
 ```
 directionToPlayer = player.position - enemy.position
 ```
@@ -610,6 +619,7 @@ s * v = (s * v.x, s * v.y)
 ```
 
 **Example**: Setting movement speed:
+
 ```
 velocity = normalizedDirection * speed
 ```
@@ -623,6 +633,7 @@ The length of a vector, computed via the Pythagorean theorem:
 ```
 
 In 3D:
+
 ```
 |v| = sqrt(v.x^2 + v.y^2 + v.z^2)
 ```
@@ -646,6 +657,7 @@ A normalized vector represents pure direction. Always check that `|v| > 0` befor
 dividing to avoid division by zero.
 
 **Example**: Get the direction an entity is facing:
+
 ```
 facing = normalize(target - self.position)
 ```
@@ -659,26 +671,31 @@ a . b = a.x * b.x + a.y * b.y
 ```
 
 In 3D:
+
 ```
 a . b = a.x * b.x + a.y * b.y + a.z * b.z
 ```
 
 Geometric interpretation:
+
 ```
 a . b = |a| * |b| * cos(theta)
 ```
 
 Where `theta` is the angle between the vectors. For unit vectors:
+
 ```
 a . b = cos(theta)
 ```
 
 Key properties:
+
 - `a . b > 0`: Vectors point in roughly the same direction (angle < 90 degrees).
 - `a . b == 0`: Vectors are perpendicular (angle = 90 degrees).
 - `a . b < 0`: Vectors point in roughly opposite directions (angle > 90 degrees).
 
 **Game dev uses**:
+
 - Field-of-view checks: Is the player in front of the enemy?
 - Lighting: Compute diffuse light intensity (`max(0, dot(normal, lightDir))`).
 - Projection: Project one vector onto another.
@@ -696,16 +713,19 @@ a x b = (
 ```
 
 The magnitude of the cross product equals:
+
 ```
 |a x b| = |a| * |b| * sin(theta)
 ```
 
 In 2D, the "cross product" is a scalar (the z-component of the 3D cross product):
+
 ```
 a x b = a.x * b.y - a.y * b.x
 ```
 
 **Game dev uses**:
+
 - Determine winding order (clockwise vs counter-clockwise).
 - Compute surface normals for lighting.
 - Determine if a point is to the left or right of a line.
@@ -713,6 +733,7 @@ a x b = a.x * b.y - a.y * b.x
 #### Perpendicular Vector (2D)
 
 To get a vector perpendicular to `(x, y)`:
+
 ```
 perp = (-y, x)    // 90 degrees counter-clockwise
 perp = (y, -x)    // 90 degrees clockwise
@@ -729,11 +750,13 @@ proj_b(a) = (a . b / b . b) * b
 ```
 
 If `b` is already a unit vector:
+
 ```
 proj_b(a) = (a . b) * b
 ```
 
 **Game dev uses**:
+
 - Determine velocity component along a surface normal (for bounce/reflection).
 - Sliding along a wall: Subtract the normal component from velocity.
 
@@ -746,6 +769,7 @@ reflected = v - 2 * (v . n) * n
 ```
 
 **Game dev uses**:
+
 - Ball bouncing off a wall.
 - Light reflection calculations.
 - Ricochet trajectories.
@@ -827,17 +851,17 @@ class Vector2D:
 
 ## Quick Reference Table
 
-| Algorithm / Concept | Primary Use Case | Complexity |
-|---|---|---|
-| Bresenham's Line | Grid raycasting, line of sight | O(max(dx, dy)) per ray |
-| AABB Overlap | Fast collision detection | O(1) per pair |
-| Circle Overlap | Round collider detection | O(1) per pair |
-| Separating Axis Theorem | Convex polygon collision | O(n) per pair (n = edges) |
-| Spatial Hashing | Broad-phase collision culling | O(1) average lookup |
-| Euler Integration | Simple physics stepping | O(1) per body per step |
-| Verlet Integration | Constraint-based physics | O(1) per body per step |
-| Impulse Resolution | Collision response | O(iterations * contacts) |
-| Vector Normalization | Direction extraction | O(1) |
-| Dot Product | Angle/projection queries | O(1) |
-| Cross Product | Perpendicularity / winding | O(1) |
-| Reflection | Bounce / ricochet | O(1) |
+| Algorithm / Concept     | Primary Use Case               | Complexity                |
+| ----------------------- | ------------------------------ | ------------------------- |
+| Bresenham's Line        | Grid raycasting, line of sight | O(max(dx, dy)) per ray    |
+| AABB Overlap            | Fast collision detection       | O(1) per pair             |
+| Circle Overlap          | Round collider detection       | O(1) per pair             |
+| Separating Axis Theorem | Convex polygon collision       | O(n) per pair (n = edges) |
+| Spatial Hashing         | Broad-phase collision culling  | O(1) average lookup       |
+| Euler Integration       | Simple physics stepping        | O(1) per body per step    |
+| Verlet Integration      | Constraint-based physics       | O(1) per body per step    |
+| Impulse Resolution      | Collision response             | O(iterations \* contacts) |
+| Vector Normalization    | Direction extraction           | O(1)                      |
+| Dot Product             | Angle/projection queries       | O(1)                      |
+| Cross Product           | Perpendicularity / winding     | O(1)                      |
+| Reflection              | Bounce / ricochet              | O(1)                      |

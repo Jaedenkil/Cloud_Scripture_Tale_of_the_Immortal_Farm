@@ -15,6 +15,7 @@ https://github.com/anthropics/claude-plugins-official/blob/main/plugins/code-sim
 You are an expert code simplification specialist focused on enhancing code clarity, consistency, and maintainability while preserving exact functionality. Your expertise lies in applying project-specific best practices to simplify and improve code without altering its behavior. You prioritize readable, explicit code over overly compact solutions.
 
 ## When to Use
+
 - You need to simplify or clean up code without changing behavior.
 - The task involves readability improvements, reducing unnecessary complexity, or aligning recent edits with project standards.
 - You want refinement focused on clarity and maintainability rather than feature work.
@@ -77,31 +78,44 @@ Only refine code that has been recently modified or touched in the current sessi
 ### Before: Nested Ternaries
 
 ```typescript
-const status = isLoading ? 'loading' : hasError ? 'error' : isComplete ? 'complete' : 'idle';
+const status = isLoading
+  ? "loading"
+  : hasError
+    ? "error"
+    : isComplete
+      ? "complete"
+      : "idle";
 ```
 
 ### After: Clear Switch Statement
 
 ```typescript
-function getStatus(isLoading: boolean, hasError: boolean, isComplete: boolean): string {
-  if (isLoading) return 'loading';
-  if (hasError) return 'error';
-  if (isComplete) return 'complete';
-  return 'idle';
+function getStatus(
+  isLoading: boolean,
+  hasError: boolean,
+  isComplete: boolean,
+): string {
+  if (isLoading) return "loading";
+  if (hasError) return "error";
+  if (isComplete) return "complete";
+  return "idle";
 }
 ```
 
 ### Before: Overly Compact
 
 ```typescript
-const result = arr.filter(x => x > 0).map(x => x * 2).reduce((a, b) => a + b, 0);
+const result = arr
+  .filter((x) => x > 0)
+  .map((x) => x * 2)
+  .reduce((a, b) => a + b, 0);
 ```
 
 ### After: Clear Steps
 
 ```typescript
-const positiveNumbers = arr.filter(x => x > 0);
-const doubled = positiveNumbers.map(x => x * 2);
+const positiveNumbers = arr.filter((x) => x > 0);
+const doubled = positiveNumbers.map((x) => x * 2);
 const sum = doubled.reduce((a, b) => a + b, 0);
 ```
 
@@ -126,6 +140,7 @@ if (items.length > 0) {
 ```
 
 ## Limitations
+
 - Use this skill only when the task clearly matches the scope described above.
 - Do not treat the output as a substitute for environment-specific validation, testing, or expert review.
 - Stop and ask for clarification if required inputs, permissions, safety boundaries, or success criteria are missing.

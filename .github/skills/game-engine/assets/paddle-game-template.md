@@ -110,16 +110,16 @@ ctx.closePath();
 
 ### Key Methods Reference
 
-| Method | Purpose |
-|--------|---------|
-| `beginPath()` | Start a new drawing path |
-| `closePath()` | Close the current path |
-| `rect(x, y, width, height)` | Define a rectangle |
-| `arc(x, y, radius, startAngle, endAngle, counterclockwise)` | Define a circle or arc |
-| `fillStyle` | Set the fill color |
-| `fill()` | Fill the shape with the fill color |
-| `strokeStyle` | Set the stroke (outline) color |
-| `stroke()` | Draw an outline of the shape |
+| Method                                                      | Purpose                            |
+| ----------------------------------------------------------- | ---------------------------------- |
+| `beginPath()`                                               | Start a new drawing path           |
+| `closePath()`                                               | Close the current path             |
+| `rect(x, y, width, height)`                                 | Define a rectangle                 |
+| `arc(x, y, radius, startAngle, endAngle, counterclockwise)` | Define a circle or arc             |
+| `fillStyle`                                                 | Set the fill color                 |
+| `fill()`                                                    | Fill the shape with the fill color |
+| `strokeStyle`                                               | Set the stroke (outline) color     |
+| `stroke()`                                                  | Draw an outline of the shape       |
 
 ### Complete Code for Step 1
 
@@ -127,8 +127,15 @@ ctx.closePath();
 <canvas id="myCanvas" width="480" height="320"></canvas>
 
 <style>
-  * { padding: 0; margin: 0; }
-  canvas { background: #eeeeee; display: block; margin: 0 auto; }
+  * {
+    padding: 0;
+    margin: 0;
+  }
+  canvas {
+    background: #eeeeee;
+    display: block;
+    margin: 0 auto;
+  }
 </style>
 
 <script>
@@ -273,6 +280,7 @@ setInterval(draw, 10);
 ```
 
 **Key concepts:**
+
 - **Animation loop**: `setInterval(draw, 10)` continuously redraws the scene.
 - **Position variables**: `x` and `y` track the ball's current location.
 - **Velocity variables**: `dx` and `dy` determine movement per frame.
@@ -340,11 +348,11 @@ if (y + dy > canvas.height - ballRadius || y + dy < ballRadius) {
 
 ### Collision Detection Conditions
 
-| Wall | Condition | Action |
-|------|-----------|--------|
-| **Left** | `x + dx < ballRadius` | `dx = -dx` |
-| **Right** | `x + dx > canvas.width - ballRadius` | `dx = -dx` |
-| **Top** | `y + dy < ballRadius` | `dy = -dy` |
+| Wall       | Condition                             | Action     |
+| ---------- | ------------------------------------- | ---------- |
+| **Left**   | `x + dx < ballRadius`                 | `dx = -dx` |
+| **Right**  | `x + dx > canvas.width - ballRadius`  | `dx = -dx` |
+| **Top**    | `y + dy < ballRadius`                 | `dy = -dy` |
 | **Bottom** | `y + dy > canvas.height - ballRadius` | `dy = -dy` |
 
 ### Complete Code for Step 3
@@ -601,6 +609,7 @@ if (y + dy < ballRadius) {
 ```
 
 **How paddle collision works:**
+
 - `x > paddleX` -- the ball is past the paddle's left edge.
 - `x < paddleX + paddleWidth` -- the ball is before the paddle's right edge.
 - If both are true, the ball is above the paddle, so it bounces.
@@ -761,6 +770,7 @@ function drawBricks() {
 ```
 
 **Position calculation formula:**
+
 - `brickX = column * (brickWidth + brickPadding) + brickOffsetLeft`
 - `brickY = row * (brickHeight + brickPadding) + brickOffsetTop`
 
@@ -947,12 +957,14 @@ function collisionDetection() {
 ```
 
 **Collision conditions (all four must be true simultaneously):**
+
 - `x > b.x` -- ball center is to the right of the brick's left edge.
 - `x < b.x + brickWidth` -- ball center is to the left of the brick's right edge.
 - `y > b.y` -- ball center is below the brick's top edge.
 - `y < b.y + brickHeight` -- ball center is above the brick's bottom edge.
 
 When a collision is detected:
+
 - `dy = -dy` reverses the ball's vertical direction (bounce).
 - `b.status = 0` marks the brick as destroyed.
 
@@ -1095,10 +1107,10 @@ function draw() {
 
 ### Canvas Text Methods Reference
 
-| Method/Property | Purpose |
-|-----------------|---------|
-| `ctx.font` | Set font size and family |
-| `ctx.fillStyle` | Set text color |
+| Method/Property            | Purpose                         |
+| -------------------------- | ------------------------------- |
+| `ctx.font`                 | Set font size and family        |
+| `ctx.fillStyle`            | Set text color                  |
 | `ctx.fillText(text, x, y)` | Draw filled text at coordinates |
 
 ---
@@ -1129,6 +1141,7 @@ function mouseMoveHandler(e) {
 ```
 
 **How it works:**
+
 - `e.clientX` -- the mouse's horizontal position in the browser viewport.
 - `canvas.offsetLeft` -- the distance from the canvas's left edge to the viewport's left edge.
 - `relativeX` -- the mouse position relative to the canvas (not the viewport).
@@ -1197,6 +1210,7 @@ if (y + dy < ballRadius) {
 ```
 
 **What happens when a life is lost:**
+
 - `lives--` decrements the lives counter.
 - If `lives` reaches `0`, the game ends with an alert and page reload.
 - Otherwise, the ball resets to center-bottom, velocity resets, and the paddle resets to center.
@@ -1206,6 +1220,7 @@ if (y + dy < ballRadius) {
 Replace `setInterval` with `requestAnimationFrame` for a smoother, browser-optimized game loop:
 
 **Old approach (remove):**
+
 ```javascript
 interval = setInterval(draw, 10);
 ```
@@ -1383,7 +1398,7 @@ Below is the entire game in a single, self-contained HTML file. This is the fina
           paddleX,
           canvas.height - paddleHeight,
           paddleWidth,
-          paddleHeight
+          paddleHeight,
         );
         ctx.fillStyle = "#0095DD";
         ctx.fill();
@@ -1394,10 +1409,8 @@ Below is the entire game in a single, self-contained HTML file. This is the fina
         for (let c = 0; c < brickColumnCount; c++) {
           for (let r = 0; r < brickRowCount; r++) {
             if (bricks[c][r].status === 1) {
-              const brickX =
-                c * (brickWidth + brickPadding) + brickOffsetLeft;
-              const brickY =
-                r * (brickHeight + brickPadding) + brickOffsetTop;
+              const brickX = c * (brickWidth + brickPadding) + brickOffsetLeft;
+              const brickY = r * (brickHeight + brickPadding) + brickOffsetTop;
               bricks[c][r].x = brickX;
               bricks[c][r].y = brickY;
               ctx.beginPath();
@@ -1435,10 +1448,7 @@ Below is the entire game in a single, self-contained HTML file. This is the fina
         collisionDetection();
 
         // Left and right wall collision
-        if (
-          x + dx > canvas.width - ballRadius ||
-          x + dx < ballRadius
-        ) {
+        if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
           dx = -dx;
         }
 
@@ -1466,10 +1476,7 @@ Below is the entire game in a single, self-contained HTML file. This is the fina
 
         // Paddle movement (keyboard)
         if (rightPressed) {
-          paddleX = Math.min(
-            paddleX + 7,
-            canvas.width - paddleWidth
-          );
+          paddleX = Math.min(paddleX + 7, canvas.width - paddleWidth);
         } else if (leftPressed) {
           paddleX = Math.max(paddleX - 7, 0);
         }
@@ -1489,40 +1496,40 @@ Below is the entire game in a single, self-contained HTML file. This is the fina
 
 ## Quick Reference: All Game Variables
 
-| Variable | Type | Purpose |
-|----------|------|---------|
-| `canvas` | const | Reference to the HTML canvas element |
-| `ctx` | const | 2D rendering context |
-| `ballRadius` | const | Radius of the ball (10) |
-| `x`, `y` | let | Current ball position |
-| `dx`, `dy` | let | Ball velocity (pixels per frame) |
-| `paddleHeight` | const | Height of the paddle (10) |
-| `paddleWidth` | const | Width of the paddle (75) |
-| `paddleX` | let | Current horizontal position of the paddle |
-| `rightPressed` | let | Whether the right arrow key is held down |
-| `leftPressed` | let | Whether the left arrow key is held down |
-| `brickRowCount` | const | Number of brick rows (3) |
-| `brickColumnCount` | const | Number of brick columns (5) |
-| `brickWidth` | const | Width of each brick (75) |
-| `brickHeight` | const | Height of each brick (20) |
-| `brickPadding` | const | Space between bricks (10) |
-| `brickOffsetTop` | const | Distance from top of canvas to first brick row (30) |
-| `brickOffsetLeft` | const | Distance from left of canvas to first brick column (30) |
-| `bricks` | const | 2D array holding all brick objects |
-| `score` | let | Current player score |
-| `lives` | let | Remaining lives (starts at 3) |
+| Variable           | Type  | Purpose                                                 |
+| ------------------ | ----- | ------------------------------------------------------- |
+| `canvas`           | const | Reference to the HTML canvas element                    |
+| `ctx`              | const | 2D rendering context                                    |
+| `ballRadius`       | const | Radius of the ball (10)                                 |
+| `x`, `y`           | let   | Current ball position                                   |
+| `dx`, `dy`         | let   | Ball velocity (pixels per frame)                        |
+| `paddleHeight`     | const | Height of the paddle (10)                               |
+| `paddleWidth`      | const | Width of the paddle (75)                                |
+| `paddleX`          | let   | Current horizontal position of the paddle               |
+| `rightPressed`     | let   | Whether the right arrow key is held down                |
+| `leftPressed`      | let   | Whether the left arrow key is held down                 |
+| `brickRowCount`    | const | Number of brick rows (3)                                |
+| `brickColumnCount` | const | Number of brick columns (5)                             |
+| `brickWidth`       | const | Width of each brick (75)                                |
+| `brickHeight`      | const | Height of each brick (20)                               |
+| `brickPadding`     | const | Space between bricks (10)                               |
+| `brickOffsetTop`   | const | Distance from top of canvas to first brick row (30)     |
+| `brickOffsetLeft`  | const | Distance from left of canvas to first brick column (30) |
+| `bricks`           | const | 2D array holding all brick objects                      |
+| `score`            | let   | Current player score                                    |
+| `lives`            | let   | Remaining lives (starts at 3)                           |
 
 ## Quick Reference: All Functions
 
-| Function | Purpose |
-|----------|---------|
-| `keyDownHandler(e)` | Sets `rightPressed` or `leftPressed` to `true` on key press |
-| `keyUpHandler(e)` | Sets `rightPressed` or `leftPressed` to `false` on key release |
-| `mouseMoveHandler(e)` | Moves paddle to follow mouse horizontal position |
+| Function               | Purpose                                                                                  |
+| ---------------------- | ---------------------------------------------------------------------------------------- |
+| `keyDownHandler(e)`    | Sets `rightPressed` or `leftPressed` to `true` on key press                              |
+| `keyUpHandler(e)`      | Sets `rightPressed` or `leftPressed` to `false` on key release                           |
+| `mouseMoveHandler(e)`  | Moves paddle to follow mouse horizontal position                                         |
 | `collisionDetection()` | Checks ball against all active bricks; destroys hit bricks, increments score, checks win |
-| `drawBall()` | Renders the ball at current `(x, y)` position |
-| `drawPaddle()` | Renders the paddle at current `paddleX` position |
-| `drawBricks()` | Renders all bricks with `status === 1` |
-| `drawScore()` | Renders the score text in the top-left corner |
-| `drawLives()` | Renders the lives text in the top-right corner |
-| `draw()` | Main game loop: clears canvas, draws everything, handles collisions, updates positions |
+| `drawBall()`           | Renders the ball at current `(x, y)` position                                            |
+| `drawPaddle()`         | Renders the paddle at current `paddleX` position                                         |
+| `drawBricks()`         | Renders all bricks with `status === 1`                                                   |
+| `drawScore()`          | Renders the score text in the top-left corner                                            |
+| `drawLives()`          | Renders the lives text in the top-right corner                                           |
+| `draw()`               | Main game loop: clears canvas, draws everything, handles collisions, updates positions   |

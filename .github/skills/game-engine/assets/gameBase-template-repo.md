@@ -1,6 +1,6 @@
 # GameBase Template Repository
 
-A feature-rich, opinionated starter template for 2D game projects built with **Haxe** and the **Heaps** game engine. Created and maintained by **Sebastien Benard** (deepnight), the lead developer behind *Dead Cells*. GameBase provides a production-tested foundation with entity management, level integration via LDtk, rendering pipeline, and a game loop architecture -- all designed to let developers skip boilerplate and jump straight into game-specific logic.
+A feature-rich, opinionated starter template for 2D game projects built with **Haxe** and the **Heaps** game engine. Created and maintained by **Sebastien Benard** (deepnight), the lead developer behind _Dead Cells_. GameBase provides a production-tested foundation with entity management, level integration via LDtk, rendering pipeline, and a game loop architecture -- all designed to let developers skip boilerplate and jump straight into game-specific logic.
 
 **Repository:** [github.com/deepnight/gameBase](https://github.com/deepnight/gameBase)
 **Author:** [Sebastien Benard / deepnight](https://deepnight.net)
@@ -11,9 +11,10 @@ A feature-rich, opinionated starter template for 2D game projects built with **H
 
 ## Purpose
 
-GameBase exists to solve the "blank project" problem. Instead of setting up rendering, entity systems, camera controls, debug overlays, and level loading from scratch, developers clone this repository and begin implementing game-specific mechanics immediately. It reflects patterns refined through commercial game development, particularly from the development of *Dead Cells*.
+GameBase exists to solve the "blank project" problem. Instead of setting up rendering, entity systems, camera controls, debug overlays, and level loading from scratch, developers clone this repository and begin implementing game-specific mechanics immediately. It reflects patterns refined through commercial game development, particularly from the development of _Dead Cells_.
 
 Key benefits:
+
 - Pre-built entity system with grid-based positioning and sub-pixel precision
 - LDtk level editor integration for visual level design
 - Built-in debug tools and overlays
@@ -58,6 +59,7 @@ gameBase/
 ### `src/game/App.hx` -- Application Entry Point
 
 The main application class that extends `dn.Process`. Handles:
+
 - Window/display initialization
 - Scene management (root scene graph)
 - Global input controller setup
@@ -78,6 +80,7 @@ class App extends dn.Process {
 ### `src/game/Game.hx` -- Game Process
 
 Manages the active game session:
+
 - Holds reference to the current `Level`
 - Manages all active `Entity` instances (via a global linked list)
 - Handles pause, game-over, and restart logic
@@ -103,6 +106,7 @@ class Game extends dn.Process {
 ### `src/game/Entity.hx` -- Base Entity
 
 The core entity class featuring:
+
 - **Grid-based positioning:** `cx`, `cy` (integer cell coordinates) plus `xr`, `yr` (sub-cell ratio 0.0 to 1.0) for smooth sub-pixel movement
 - **Velocity and friction:** `dx`, `dy` (velocity) with configurable `frictX`, `frictY`
 - **Gravity:** Optional per-entity gravity
@@ -150,6 +154,7 @@ class Entity {
 ### `src/game/Level.hx` -- Level Management
 
 Loads and manages level data from LDtk project files:
+
 - Parses tile layers, entity layers, and int grid layers
 - Builds a collision grid (`hasCollision(cx, cy)`)
 - Provides helper methods to query the level structure
@@ -177,6 +182,7 @@ class Level {
 ### `src/game/Camera.hx` -- Camera System
 
 Provides:
+
 - **Target tracking:** Follow an entity smoothly with configurable dead zones
 - **Shake:** Screen shake with decay
 - **Zoom:** Dynamic zoom in/out
@@ -185,6 +191,7 @@ Provides:
 ### `src/game/Fx.hx` -- Effects System
 
 Particle and visual effect management:
+
 - Particle pools
 - Screen flash
 - Slow-motion helpers
@@ -197,6 +204,7 @@ Particle and visual effect management:
 ### Haxe
 
 A cross-platform, high-level programming language that compiles to multiple targets:
+
 - **HashLink (HL):** Native bytecode VM for desktop (primary dev target)
 - **JavaScript (JS):** Browser/web target
 - **C/C++:** Via HXCPP for native builds
@@ -204,6 +212,7 @@ A cross-platform, high-level programming language that compiles to multiple targ
 ### Heaps (Heaps.io)
 
 A high-performance, cross-platform 2D/3D game engine:
+
 - GPU-accelerated rendering via OpenGL/DirectX/WebGL
 - Scene graph architecture with `h2d.Object` hierarchy
 - Sprite batching and texture atlases
@@ -213,6 +222,7 @@ A high-performance, cross-platform 2D/3D game engine:
 ### LDtk
 
 A modern, open-source 2D level editor created by Sebastien Benard:
+
 - Visual, tile-based level design
 - IntGrid layers for collision and metadata
 - Entity layers for game object placement
@@ -262,17 +272,18 @@ make run
 
 ## Build Targets
 
-| Target | Command | Output | Use Case |
-|--------|---------|--------|----------|
-| HashLink | `haxe build.hxml` | `bin/client.hl` | Development, desktop release |
-| JavaScript | `haxe build.js.hxml` | `bin/client.js` | Web/browser builds |
-| DirectX/OpenGL | Via HL native | Native executable | Production desktop release |
+| Target         | Command              | Output            | Use Case                     |
+| -------------- | -------------------- | ----------------- | ---------------------------- |
+| HashLink       | `haxe build.hxml`    | `bin/client.hl`   | Development, desktop release |
+| JavaScript     | `haxe build.js.hxml` | `bin/client.js`   | Web/browser builds           |
+| DirectX/OpenGL | Via HL native        | Native executable | Production desktop release   |
 
 ---
 
 ## Debug Features
 
 GameBase includes built-in debug tooling:
+
 - **Debug overlay:** Toggle with a key to show entity bounds, grid, velocities, collision map
 - **Console:** In-game command console for toggling flags, teleporting, spawning entities
 - **FPS counter:** Visible frame-rate and update-rate monitor

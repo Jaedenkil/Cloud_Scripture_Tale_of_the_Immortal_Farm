@@ -123,10 +123,10 @@ World Domain < HUD Domain < Panel Domain < System Domain
 
 建议在配置上保持“四类一索引”：
 
-1. scenes/world/*.yaml
-2. scenes/hud/*.yaml
-3. scenes/panel/*.yaml
-4. scenes/system/*.yaml
+1. scenes/world/\*.yaml
+2. scenes/hud/\*.yaml
+3. scenes/panel/\*.yaml
+4. scenes/system/\*.yaml
 
 统一入口索引：
 

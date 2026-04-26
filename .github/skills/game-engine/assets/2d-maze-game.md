@@ -49,32 +49,35 @@ project/
 ```html
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>Cyber Orb</title>
-  <style>
-    body { margin: 0; background: #333; }
-  </style>
-  <script src="src/phaser-arcade-physics.2.2.2.min.js"></script>
-  <script src="src/Boot.js"></script>
-  <script src="src/Preloader.js"></script>
-  <script src="src/MainMenu.js"></script>
-  <script src="src/Howto.js"></script>
-  <script src="src/Game.js"></script>
-</head>
-<body>
-  <script>
-    (() => {
-      const game = new Phaser.Game(320, 480, Phaser.CANVAS, "game");
-      game.state.add("Boot", Ball.Boot);
-      game.state.add("Preloader", Ball.Preloader);
-      game.state.add("MainMenu", Ball.MainMenu);
-      game.state.add("Howto", Ball.Howto);
-      game.state.add("Game", Ball.Game);
-      game.state.start("Boot");
-    })();
-  </script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Cyber Orb</title>
+    <style>
+      body {
+        margin: 0;
+        background: #333;
+      }
+    </style>
+    <script src="src/phaser-arcade-physics.2.2.2.min.js"></script>
+    <script src="src/Boot.js"></script>
+    <script src="src/Preloader.js"></script>
+    <script src="src/MainMenu.js"></script>
+    <script src="src/Howto.js"></script>
+    <script src="src/Game.js"></script>
+  </head>
+  <body>
+    <script>
+      (() => {
+        const game = new Phaser.Game(320, 480, Phaser.CANVAS, "game");
+        game.state.add("Boot", Ball.Boot);
+        game.state.add("Preloader", Ball.Preloader);
+        game.state.add("MainMenu", Ball.MainMenu);
+        game.state.add("Howto", Ball.Howto);
+        game.state.add("Game", Ball.Game);
+        game.state.start("Boot");
+      })();
+    </script>
+  </body>
 </html>
 ```
 
@@ -127,12 +130,12 @@ Ball.Preloader.prototype = {
     this.preloadBg = this.add.sprite(
       (Ball._WIDTH - 297) * 0.5,
       (Ball._HEIGHT - 145) * 0.5,
-      "preloaderBg"
+      "preloaderBg",
     );
     this.preloadBar = this.add.sprite(
       (Ball._WIDTH - 158) * 0.5,
       (Ball._HEIGHT - 50) * 0.5,
-      "preloaderBar"
+      "preloaderBar",
     );
     this.load.setPreloadSprite(this.preloadBar);
 
@@ -166,9 +169,14 @@ Ball.MainMenu.prototype = {
     this.gameTitle.anchor.set(0.5, 0);
 
     this.startButton = this.add.button(
-      Ball._WIDTH * 0.5, 200, "button-start",
-      this.startGame, this,
-      2, 0, 1  // hover, out, down frames
+      Ball._WIDTH * 0.5,
+      200,
+      "button-start",
+      this.startGame,
+      this,
+      2,
+      0,
+      1, // hover, out, down frames
     );
     this.startButton.anchor.set(0.5, 0);
     this.startButton.input.useHandCursor = true;
@@ -188,8 +196,11 @@ Ball.Howto = function (game) {};
 Ball.Howto.prototype = {
   create() {
     this.buttonContinue = this.add.button(
-      0, 0, "screen-howtoplay",
-      this.startGame, this
+      0,
+      0,
+      "screen-howtoplay",
+      this.startGame,
+      this,
     );
   },
   startGame() {
@@ -204,10 +215,10 @@ Ball.Howto.prototype = {
 
 The Device Orientation API provides real-time data about the physical tilt of a device. Two axes are used:
 
-| Property | Axis | Range | Effect |
-|----------|------|-------|--------|
-| `event.gamma` | Left/right tilt | -90 to 90 degrees | Horizontal ball velocity |
-| `event.beta` | Front/back tilt | -180 to 180 degrees | Vertical ball velocity |
+| Property      | Axis            | Range               | Effect                   |
+| ------------- | --------------- | ------------------- | ------------------------ |
+| `event.gamma` | Left/right tilt | -90 to 90 degrees   | Horizontal ball velocity |
+| `event.beta`  | Front/back tilt | -180 to 180 degrees | Vertical ball velocity   |
 
 ### Registering the Listener
 
@@ -313,12 +324,12 @@ Each level is an array of wall segment objects with position and type:
 
 ```javascript
 this.levelData = [
-  [{ x: 96, y: 224, t: "w" }],                           // Level 1
+  [{ x: 96, y: 224, t: "w" }], // Level 1
   [
     { x: 72, y: 320, t: "w" },
     { x: 200, y: 320, t: "h" },
     { x: 72, y: 150, t: "w" },
-  ],                                                       // Level 2
+  ], // Level 2
   // ... more levels
 ];
 ```
@@ -367,12 +378,18 @@ showLevel(level) {
 ```javascript
 // In update()
 this.physics.arcade.collide(
-  this.ball, this.borderGroup,
-  this.wallCollision, null, this
+  this.ball,
+  this.borderGroup,
+  this.wallCollision,
+  null,
+  this,
 );
 this.physics.arcade.collide(
-  this.ball, this.levels[this.level - 1],
-  this.wallCollision, null, this
+  this.ball,
+  this.levels[this.level - 1],
+  this.wallCollision,
+  null,
+  this,
 );
 ```
 
@@ -381,10 +398,7 @@ this.physics.arcade.collide(
 ### Hole Overlap (Pass-Through Detection)
 
 ```javascript
-this.physics.arcade.overlap(
-  this.ball, this.hole,
-  this.finishLevel, null, this
-);
+this.physics.arcade.overlap(this.ball, this.hole, this.finishLevel, null, this);
 ```
 
 `overlap` detects intersection without physical collision response.
@@ -512,17 +526,17 @@ update() {
 
 ## Phaser API Quick Reference
 
-| Function | Purpose |
-|----------|---------|
-| `this.add.sprite(x, y, key)` | Create a game object |
-| `this.add.group()` | Create a container for objects |
-| `this.add.button(x, y, key, cb, ctx, over, out, down)` | Create interactive button |
-| `this.add.text(x, y, text, style)` | Create text display |
-| `this.physics.enable(obj, system)` | Enable physics on object |
-| `this.physics.arcade.collide(a, b, cb)` | Detect collision with bounce |
-| `this.physics.arcade.overlap(a, b, cb)` | Detect overlap without bounce |
-| `this.load.image(key, path)` | Load image asset |
-| `this.load.spritesheet(key, path, w, h)` | Load sprite animation sheet |
-| `this.load.audio(key, paths[])` | Load audio with format fallbacks |
-| `this.game.add.audio(key)` | Instantiate audio object |
-| `this.time.events.loop(interval, cb, ctx)` | Create repeating timer |
+| Function                                               | Purpose                          |
+| ------------------------------------------------------ | -------------------------------- |
+| `this.add.sprite(x, y, key)`                           | Create a game object             |
+| `this.add.group()`                                     | Create a container for objects   |
+| `this.add.button(x, y, key, cb, ctx, over, out, down)` | Create interactive button        |
+| `this.add.text(x, y, text, style)`                     | Create text display              |
+| `this.physics.enable(obj, system)`                     | Enable physics on object         |
+| `this.physics.arcade.collide(a, b, cb)`                | Detect collision with bounce     |
+| `this.physics.arcade.overlap(a, b, cb)`                | Detect overlap without bounce    |
+| `this.load.image(key, path)`                           | Load image asset                 |
+| `this.load.spritesheet(key, path, w, h)`               | Load sprite animation sheet      |
+| `this.load.audio(key, paths[])`                        | Load audio with format fallbacks |
+| `this.game.add.audio(key)`                             | Instantiate audio object         |
+| `this.time.events.loop(interval, cb, ctx)`             | Create repeating timer           |

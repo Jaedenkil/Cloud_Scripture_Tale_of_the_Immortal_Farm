@@ -128,11 +128,11 @@ emscripten_push_main_loop_blocker();
 
 ### Performance Targets
 
-| Metric | Target |
-|---|---|
-| Initial content appearance | 1-2 seconds |
-| User-perceptible delay | 50ms or less |
-| Sluggish threshold | Greater than 200ms |
+| Metric                     | Target             |
+| -------------------------- | ------------------ |
+| Initial content appearance | 1-2 seconds        |
+| User-perceptible delay     | 50ms or less       |
+| Sluggish threshold         | Greater than 200ms |
 
 Users on older or slower devices experience longer delays than developers -- always optimize accordingly.
 
@@ -151,11 +151,13 @@ WebRTC data channels let you send text or binary data over an active connection 
 WebRTC establishes a peer-to-peer connection between two browsers. Once established, a data channel can be opened on that connection. Data channels come in two flavors:
 
 **Reliable Channels:**
+
 - Guarantee that messages arrive at the peer.
 - Maintain message order -- messages arrive in the same sequence they were sent.
 - Analogous to TCP sockets.
 
 **Unreliable Channels:**
+
 - Make no guarantees about message delivery.
 - Messages may not arrive in any particular order.
 - Messages may not arrive at all.
@@ -341,12 +343,12 @@ Particularly useful for WebGL 3D games to tie audio to visual objects and the pl
 
 ### Decision Matrix
 
-| Technique | Use When | Pros | Cons |
-|---|---|---|---|
-| Audio Sprites | Many short sounds, mobile | Reduces HTTP requests, mobile-friendly | Seeking accuracy reduced at low bitrates |
-| Basic `<audio>` | Simple linear playback | Broad support | Limited control, autoplay restrictions |
-| Web Audio API | Dynamic music, 3D positioning, precise timing | Full control, real-time manipulation, sync | More complex code |
-| Positional Audio | 3D immersive games | Realism, player immersion | Requires WebGL context awareness |
+| Technique        | Use When                                      | Pros                                       | Cons                                     |
+| ---------------- | --------------------------------------------- | ------------------------------------------ | ---------------------------------------- |
+| Audio Sprites    | Many short sounds, mobile                     | Reduces HTTP requests, mobile-friendly     | Seeking accuracy reduced at low bitrates |
+| Basic `<audio>`  | Simple linear playback                        | Broad support                              | Limited control, autoplay restrictions   |
+| Web Audio API    | Dynamic music, 3D positioning, precise timing | Full control, real-time manipulation, sync | More complex code                        |
+| Positional Audio | 3D immersive games                            | Realism, player immersion                  | Requires WebGL context awareness         |
 
 ---
 
@@ -421,6 +423,7 @@ SAT is more complex to implement but handles arbitrary convex polygon shapes.
 Testing every entity against every other entity is computationally expensive (O(n^2)). Games split collision detection into two phases:
 
 **Broad Phase** -- Uses spatial data structures to quickly identify which entities could be colliding:
+
 - Quad Trees
 - R-Trees
 - Spatial Hashmaps
@@ -580,16 +583,19 @@ Key principle: Only render visible tiles to optimize performance. Apply the came
 ### Tilemap Types
 
 **Square Tiles (most common):**
+
 - Top-down view for RPGs and strategy games (Warcraft 2, Final Fantasy).
 - Side view for platformers (Super Mario Bros).
 
 **Isometric Tilemaps:**
+
 - Creates the illusion of a 3D environment.
 - Popular in simulation and strategy games (SimCity 2000, Pharaoh, Final Fantasy Tactics).
 
 ### Layers
 
 Multiple visual layers enable:
+
 - Reusing tiles across different background types.
 - Characters appearing behind or in front of terrain (walking behind trees).
 - Richer worlds with fewer tile variations.
@@ -599,6 +605,7 @@ Example: A rock tile rendered on a separate layer over grass, sand, or brick bac
 ### Logic Grid
 
 A separate grid for non-visual game logic:
+
 - **Collision detection:** Mark walkable vs. blocked tiles.
 - **Character spawning:** Define spawn point locations.
 - **Pathfinding:** Create navigation graphs.
@@ -632,14 +639,14 @@ Security note: User interaction with the controller is required while the page i
 
 **Gamepad object properties:**
 
-| Property | Description |
-|---|---|
-| `id` | String containing controller information |
-| `index` | Unique identifier for the connected device |
-| `connected` | Boolean indicating connection status |
-| `mapping` | Layout type ("standard" is the common option) |
-| `axes` | Array of floats (-1 to 1) representing analog stick positions |
-| `buttons` | Array of GamepadButton objects with `pressed` and `value` properties |
+| Property    | Description                                                          |
+| ----------- | -------------------------------------------------------------------- |
+| `id`        | String containing controller information                             |
+| `index`     | Unique identifier for the connected device                           |
+| `connected` | Boolean indicating connection status                                 |
+| `mapping`   | Layout type ("standard" is the common option)                        |
+| `axes`      | Array of floats (-1 to 1) representing analog stick positions        |
+| `buttons`   | Array of GamepadButton objects with `pressed` and `value` properties |
 
 ### When to Use It
 
@@ -671,9 +678,21 @@ const gamepadAPI = {
 ```javascript
 const gamepadAPI = {
   buttons: [
-    "DPad-Up", "DPad-Down", "DPad-Left", "DPad-Right",
-    "Start", "Back", "Axis-Left", "Axis-Right",
-    "LB", "RB", "Power", "A", "B", "X", "Y",
+    "DPad-Up",
+    "DPad-Down",
+    "DPad-Left",
+    "DPad-Right",
+    "Start",
+    "Back",
+    "Axis-Left",
+    "Axis-Right",
+    "LB",
+    "RB",
+    "Power",
+    "A",
+    "B",
+    "X",
+    "Y",
   ],
 };
 ```
@@ -761,6 +780,7 @@ buttonPressed(button, hold) {
 ```
 
 Parameters:
+
 - `button` -- the button name to listen for.
 - `hold` -- if true, holding the button counts as continuous action; if false, only new presses register.
 
@@ -809,6 +829,7 @@ A technique for rendering pixel art without blurriness on high-resolution displa
 The CSS `image-rendering` property controls how browsers scale images. Setting it to `pixelated` enforces nearest-neighbor scaling, which preserves the crisp, blocky look of pixel art instead of applying bilinear or bicubic smoothing.
 
 **Key CSS values:**
+
 - `pixelated` -- preserves crisp edges for pixel art.
 - `crisp-edges` -- alternative supported on some browsers.
 
@@ -823,7 +844,8 @@ The CSS `image-rendering` property controls how browsers scale images. Setting i
 ```html
 <img
   src="character.png"
-  alt="pixel art character, upscaled with CSS, appearing crisp" />
+  alt="pixel art character, upscaled with CSS, appearing crisp"
+/>
 ```
 
 ```css
@@ -877,6 +899,7 @@ image.src = "cat.png";
 ```
 
 When using `drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)`:
+
 - `dWidth` must equal `sWidth / xScale * n`
 - `dHeight` must equal `sHeight / yScale * m`
 - Where `n` and `m` are positive integers (1, 2, 3, etc.)

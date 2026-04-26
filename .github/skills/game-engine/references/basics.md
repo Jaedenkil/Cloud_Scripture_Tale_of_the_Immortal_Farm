@@ -3,6 +3,7 @@
 A comprehensive reference covering web game development technologies, game architecture, and the anatomy of a game loop.
 
 Sources:
+
 - https://developer.mozilla.org/en-US/docs/Games/Introduction
 - https://developer.mozilla.org/en-US/docs/Games/Anatomy
 
@@ -105,13 +106,14 @@ main(); // Start the cycle
 ```
 
 Key points:
+
 - `requestAnimationFrame()` synchronizes callbacks to the browser's repaint schedule (typically 60 Hz).
 - Schedule the next frame **before** performing loop work to maximize available computation time.
 
 ### Self-Contained Main Loop (IIFE)
 
 ```javascript
-;(() => {
+(() => {
   function main() {
     window.requestAnimationFrame(main);
 
@@ -125,7 +127,7 @@ Key points:
 ### Stoppable Main Loop
 
 ```javascript
-;(() => {
+(() => {
   function main() {
     MyGame.stopMain = window.requestAnimationFrame(main);
 
@@ -148,7 +150,7 @@ window.cancelAnimationFrame(MyGame.stopMain);
 `requestAnimationFrame` passes a `DOMHighResTimeStamp` to your callback, providing timing precision to 1/1000th of a millisecond.
 
 ```javascript
-;(() => {
+(() => {
   function main(tFrame) {
     MyGame.stopMain = window.requestAnimationFrame(main);
 
@@ -176,12 +178,12 @@ At 60 Hz, each frame has approximately **16.67ms** of available processing time.
 The simplest approach when your game can sustain the target frame rate:
 
 ```javascript
-;(() => {
+(() => {
   function main(tFrame) {
     MyGame.stopMain = window.requestAnimationFrame(main);
 
     update(tFrame); // Process game logic
-    render();       // Draw the frame
+    render(); // Draw the frame
   }
 
   main();
@@ -189,6 +191,7 @@ The simplest approach when your game can sustain the target frame rate:
 ```
 
 Assumptions:
+
 - Each frame can process input and update state within the time budget.
 - The simulation runs at the same rate as the display refresh (typically ~60 FPS).
 - No frame interpolation is needed.
@@ -200,7 +203,7 @@ Assumptions:
 For robust handling of variable refresh rates and consistent simulation behavior:
 
 ```javascript
-;(() => {
+(() => {
   function main(tFrame) {
     MyGame.stopMain = window.requestAnimationFrame(main);
     const nextTick = MyGame.lastTick + MyGame.tickLength;
@@ -234,6 +237,7 @@ For robust handling of variable refresh rates and consistent simulation behavior
 ```
 
 Benefits:
+
 - **Deterministic simulation** -- Game logic runs at a fixed frequency regardless of display refresh rate.
 - **Smooth rendering** -- Rendering can interpolate between simulation states for visual smoothness.
 - **Portable behavior** -- Game behaves the same on 60 Hz, 120 Hz, and 144 Hz displays.
@@ -263,7 +267,7 @@ Drawback: `setInterval` continues running even when the tab is not visible, wast
 
 ```javascript
 // Heavy game logic runs in a background thread
-const updateWorker = new Worker('game-update-worker.js');
+const updateWorker = new Worker("game-update-worker.js");
 
 requestAnimationFrame(function render(tFrame) {
   requestAnimationFrame(render);
@@ -278,14 +282,14 @@ Drawback: Communication overhead between worker and main thread.
 ### requestAnimationFrame Driving a Web Worker
 
 ```javascript
-;(() => {
+(() => {
   function main(tFrame) {
     MyGame.stopMain = window.requestAnimationFrame(main);
 
     // Signal worker to compute updates
     updateWorker.postMessage({
       lastTick: MyGame.lastTick,
-      numTicks: calculatedNumTicks
+      numTicks: calculatedNumTicks,
     });
 
     render(tFrame);
@@ -303,11 +307,11 @@ Benefits: No reliance on legacy timers. Worker performs computation in parallel.
 
 When a browser tab loses focus, `requestAnimationFrame` slows down or stops entirely. Strategies:
 
-| Strategy | Description | Best For |
-|---|---|---|
-| Treat gap as pause | Skip elapsed time; do not update | Single-player games |
-| Simulate the gap | Run all missed updates on regain | Simple simulations |
-| Sync from server/peer | Fetch authoritative state | Multiplayer games |
+| Strategy              | Description                      | Best For            |
+| --------------------- | -------------------------------- | ------------------- |
+| Treat gap as pause    | Skip elapsed time; do not update | Single-player games |
+| Simulate the gap      | Run all missed updates on regain | Simple simulations  |
+| Sync from server/peer | Fetch authoritative state        | Multiplayer games   |
 
 Monitor the `numTicks` value after a focus-regain event. A very large value indicates the game was suspended and may need special handling rather than trying to simulate all missed frames.
 
@@ -315,11 +319,11 @@ Monitor the `numTicks` value after a focus-regain event. A very large value indi
 
 ## Comparison of Timing Approaches
 
-| Approach | Pros | Cons |
-|---|---|---|
-| Simple update/render per frame | Easy to implement, responsive | Breaks on slow/fast hardware |
-| Fixed timestep + interpolation | Consistent simulation, smooth visuals | More complex to implement |
-| Quality scaling | Maintains frame rate dynamically | Requires adaptive quality systems |
+| Approach                       | Pros                                  | Cons                              |
+| ------------------------------ | ------------------------------------- | --------------------------------- |
+| Simple update/render per frame | Easy to implement, responsive         | Breaks on slow/fast hardware      |
+| Fixed timestep + interpolation | Consistent simulation, smooth visuals | More complex to implement         |
+| Quality scaling                | Maintains frame rate dynamically      | Requires adaptive quality systems |
 
 ---
 

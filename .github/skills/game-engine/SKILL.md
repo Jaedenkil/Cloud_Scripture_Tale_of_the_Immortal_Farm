@@ -1,6 +1,6 @@
 ---
 name: game-engine
-description: 'Expert skill for building web-based game engines and games using HTML5, Canvas, WebGL, and JavaScript. Use when asked to create games, build game engines, implement game physics, handle collision detection, set up game loops, manage sprites, add game controls, or work with 2D/3D rendering. Covers techniques for platformers, breakout-style games, maze games, tilemaps, audio, multiplayer via WebRTC, and publishing games.'
+description: "Expert skill for building web-based game engines and games using HTML5, Canvas, WebGL, and JavaScript. Use when asked to create games, build game engines, implement game physics, handle collision detection, set up game loops, manage sprites, add game controls, or work with 2D/3D rendering. Covers techniques for platformers, breakout-style games, maze games, tilemaps, audio, multiplayer via WebRTC, and publishing games."
 ---
 
 # Game Engine Skill
@@ -102,38 +102,38 @@ Use `requestAnimationFrame` for smooth, browser-optimized rendering.
 
 Starter templates are available in the `assets/` folder. Each template provides a complete, working example that can be used as a starting point for a new project.
 
-| Template | Description |
-|----------|-------------|
-| `paddle-game-template.md` | 2D Breakout-style game with pure JavaScript |
-| `2d-maze-game.md` | Maze game with device orientation controls |
-| `2d-platform-game.md` | Platformer game using Phaser framework |
-| `gameBase-template-repo.md` | Game base template repository structure |
-| `simple-2d-engine.md` | Simple 2D platformer engine with collisions |
+| Template                    | Description                                 |
+| --------------------------- | ------------------------------------------- |
+| `paddle-game-template.md`   | 2D Breakout-style game with pure JavaScript |
+| `2d-maze-game.md`           | Maze game with device orientation controls  |
+| `2d-platform-game.md`       | Platformer game using Phaser framework      |
+| `gameBase-template-repo.md` | Game base template repository structure     |
+| `simple-2d-engine.md`       | Simple 2D platformer engine with collisions |
 
 ## Reference Documentation
 
 Detailed reference material is available in the `references/` folder. Consult these files for in-depth coverage of specific topics.
 
-| Reference | Topics Covered |
-|-----------|---------------|
-| `basics.md` | Game development introduction and anatomy |
-| `web-apis.md` | Canvas, WebGL, Web Audio, Gamepad, and other web APIs |
-| `techniques.md` | Collision detection, tilemaps, async scripts, audio |
-| `3d-web-games.md` | 3D theory, frameworks, shaders, WebXR |
-| `game-control-mechanisms.md` | Touch, keyboard, mouse, and gamepad controls |
-| `game-publishing.md` | Distribution, promotion, and monetization |
-| `algorithms.md` | Raycasting, collision, physics, vector math |
-| `terminology.md` | Game development glossary |
-| `game-engine-core-principles.md` | Core design principles for game engines |
+| Reference                        | Topics Covered                                        |
+| -------------------------------- | ----------------------------------------------------- |
+| `basics.md`                      | Game development introduction and anatomy             |
+| `web-apis.md`                    | Canvas, WebGL, Web Audio, Gamepad, and other web APIs |
+| `techniques.md`                  | Collision detection, tilemaps, async scripts, audio   |
+| `3d-web-games.md`                | 3D theory, frameworks, shaders, WebXR                 |
+| `game-control-mechanisms.md`     | Touch, keyboard, mouse, and gamepad controls          |
+| `game-publishing.md`             | Distribution, promotion, and monetization             |
+| `algorithms.md`                  | Raycasting, collision, physics, vector math           |
+| `terminology.md`                 | Game development glossary                             |
+| `game-engine-core-principles.md` | Core design principles for game engines               |
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Canvas is blank | Check that you are calling drawing methods after getting the context and inside the game loop |
-| Game runs at different speeds | Use delta time in update calculations instead of fixed values |
-| Collision detection is inconsistent | Use continuous collision detection or reduce time steps for fast-moving objects |
-| Audio does not play | Browsers require user interaction before playing audio; trigger playback from a click handler |
-| Performance is poor | Profile with browser dev tools, reduce draw calls, use object pooling, and optimize asset sizes |
-| Touch controls are unresponsive | Prevent default touch behavior and handle touch events separately from mouse events |
-| WebGL context lost | Handle the `webglcontextlost` event and restore state on `webglcontextrestored` |
+| Issue                               | Solution                                                                                        |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Canvas is blank                     | Check that you are calling drawing methods after getting the context and inside the game loop   |
+| Game runs at different speeds       | Use delta time in update calculations instead of fixed values                                   |
+| Collision detection is inconsistent | Use continuous collision detection or reduce time steps for fast-moving objects                 |
+| Audio does not play                 | Browsers require user interaction before playing audio; trigger playback from a click handler   |
+| Performance is poor                 | Profile with browser dev tools, reduce draw calls, use object pooling, and optimize asset sizes |
+| Touch controls are unresponsive     | Prevent default touch behavior and handle touch events separately from mouse events             |
+| WebGL context lost                  | Handle the `webglcontextlost` event and restore state on `webglcontextrestored`                 |

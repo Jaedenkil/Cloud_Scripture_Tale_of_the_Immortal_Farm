@@ -19,4 +19,3 @@
 - [UI流程配置器与过渡系统设计.md](architecture/UI流程配置器与过渡系统设计.md)
 - [开发工具规划与角色规格.md](tool-guides/开发工具规划与角色规格.md)
 - [依赖清单-方案A.md](tool-guides/依赖清单-方案A.md)
-

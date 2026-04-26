@@ -50,7 +50,7 @@
 ## 4.1 配置层
 
 1. 流程配置文件：定义 flow、nodes、transitions、guards、transitionPresets
-2. 页面配置文件：维持既有 scenes/* 页面结构
+2. 页面配置文件：维持既有 scenes/\* 页面结构
 3. 主题配置文件：维持 theme token 体系
 
 ## 4.2 运行时层
@@ -158,7 +158,7 @@
 
 1. scripts/utils/read-yaml.mjs：本地 YAML 安全读取
 2. scripts/utils/style-parser.mjs：样式 token 解析模式
-3. scenes/*：现有页面配置基础目录
+3. scenes/\*：现有页面配置基础目录
 
 ## 8.2 接入建议
 

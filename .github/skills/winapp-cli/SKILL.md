@@ -1,6 +1,6 @@
 ---
 name: winapp-cli
-description: 'Windows App Development CLI (winapp) for building, packaging, and deploying Windows applications. Use when asked to initialize Windows app projects, create MSIX packages, generate AppxManifest.xml, manage development certificates, add package identity for debugging, sign packages, publish to the Microsoft Store, create external catalogs, or access Windows SDK build tools. Supports .NET (csproj), C++, Electron, Rust, Tauri, and cross-platform frameworks targeting Windows.'
+description: "Windows App Development CLI (winapp) for building, packaging, and deploying Windows applications. Use when asked to initialize Windows app projects, create MSIX packages, generate AppxManifest.xml, manage development certificates, add package identity for debugging, sign packages, publish to the Microsoft Store, create external catalogs, or access Windows SDK build tools. Supports .NET (csproj), C++, Electron, Rust, Tauri, and cross-platform frameworks targeting Windows."
 ---
 
 # Windows App Development CLI
@@ -187,24 +187,24 @@ winapp update --setup-sdks preview
 
 Package identity unlocks access to powerful Windows APIs:
 
-| API Category | Examples |
-| ------------ | -------- |
-| **Notifications** | Interactive native notifications, notification management |
-| **Windows AI** | On-device LLM, text/image AI APIs (Phi Silica, Windows ML) |
-| **Shell Integration** | Explorer, Taskbar, Share sheet integration |
-| **Protocol Handlers** | Custom URI schemes (`yourapp://`) |
-| **Device Access** | Camera, microphone, location (with consent) |
-| **Background Tasks** | Run when app is closed |
-| **File Associations** | Open file types with your app |
+| API Category          | Examples                                                   |
+| --------------------- | ---------------------------------------------------------- |
+| **Notifications**     | Interactive native notifications, notification management  |
+| **Windows AI**        | On-device LLM, text/image AI APIs (Phi Silica, Windows ML) |
+| **Shell Integration** | Explorer, Taskbar, Share sheet integration                 |
+| **Protocol Handlers** | Custom URI schemes (`yourapp://`)                          |
+| **Device Access**     | Camera, microphone, location (with consent)                |
+| **Background Tasks**  | Run when app is closed                                     |
+| **File Associations** | Open file types with your app                              |
 
 ## Troubleshooting
 
-| Issue | Solution |
-| ----- | -------- |
-| Certificate not trusted | Run `winapp cert install <cert-path>` to install to local machine store |
-| Package identity not working | Run `winapp create-debug-identity` after any manifest changes |
-| SDK not found | Run `winapp restore` or `winapp update` to ensure SDKs are installed |
-| Signing fails | Verify certificate password and ensure cert is not expired |
+| Issue                        | Solution                                                                |
+| ---------------------------- | ----------------------------------------------------------------------- |
+| Certificate not trusted      | Run `winapp cert install <cert-path>` to install to local machine store |
+| Package identity not working | Run `winapp create-debug-identity` after any manifest changes           |
+| SDK not found                | Run `winapp restore` or `winapp update` to ensure SDKs are installed    |
+| Signing fails                | Verify certificate password and ensure cert is not expired              |
 
 ## References
 

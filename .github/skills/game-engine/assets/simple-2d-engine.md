@@ -1,8 +1,9 @@
 # Simple 2D Platformer Engine Template
 
-A grid-based 2D platformer engine tutorial by **Sebastien Benard** (deepnight), the lead developer behind *Dead Cells*. This template covers the fundamental architecture for a performant platformer: a dual-coordinate positioning system that blends integer grid cells with sub-pixel precision, velocity and friction mechanics, gravity, and a robust collision detection and response system. The approach is language-agnostic but examples use Haxe.
+A grid-based 2D platformer engine tutorial by **Sebastien Benard** (deepnight), the lead developer behind _Dead Cells_. This template covers the fundamental architecture for a performant platformer: a dual-coordinate positioning system that blends integer grid cells with sub-pixel precision, velocity and friction mechanics, gravity, and a robust collision detection and response system. The approach is language-agnostic but examples use Haxe.
 
 **Source references:**
+
 - [Part 1 - Basics](https://deepnight.net/tutorial/a-simple-platformer-engine-part-1-basics/)
 - [Part 2 - Collisions](https://deepnight.net/tutorial/a-simple-platformer-engine-part-2-collisions/)
 
@@ -47,12 +48,12 @@ function hasCollision(cx:Int, cy:Int):Bool {
 
 Every entity tracks its position using four values:
 
-| Variable | Type | Description |
-|----------|------|-------------|
-| `cx` | Int | Cell X coordinate (which column the entity is in) |
-| `cy` | Int | Cell Y coordinate (which row the entity is in) |
-| `xr` | Float | X ratio within the cell, range 0.0 to 1.0 |
-| `yr` | Float | Y ratio within the cell, range 0.0 to 1.0 |
+| Variable | Type  | Description                                       |
+| -------- | ----- | ------------------------------------------------- |
+| `cx`     | Int   | Cell X coordinate (which column the entity is in) |
+| `cy`     | Int   | Cell Y coordinate (which row the entity is in)    |
+| `xr`     | Float | X ratio within the cell, range 0.0 to 1.0         |
+| `yr`     | Float | Y ratio within the cell, range 0.0 to 1.0         |
 
 An entity at `cx=5, cy=3, xr=0.5, yr=1.0` is horizontally centered in cell (5,3) and sitting on the bottom edge.
 
@@ -119,6 +120,7 @@ if (Math.abs(dy) < 0.0005) dy = 0;
 ```
 
 Typical friction values:
+
 - `0.82` -- Standard ground friction (responsive, quick stop)
 - `0.94` -- Ice or slippery surface (slow deceleration)
 - `0.96` -- Air friction (very slow horizontal deceleration)
@@ -497,11 +499,11 @@ postUpdate():
 
 ## Design Advantages
 
-| Feature | Benefit |
-|---------|---------|
-| Grid-based collision | O(1) lookup per check, no broad-phase needed |
-| Dual coordinates | Sub-pixel smooth rendering with integer collision |
-| Per-axis collision | Simple logic, naturally handles corners |
-| Ratio-based velocity | Resolution-independent movement |
-| Friction multiplier | Tunable feel per surface type |
-| Cell overflow while-loops | Handles multi-cell movement safely |
+| Feature                   | Benefit                                           |
+| ------------------------- | ------------------------------------------------- |
+| Grid-based collision      | O(1) lookup per check, no broad-phase needed      |
+| Dual coordinates          | Sub-pixel smooth rendering with integer collision |
+| Per-axis collision        | Simple logic, naturally handles corners           |
+| Ratio-based velocity      | Resolution-independent movement                   |
+| Friction multiplier       | Tunable feel per surface type                     |
+| Cell overflow while-loops | Handles multi-cell movement safely                |
